@@ -20,6 +20,7 @@ instrumentRouter.post('/', monMiddlewareBearer, async (req, res) => {
 })
 
 
+
 // GET
 instrumentRouter.get("/", async (req, res) => {
   const instruments = await prisma.instrument.findMany();

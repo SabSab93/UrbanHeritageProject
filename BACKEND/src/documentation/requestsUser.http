@@ -5,7 +5,7 @@ GET http://localhost:1992/api/auth
 ////////////////////////////////////////////////////////
 
 ###GET User particulier
-GET http://localhost:1992/api/auth/2
+GET http://localhost:1337/api/auth/2
 Content-Type: application/json
 
 ###
