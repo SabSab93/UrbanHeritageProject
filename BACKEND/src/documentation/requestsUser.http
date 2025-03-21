@@ -1,0 +1,44 @@
+###GET User
+GET http://localhost:1992/api/auth
+
+###
+////////////////////////////////////////////////////////
+
+###GET User particulier
+GET http://localhost:1992/api/auth/2
+Content-Type: application/json
+
+###
+////////////////////////////////////////////////////////
+
+###POST User
+POST http://localhost:1992/api/auth/register
+Content-Type: application/json
+
+{
+    "data": {
+        "pseudo": "Sabristi",
+        "motdepasse": "sabristi88"
+    }
+}
+###
+////////////////////////////////////////////////////////
+
+###PUT User
+PUT http://localhost:1992/api/auth/3
+Content-Type: application/json
+
+{
+    "data": {
+        "pseudo": "Sabristi",
+        "motdepasse": "sabristi88"
+    }
+}
+
+###
+////////////////////////////////////////////////////////
+
+###DELETE User particulier
+DELETE http://localhost:1992/api/auth/3
+Content-Type: application/json
+

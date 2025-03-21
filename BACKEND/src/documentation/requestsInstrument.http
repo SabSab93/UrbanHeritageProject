@@ -1,0 +1,49 @@
+###GET Instrument
+GET http://localhost:1992/api/instruments
+
+###
+////////////////////////////////////////////////////////
+
+###GET Instrument particulier
+GET http://localhost:1992/api/instruments/1
+Content-Type: application/json
+
+###
+////////////////////////////////////////////////////////
+
+###POST Instrument
+POST http://localhost:1992/api/instruments
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwc2V1ZG8iOiJTYWJyaXN0aSIsImlhdCI6MTczODg0ODE3OH0.8DIfYw4uYG-U8YkmrcOSMvIZMU_arLyOpUeoKePz2k8
+
+{
+    "data": {
+        "name":"flûte",
+        "poids":2,
+        "couleur":"blanche",
+        "prix":20
+    }
+}
+###
+////////////////////////////////////////////////////////
+
+###PUT Instrument
+PUT http://localhost:1992/api/instruments/2
+Content-Type: application/json
+
+{
+    "data": {
+        "name":"guitare",
+        "poids":50,
+        "couleur":"vert pomme",
+        "prix":300
+    }
+}
+
+###
+////////////////////////////////////////////////////////
+
+###DELETE Instrument particulier
+DELETE http://localhost:1992/api/instruments/3
+Content-Type: application/json
+

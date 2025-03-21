@@ -1,0 +1,15 @@
+###POST Banane
+POST http://localhost:1992/bananes
+Content-Type: application/json
+
+{
+    "data": {
+        "couleur":"jaune",
+        "prix":3
+    }
+}
+###
+
+###GET Banane couleur jaune
+GET http://localhost:1992/bananes?couleur=jaune
+
