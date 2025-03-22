@@ -6,52 +6,36 @@ export const tokenRouter = Router();
 const prisma = new PrismaClient();
 
 
-// POST
-// tokenRouter.post('/', async (req, res) => {
-//   const token = await prisma.token.create({
-//     data : {
-//       valeur_token : req.body.data.valeur_token,
-//       expiration : req.body.data.expiration
-//     }
-//   });
-//   res.status(201).json(token);
-// })
 
-
-tokenRouter.post("/", async (req, res) => {
+// **************** POST ****************
+tokenRouter.post('/', async (req, res) => {
   try {
-    const { valeur_token, expiration } = req.body.data;
-
-    // Créer un nouveau token dans la base de données
-    const newToken = await prisma.token.create({
+    const token = await prisma.token.create({
       data: {
-        valeur_token: valeur_token,
-        expiration: new Date(expiration), // Assurez-vous que 'expiration' est au format Date
+        valeur_token: req.body.data.valeur_token,
+        expiration: new Date(req.body.data.expiration),
       },
     });
 
-    res.status(201).json(newToken); // Retourne le token créé
-  } catch (error) {
-    console.error("Prisma error:", error.message);
-    res.status(500).json({ error: "Server error", details: error.message });
+    // Convert the ID (or any other BigInt) to a string
+    const tokenResponse = {
+      ...token,
+      id_token: token.id_token.toString(), // Convert the BigInt ID to a string
+    };
+
+    res.status(201).json(tokenResponse);
+  } catch (error: unknown) {  // Specifying that 'error' is of type 'unknown'
+    if (error instanceof Error) {  // Type guard to check if it's an instance of Error
+      console.error(error.message);
+      res.status(500).json({ message: "Error creating the token", error: error.message });
+    } else {
+      res.status(500).json({ message: "Unknown error", error: "An unknown error occurred" });
+    }
   }
 });
 
 
-// // POST
-// tokenRouter.post('/', monMiddlewareBearer, async (req, res) => {
-//   const token = await prisma.token.create({
-//     data : {
-//       valeur_token : req.body.data.valeur_token,
-//       expiration : req.body.data.expiration
-//     }
-//   });
-//   res.status(201).json(token);
-// })
-
-
-
-
+// **************** GET ****************
 tokenRouter.get("/", async (req, res) => {
   try {
     const tokens = await prisma.token.findMany();
@@ -63,19 +47,24 @@ tokenRouter.get("/", async (req, res) => {
     }));
 
     res.json(tokensFormatted);
-  } catch (error) {
-    console.error("Prisma error:", error.message);
-    res.status(500).json({ error: "Server error", details: error.message });
+  } catch (error: unknown) {  // Specifying that 'error' is of type 'unknown'
+    if (error instanceof Error) {
+      console.error("Prisma error:", error.message);
+      res.status(500).json({ error: "Server error", details: error.message });
+    } else {
+      res.status(500).json({ error: "Unknown error", details: "An unknown error occurred" });
+    }
   }
 });
 
 
 
-//GET ID
+// **************** GET ID ****************
 tokenRouter.get("/:id_token", async (req, res) => {
-  const tokenId = parseInt(req.params.id_token);
-
-  if (isNaN(tokenId)) {
+  let tokenId;
+  try {
+    tokenId = BigInt(req.params.id_token);
+  } catch (e) {
     return res.status(400).json({ message: "Invalid token ID" });
   }
 
@@ -84,18 +73,26 @@ tokenRouter.get("/:id_token", async (req, res) => {
   });
 
   if (!token) {
-    return res.status(404).json({ message: "token not found" });
+    return res.status(404).json({ message: "Token not found" });
   }
+  // Convert the token ID to a string before sending the response
+  const tokenResponse = {
+    ...token,
+    id_token: token.id_token.toString(), // Convert the BigInt ID to a string for the response
+  };
 
-  res.json(token);
+  res.json(tokenResponse);
 });
 
 
-//DELETE
-tokenRouter.delete("/:id_token", async (req, res) => {
-  const tokenId = parseInt(req.params.id_token);
 
-  if (isNaN(tokenId)) {
+// **************** DELETE ****************
+tokenRouter.delete("/:id_token", async (req, res) => {
+  let tokenId;
+
+  try {
+    tokenId = BigInt(req.params.id_token);
+  } catch (e) {
     return res.status(400).json({ message: "Invalid token ID" });
   }
 
@@ -104,40 +101,64 @@ tokenRouter.delete("/:id_token", async (req, res) => {
   });
 
   if (!token) {
-    return res.status(404).json({ message: "token not found" });
+    return res.status(404).json({ message: "Token not found" });
   }
 
   await prisma.token.delete({
     where: { id_token: tokenId },
   });
 
-  res.json({ message: "token deleted" });
+  res.json({ message: "Token deleted" });
 });
 
 
-//PUT 
+
+
+// **************** PUT ****************
 tokenRouter.put("/:id_token", async (req, res) => {
-  const tokenId = parseInt(req.params.id_token);
+  let tokenId;
 
-  if (isNaN(tokenId)) {
-    return res.status(400).json({ message: "Invalid token ID" });
+  try {
+    // Convertir l'ID du token en BigInt
+    tokenId = BigInt(req.params.id_token);
+  } catch (e) {
+    return res.status(400).json({ message: "Invalid token ID", error: (e instanceof Error) ? e.message : "Unknown error" });
   }
 
-  const token = await prisma.token.findUnique({
-    where: { id_token: tokenId },
-  });
+  try {
+    // Vérifier si le token existe
+    const token = await prisma.token.findUnique({
+      where: { id_token: tokenId },
+    });
 
-  if (!token) {
-    return res.status(404).json({ message: "token not found" });
+    if (!token) {
+      return res.status(404).json({ message: "Token not found" });
+    }
+
+    // Mettre à jour le token
+    const updatedToken = await prisma.token.update({
+      where: { id_token: tokenId },
+      data: {
+        valeur_token: req.body.data.valeur_token,
+        expiration: new Date(req.body.data.expiration),
+      },
+    });
+
+    // Convertir l'ID du token mis à jour en string pour la réponse JSON
+    const updatedTokenResponse = {
+      ...updatedToken,
+      id_token: updatedToken.id_token.toString(), 
+    };
+
+    // Retourner le token mis à jour
+    res.json(updatedTokenResponse);
+
+  } catch (error: unknown) {  // Specifying that 'error' is of type 'unknown'
+    if (error instanceof Error) {
+      console.error("Error during token update:", error.message);
+      res.status(500).json({ message: "Error during token update", error: error.message });
+    } else {
+      res.status(500).json({ message: "Error during token update", error: "An unknown error occurred" });
+    }
   }
-
-  const updatetokenId = await prisma.token.update({
-    where: { id_token: tokenId },
-    data: {
-      valeur_token : req.body.data.valeur_token,
-      expiration : req.body.data.expiration
-    },
-  });
-
-  res.json(updatetokenId);
 });

@@ -29,7 +29,7 @@ apiRouter.use("/tokens", tokenRouter)
 
 app.use("/api", apiRouter);
 
-// app.use(apiRouter);
+app.use(apiRouter);
 
 app.listen(process.env.PORT, () => {
   console.log(`Example app listening on port ${process.env.PORT}!`)
