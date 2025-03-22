@@ -1,0 +1,23 @@
+###GET Token
+GET http://localhost:1992/api/tokens
+
+###
+////////////////////////////////////////////////////////
+
+###GET Token particulier
+GET http://localhost:1992/api/tokens/1
+Content-Type: application/json
+
+###
+////////////////////////////////////////////////////////
+
+###POST Token
+POST http://localhost:1992/api/tokens
+Content-Type: application/json
+
+{
+    "data": {
+        "valeur_token": "gdsgsdgsdgsdfdhfdhfdetvffdsf",
+        "expiration": "2025-04-22T12:00:00Z"
+    }
+}

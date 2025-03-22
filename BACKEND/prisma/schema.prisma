@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,30 +7,130 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int        @id @default(autoincrement())
-  pseudo  String 
-  motdepasse String      
+model Account {
+  id_account             BigInt      @id @default(autoincrement())
+  nom_account            String      @db.VarChar(255)
+  date_creation          DateTime?   @default(now()) @db.Timestamp(6)
+  status                 status_enum @default(active)
+  chiffre_affaires_total Decimal     @default(0) @db.Decimal(10, 2)
+  nombre_commandes       Int         @default(0)
+  derniere_activite      DateTime?   @default(now()) @db.Timestamp(6)
 }
 
-
-model Instrument {
-  id              Int        @id @default(autoincrement())
-  name            String
-  poids           Int
-  couleur         String
-  prix            Int 
-  reparations     Reparation[]
+model Avoir {
+  id_commande_retour_avoir BigInt    @id @default(autoincrement())
+  numero_avoir             String?   @unique @db.VarChar(100)
+  date_avoir               DateTime? @db.Date
+  avoir_hors_ue            Boolean   @default(false)
+  Commande                 Commande  @relation(fields: [id_commande_retour_avoir], references: [id_commande], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model Reparation {
-  id              Int        @id @default(autoincrement())
-  name            String
-  prix            Int 
-  instrument      Instrument @relation(fields: [instrumentId], references: [id]) 
-  instrumentId    Int
+model Commande {
+  id_commande      BigInt           @id @default(autoincrement())
+  id_lignecommande BigInt
+  date_commande    DateTime?        @db.Date
+  statut_commande  statut_commande?
+  prix_ttc         Decimal          @default(0) @db.Decimal
+  Avoir            Avoir?
+  LigneCommande    LigneCommande    @relation(fields: [id_lignecommande], references: [id_lignecommande], onDelete: NoAction, onUpdate: NoAction)
+  Retour           Retour?
+
+  @@index([statut_commande], map: "index_statut_commande")
 }
 
+model Facture {
+  numero_facture  BigInt    @id @default(autoincrement())
+  date_facture    DateTime? @db.Date
+  facture_hors_ue Boolean?  @default(false)
+}
 
+model LigneCommande {
+  id_lignecommande BigInt     @id @default(autoincrement())
+  quantite         Int        @default(0)
+  prix_ht          Decimal    @default(0) @db.Decimal
+  montant_tva      Decimal    @default(0) @db.Decimal
+  prix_ttc         Decimal    @default(0) @db.Decimal
+  Commande         Commande[]
+}
 
+model Livraison {
+  id_livraison          BigInt        @id @default(autoincrement())
+  id_typelivraison      BigInt
+  date_livraison        DateTime?     @db.Date
+  adresse_livraison     String        @default("") @db.VarChar(500)
+  code_postal_livraison String?       @db.VarChar(5)
+  ville_livraison       String        @default("") @db.VarChar(100)
+  pays_livraison        String        @default("") @db.VarChar(100)
+  TypeLivraison         TypeLivraison @relation(fields: [id_typelivraison], references: [id_typelivraison], onDelete: NoAction, onUpdate: NoAction)
+}
 
+model Retour {
+  id_commande_retour BigInt              @id @default(autoincrement())
+  motif_retour       motif_retour?
+  date_retour        DateTime?           @db.Date
+  type_remboursement type_remboursement?
+  droit_retour       Boolean             @default(false)
+  reception_retour   Boolean             @default(false)
+  Commande           Commande            @relation(fields: [id_commande_retour], references: [id_commande], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Role {
+  type_role type_role @id @default(invit_)
+}
+
+model Token {
+  id_token     BigInt    @id @default(autoincrement())
+  valeur_token String?   @unique @db.VarChar(250)
+  expiration   DateTime? @db.Timestamp(6)
+}
+
+model TypeLivraison {
+  id_typelivraison  BigInt             @id @default(autoincrement())
+  methode_livraison methode_livraison?
+  choix_livreur     choix_livreur?
+  choix_livraison   choix_livraison?
+  prix_livraison    Int?
+  Livraison         Livraison[]
+}
+
+enum choix_livraison {
+  livraison_domicile    @map("livraison domicile")
+  livraison_point_relai @map("livraison point relai")
+}
+
+enum choix_livreur {
+  chronopost
+  ups
+}
+
+enum methode_livraison {
+  livraison_rapide
+  livraison_classique
+}
+
+enum motif_retour {
+  taille
+  correspond_pas @map("correspond pas")
+}
+
+enum status_enum {
+  active
+  inactive
+}
+
+enum statut_commande {
+  en_cours_de_preparation @map("en cours de preparation")
+  en_cours_de_livraison   @map("en cours de livraison")
+  livr_                   @map("livré")
+  en_retard               @map("en retard")
+}
+
+enum type_remboursement {
+  echange
+  avoir
+}
+
+enum type_role {
+  invit_  @map("invité")
+  inscrit
+}
