@@ -3,7 +3,7 @@ GET http://localhost:1992/api/tokens
 ////////////////////////////////////////////////////////
 
 ###GET Token particulier
-GET http://localhost:1992/api/tokens/15
+GET http://localhost:1992/api/tokens/cm8lb76k20000fl02pt9vmwzt
 Content-Type: application/json
 ////////////////////////////////////////////////////////
 
@@ -13,8 +13,7 @@ Content-Type: application/json
 
 {
     "data": {
-        "valeur_token": "gdsgsdgsdgsdfdhhff",
-        "expiration": "2025-04-22T12:00:00Z"
+
     }
 }
 ////////////////////////////////////////////////////////
@@ -32,6 +31,6 @@ Content-Type: application/json
 ////////////////////////////////////////////////////////
 
 ###DELETE User particulier
-DELETE http://localhost:1992/api/tokens/15
+DELETE http://localhost:1992/api/tokens/cm8lb76k20000fl02pt9vmwzt
 Content-Type: application/json
 ////////////////////////////////////////////////////////

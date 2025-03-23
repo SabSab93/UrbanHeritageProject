@@ -79,9 +79,10 @@ model Role {
 }
 
 model Token {
-  id_token     BigInt    @id @default(autoincrement())
-  valeur_token String?   @unique @db.VarChar(250)
-  expiration   DateTime? @db.Timestamp(6)
+  id_token          String   @id @default(cuid())
+  valeur_token      String   @unique
+  expiration_token  DateTime
+  create_at_token   DateTime
 }
 
 model TypeLivraison {

@@ -34,3 +34,10 @@ app.use(apiRouter);
 app.listen(process.env.PORT, () => {
   console.log(`Example app listening on port ${process.env.PORT}!`)
 });
+
+
+// Route pour envoyer l'API URL au frontend
+app.get("/api-url", (req, res) => {
+  res.json({ apiUrl: `http://localhost:${process.env.PORT}/api` }); // Dynamique avec process.env.PORT
+});
+

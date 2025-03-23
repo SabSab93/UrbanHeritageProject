@@ -1,53 +1,84 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../checkToken";
+import * as crypto from 'crypto';
 
 export const tokenRouter = Router();
 const prisma = new PrismaClient();
 
+// Fonction pour générer un token unique
+async function generateUniqueToken() {
+  let token;
+  let tokenExists;
 
+  do {
+    token = crypto.randomBytes(32).toString("hex"); // Génère un token sécurisé
+    console.log("Generated token:", token); // Log pour voir le token généré
+
+    tokenExists = await prisma.token.findUnique({ where: { valeur_token: token } });
+    console.log("Token exists:", tokenExists); // Log pour vérifier si le token existe déjà
+
+  } while (tokenExists); // Vérifie si le token existe déjà
+
+  return token;
+}
 
 // **************** POST ****************
-tokenRouter.post('/', async (req, res) => {
+tokenRouter.post("/", async (req, res) => {
   try {
+    // Générer un token unique
+    const generatedToken = await generateUniqueToken();
+
+
+    const creationDate = new Date();
+    const expirationDate = new Date(creationDate.getTime() + 24 * 60 * 60 * 1000); //24h
+    console.log("Creation date:", creationDate);
+    console.log("Expiration date:", expirationDate);
+
+ 
     const token = await prisma.token.create({
       data: {
-        valeur_token: req.body.data.valeur_token,
-        expiration: new Date(req.body.data.expiration),
+        valeur_token: generatedToken,
+        expiration_token: expirationDate,
+        create_at_token: creationDate,
       },
     });
+    console.log("Token inserted into the database:", token);
 
-    // Convert the ID (or any other BigInt) to a string
-    const tokenResponse = {
-      ...token,
-      id_token: token.id_token.toString(), // Convert the BigInt ID to a string
-    };
 
-    res.status(201).json(tokenResponse);
-  } catch (error: unknown) {  // Specifying that 'error' is of type 'unknown'
-    if (error instanceof Error) {  // Type guard to check if it's an instance of Error
-      console.error(error.message);
-      res.status(500).json({ message: "Error creating the token", error: error.message });
+    res.json(token);
+  } catch (error: unknown) {
+    console.error("Error occurred while generating token:", error);
+    if (error instanceof Error) {
+      console.error("Error message:", error.message); 
+      console.error("Stack trace:", error.stack); 
     } else {
-      res.status(500).json({ message: "Unknown error", error: "An unknown error occurred" });
+      console.error("Unknown error:", error); 
     }
+
+    res.status(500).json({ error: "An error occurred while generating the token." });
   }
 });
+
+
+
+
 
 
 // **************** GET ****************
 tokenRouter.get("/", async (req, res) => {
   try {
     const tokens = await prisma.token.findMany();
-    
-    // Convert BigInt to String
+
     const tokensFormatted = tokens.map(token => ({
-      ...token,
-      id_token: token.id_token.toString()
+      id_token: token.id_token,
+      valeur_token: token.valeur_token,
+      expiration_token: token.expiration_token,
+      create_at_token: token.create_at_token,
     }));
 
     res.json(tokensFormatted);
-  } catch (error: unknown) {  // Specifying that 'error' is of type 'unknown'
+  } catch (error: unknown) {  
     if (error instanceof Error) {
       console.error("Prisma error:", error.message);
       res.status(500).json({ error: "Server error", details: error.message });
@@ -58,107 +89,50 @@ tokenRouter.get("/", async (req, res) => {
 });
 
 
-
 // **************** GET ID ****************
 tokenRouter.get("/:id_token", async (req, res) => {
-  let tokenId;
   try {
-    tokenId = BigInt(req.params.id_token);
-  } catch (e) {
-    return res.status(400).json({ message: "Invalid token ID" });
-  }
-
-  const token = await prisma.token.findUnique({
-    where: { id_token: tokenId },
-  });
-
-  if (!token) {
-    return res.status(404).json({ message: "Token not found" });
-  }
-  // Convert the token ID to a string before sending the response
-  const tokenResponse = {
-    ...token,
-    id_token: token.id_token.toString(), // Convert the BigInt ID to a string for the response
-  };
-
-  res.json(tokenResponse);
-});
-
-
-
-// **************** DELETE ****************
-tokenRouter.delete("/:id_token", async (req, res) => {
-  let tokenId;
-
-  try {
-    tokenId = BigInt(req.params.id_token);
-  } catch (e) {
-    return res.status(400).json({ message: "Invalid token ID" });
-  }
-
-  const token = await prisma.token.findUnique({
-    where: { id_token: tokenId },
-  });
-
-  if (!token) {
-    return res.status(404).json({ message: "Token not found" });
-  }
-
-  await prisma.token.delete({
-    where: { id_token: tokenId },
-  });
-
-  res.json({ message: "Token deleted" });
-});
-
-
-
-
-// **************** PUT ****************
-tokenRouter.put("/:id_token", async (req, res) => {
-  let tokenId;
-
-  try {
-    // Convertir l'ID du token en BigInt
-    tokenId = BigInt(req.params.id_token);
-  } catch (e) {
-    return res.status(400).json({ message: "Invalid token ID", error: (e instanceof Error) ? e.message : "Unknown error" });
-  }
-
-  try {
-    // Vérifier si le token existe
     const token = await prisma.token.findUnique({
-      where: { id_token: tokenId },
+      where: { id_token: req.params.id_token }, // Recherche par id_token
     });
 
     if (!token) {
       return res.status(404).json({ message: "Token not found" });
     }
 
-    // Mettre à jour le token
-    const updatedToken = await prisma.token.update({
-      where: { id_token: tokenId },
-      data: {
-        valeur_token: req.body.data.valeur_token,
-        expiration: new Date(req.body.data.expiration),
-      },
-    });
-
-    // Convertir l'ID du token mis à jour en string pour la réponse JSON
-    const updatedTokenResponse = {
-      ...updatedToken,
-      id_token: updatedToken.id_token.toString(), 
-    };
-
-    // Retourner le token mis à jour
-    res.json(updatedTokenResponse);
-
-  } catch (error: unknown) {  // Specifying that 'error' is of type 'unknown'
-    if (error instanceof Error) {
-      console.error("Error during token update:", error.message);
-      res.status(500).json({ message: "Error during token update", error: error.message });
-    } else {
-      res.status(500).json({ message: "Error during token update", error: "An unknown error occurred" });
-    }
+    // Retourner le token sans l'inclure dans la réponse
+    const { id_token, ...tokenResponse } = token;
+    res.json(tokenResponse); // Renvoi des données sans l'ID du token
+  } catch (error: unknown) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "An error occurred", details: error });
   }
 });
+
+
+
+
+// **************** DELETE ****************
+tokenRouter.delete("/:id_token", async (req, res) => {
+  try {
+    const token = await prisma.token.findUnique({
+      where: { id_token: req.params.id_token }, // Recherche par id_token
+    });
+
+    if (!token) {
+      return res.status(404).json({ message: "Token not found" });
+    }
+
+    await prisma.token.delete({
+      where: { id_token: req.params.id_token }, // Suppression du token
+    });
+
+    res.json({ message: "Token deleted" });
+  } catch (error: unknown) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "An error occurred", details: error });
+  }
+});
+
+
+// **************** PUT ****************
