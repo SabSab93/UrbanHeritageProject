@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Token CRUD Test</title>
+</head>
+<body>
+
+<h1>Token CRUD Test</h1>
+
+<button onclick="createToken()">Create Token</button>
+<button onclick="getTokens()">Get Tokens</button>
+<button onclick="getToken()">Get Token by ID</button>
+<button onclick="deleteToken()">Delete Token</button>
+
+<hr>
+
+<h2>Generated Tokens:</h2>
+<div id="tokens-list"></div>
+
+<script>
+  const apiUrl = "http://localhost:1992"; // URL de ton backend (ajuste si nécessaire)
+
+  async function createToken() {
+    try {
+      const response = await fetch(`${apiUrl}/tokens`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      });
+      const result = await response.json();
+      console.log("Token created:", result);
+      alert("Token created successfully");
+    } catch (error) {
+      console.error("Error creating token:", error);
+    }
+  }
+
+  async function getTokens() {
+    try {
+      const response = await fetch(`${apiUrl}/tokens`);
+      const result = await response.json();
+      displayTokens(result);
+    } catch (error) {
+      console.error("Error fetching tokens:", error);
+    }
+  }
+
+  async function getToken() {
+    const tokenId = prompt("Enter token ID:");
+    if (!tokenId) return;
+
+    try {
+      const response = await fetch(`${apiUrl}/tokens/${tokenId}`);
+      const result = await response.json();
+      console.log("Token fetched:", result);
+      alert("Token fetched successfully");
+    } catch (error) {
+      console.error("Error fetching token:", error);
+    }
+  }
+
+  async function deleteToken() {
+    const tokenId = prompt("Enter token ID to delete:");
+    if (!tokenId) return;
+
+    try {
+      const response = await fetch(`${apiUrl}/tokens/${tokenId}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+      console.log("Token deleted:", result);
+      alert("Token deleted successfully");
+    } catch (error) {
+      console.error("Error deleting token:", error);
+    }
+  }
+
+  function displayTokens(tokens) {
+    const tokensList = document.getElementById("tokens-list");
+    tokensList.innerHTML = "";
+
+    tokens.forEach((token) => {
+      const tokenDiv = document.createElement("div");
+      tokenDiv.textContent = `ID: ${token.id_token}, Valeur: ${token.valeur_token}`;
+      tokensList.appendChild(tokenDiv);
+    });
+  }
+</script>
+
+</body>
+</html>
