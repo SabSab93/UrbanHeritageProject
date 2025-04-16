@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
@@ -8,111 +8,300 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Account {
-  id_account             BigInt      @id @default(autoincrement())
-  nom_account            String      @db.VarChar(255)
-  date_creation          DateTime?   @default(now()) @db.Timestamp(6)
-  status                 status_enum @default(active)
-  chiffre_affaires_total Decimal     @default(0) @db.Decimal(10, 2)
-  nombre_commandes       Int         @default(0)
-  derniere_activite      DateTime?   @default(now()) @db.Timestamp(6)
+model ApplicationReduction {
+  id_commande  Int
+  id_reduction Int
+  Reduction    Reduction @relation(fields: [id_reduction], references: [id_reduction], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([id_commande, id_reduction])
+}
+
+model Artiste {
+  id_maillot_artiste          Int     @id @default(autoincrement())
+  nom_artiste                 String  @db.VarChar(100)
+  prenom_artiste              String  @db.VarChar(100)
+  pays_artiste                String  @default(" ") @db.VarChar(100)
+  date_naissance_artiste      String  @default(" ") @db.VarChar(100)
+  site_web_artiste            String  @default(" ") @db.VarChar(500)
+  url_image_artiste_1         String  @default(" ")
+  url_image_artiste_2         String  @default(" ")
+  url_image_artiste_3         String  @default(" ")
+  description_artiste_1       String  @default(" ")
+  description_artiste_2       String  @default(" ")
+  description_artiste_3       String  @default(" ")
+  url_instagram_reseau_social String?
+  url_tiktok_reseau_social    String?
+  Maillot                     Maillot @relation(fields: [id_maillot_artiste], references: [id_maillot], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model Association {
+  id_maillot_association            Int     @id @default(autoincrement())
+  nom_association                   String  @db.VarChar(100)
+  numero_identification_association String  @db.VarChar(100)
+  adresse_siege_social_association  String  @default(" ")
+  pays_association                  String  @default(" ") @db.VarChar(100)
+  site_web_association              String  @default(" ") @db.VarChar(100)
+  url_image_association_1           String  @default(" ")
+  url_image_association_2           String  @default(" ")
+  url_image_association_3           String  @default(" ")
+  description_association_1         String  @default(" ")
+  description_association_2         String  @default(" ")
+  description_association_3         String  @default(" ")
+  Maillot                           Maillot @relation(fields: [id_maillot_association], references: [id_maillot], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model Avis {
+  id_avis          Int                   @id @default(autoincrement())
+  id_maillot       Int
+  id_client        Int
+  date_avis        DateTime?             @db.Timestamp(6)
+  classement_avis  Int
+  titre_avis       String                @default(" ") @db.VarChar(300)
+  description_avis String                @default(" ")
+  Client           Client                @relation(fields: [id_client], references: [id_client], onDelete: NoAction, onUpdate: NoAction)
+  Maillot          Maillot               @relation(fields: [id_maillot], references: [id_maillot], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model Avoir {
-  id_commande_retour_avoir BigInt    @id @default(autoincrement())
-  numero_avoir             String?   @unique @db.VarChar(100)
-  date_avoir               DateTime? @db.Date
-  avoir_hors_ue            Boolean   @default(false)
-  Commande                 Commande  @relation(fields: [id_commande_retour_avoir], references: [id_commande], onDelete: NoAction, onUpdate: NoAction)
+  id_avoir      Int       @id @default(autoincrement())
+  numero_avoir  String?   @unique @db.VarChar(100)
+  date_avoir    DateTime? @db.Timestamp(6)
+  avoir_hors_ue Boolean   @default(false)
+}
+
+model Client {
+  id_client             Int           @id
+  id_role               Int
+  nom_client            String?       @db.VarChar(100)
+  prenom_client         String?       @db.VarChar(100)
+  civilite              civilite_enum @default(non_specifie)
+  date_naissance_client DateTime?     @db.Timestamp(6)
+  adresse_client        String?       @db.VarChar(500)
+  code_postal_client    String?       @db.VarChar(5)
+  ville_client          String?       @db.VarChar(100)
+  pays_client           String?       @db.VarChar(100)
+  mot_de_passe          String?
+  adresse_mail_client   String?       @unique @db.VarChar(100)
+  Avis                  Avis[]
+  Utilisateur           Utilisateur   @relation(fields: [id_client], references: [id_utilisateur], onDelete: NoAction, onUpdate: NoAction)
+  Role                  Role          @relation(fields: [id_role], references: [id_role], onDelete: Cascade, onUpdate: NoAction)
+  Commande              Commande[]
+  Panier                Panier[]
 }
 
 model Commande {
-  id_commande      BigInt           @id @default(autoincrement())
-  id_lignecommande BigInt
-  date_commande    DateTime?        @db.Date
-  statut_commande  statut_commande?
-  prix_ttc         Decimal          @default(0) @db.Decimal
-  Avoir            Avoir?
-  LigneCommande    LigneCommande    @relation(fields: [id_lignecommande], references: [id_lignecommande], onDelete: NoAction, onUpdate: NoAction)
-  Retour           Retour?
-
-  @@index([statut_commande], map: "index_statut_commande")
+  id_commande     Int                  @id @default(autoincrement())
+  id_client       Int
+  date_commande   DateTime?            @db.Timestamp(6)
+  statut_commande statut_commande_enum
+  Client          Client               @relation(fields: [id_client], references: [id_client], onDelete: Cascade, onUpdate: NoAction)
+  LigneCommande   LigneCommande[]
 }
 
 model Facture {
-  numero_facture  BigInt    @id @default(autoincrement())
-  date_facture    DateTime? @db.Date
+  numero_facture  String    @id @db.VarChar(100)
+  id_commande     Int
+  date_facture    DateTime? @default(now()) @db.Timestamp(6)
   facture_hors_ue Boolean?  @default(false)
 }
 
 model LigneCommande {
-  id_lignecommande BigInt     @id @default(autoincrement())
-  quantite         Int        @default(0)
-  prix_ht          Decimal    @default(0) @db.Decimal
-  montant_tva      Decimal    @default(0) @db.Decimal
-  prix_ttc         Decimal    @default(0) @db.Decimal
-  Commande         Commande[]
+  id_lignecommande Int                 @id @default(autoincrement())
+  id_commande      Int
+  id_maillot       Int
+  taille_maillot   taille_maillot_enum
+  quantite         Int                 @default(0)
+  prix_ht          Decimal             @default(0) @db.Decimal
+  taux_tva         Decimal             @default(20.0) @db.Decimal
+  Commande         Commande            @relation(fields: [id_commande], references: [id_commande], onDelete: Cascade, onUpdate: NoAction)
+  Maillot          Maillot             @relation(fields: [id_maillot], references: [id_maillot], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model Livraison {
-  id_livraison          BigInt        @id @default(autoincrement())
-  id_typelivraison      BigInt
-  date_livraison        DateTime?     @db.Date
+  id_livraison          Int           @id @default(autoincrement())
+  id_typelivraison      Int
+  id_commande           Int
+  date_livraison        DateTime?     @db.Timestamp(6)
   adresse_livraison     String        @default("") @db.VarChar(500)
   code_postal_livraison String?       @db.VarChar(5)
   ville_livraison       String        @default("") @db.VarChar(100)
   pays_livraison        String        @default("") @db.VarChar(100)
-  TypeLivraison         TypeLivraison @relation(fields: [id_typelivraison], references: [id_typelivraison], onDelete: NoAction, onUpdate: NoAction)
+  TypeLivraison         TypeLivraison @relation(fields: [id_typelivraison], references: [id_typelivraison], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model Maillot {
+  id_maillot              Int                       @id @default(autoincrement())
+  id_tva                  Int
+  nom_maillot             String                    @default("") @db.VarChar(100)
+  pays_maillot            String                    @default("") @db.VarChar(100)
+  description_maillot     String                    @default("")
+  composition_maillot     String                    @default("")
+  url_image_maillot_1     String                    @default(" ")
+  url_image_maillot_2     String                    @default(" ")
+  url_image_maillot_3     String                    @default(" ")
+  origine                 String                    @default("")
+  tracabilite             String                    @default("")
+  entretien               String                    @default("")
+  prix_ht_maillot         Int                       @default(0)
+  Artiste                 Artiste?
+  Association             Association?
+  Avis                    Avis[]
+  LigneCommande           LigneCommande[]
+  TVA                     TVA                       @relation(fields: [id_tva], references: [id_tva], onDelete: NoAction, onUpdate: NoAction)
+  MaillotPersonnalisation MaillotPersonnalisation[]
+  PanierLigne             PanierLigne[]
+}
+
+model MaillotPersonnalisation {
+  id_maillot          Int
+  id_personnalisation Int
+  Maillot             Maillot          @relation(fields: [id_maillot], references: [id_maillot], onDelete: NoAction, onUpdate: NoAction)
+  Personnalisation    Personnalisation @relation(fields: [id_personnalisation], references: [id_personnalisation], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([id_maillot, id_personnalisation])
+}
+
+model Panier {
+  id_panier     Int                @id @default(autoincrement())
+  id_client     Int?
+  date_creation DateTime?          @default(now()) @db.Timestamp(6)
+  statut_panier statut_panier_enum
+  Client        Client?            @relation(fields: [id_client], references: [id_client], onDelete: Cascade, onUpdate: NoAction)
+  PanierLigne   PanierLigne[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model PanierLigne {
+  id_panier_ligne Int                 @id @default(autoincrement())
+  id_panier       Int
+  id_maillot      Int
+  taille_maillot  taille_maillot_enum
+  quantite        Int
+  Maillot         Maillot             @relation(fields: [id_maillot], references: [id_maillot], onDelete: Cascade, onUpdate: NoAction)
+  Panier          Panier              @relation(fields: [id_panier], references: [id_panier], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model Personnalisation {
+  id_personnalisation     Int                        @id @default(autoincrement())
+  type_personnalisation   type_personnalisation_enum
+  prix_ht                 Decimal                    @db.Decimal
+  description             String                     @default(dbgenerated("0"))
+  MaillotPersonnalisation MaillotPersonnalisation[]
+}
+
+model Reduction {
+  id_reduction         Int                        @id @default(autoincrement())
+  code_reduction       String                     @unique @db.VarChar(100)
+  description          String?
+  valeur_reduction     Decimal                    @db.Decimal(10, 2)
+  date_debut_reduction DateTime?                  @db.Timestamp(6)
+  date_fin_reduction   DateTime?                  @db.Timestamp(6)
+  type_reduction       type_reduction_enum
+  statut_reduction     statut_reduction_type_enum
+  date_creation        DateTime?                  @default(now()) @db.Timestamp(6)
+  ApplicationReduction ApplicationReduction[]
 }
 
 model Retour {
-  id_commande_retour BigInt              @id @default(autoincrement())
-  motif_retour       motif_retour?
-  date_retour        DateTime?           @db.Date
-  type_remboursement type_remboursement?
-  droit_retour       Boolean             @default(false)
-  reception_retour   Boolean             @default(false)
-  Commande           Commande            @relation(fields: [id_commande_retour], references: [id_commande], onDelete: NoAction, onUpdate: NoAction)
+  id_commande_retour Int               @id
+  motif_retour       motif_retour_enum
+  date_retour        DateTime          @db.Timestamp(6)
+  droit_retour       Boolean           @default(false)
+  reception_retour   Boolean           @default(false)
 }
 
 model Role {
-  type_role type_role @id @default(invit_)
+  id_role   Int      @id @default(autoincrement())
+  type_role String   @unique @db.VarChar(10)
+  Client    Client[]
+}
+
+model Stock {
+  id_stock        Int                 @id @default(autoincrement())
+  id_maillot      Int
+  taille_maillot  taille_maillot_enum
+  quantite_entree Int                 @default(0)
+  quantite_sortie Int                 @default(0)
+  quantite_total  Int                 @default(0)
+  StockMaillot    StockMaillot[]
+}
+
+model StockMaillot {
+  id_stock_maillot Int                 @id @default(autoincrement())
+  id_stock         Int
+  quantite_stock   Int                 @default(0)
+  type_mouvement   type_mouvement_enum
+  date_mouvement   DateTime?           @default(now()) @db.Timestamp(6)
+  Stock            Stock               @relation(fields: [id_stock], references: [id_stock], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model TVA {
+  id_tva          Int       @id @default(autoincrement())
+  taux_tva        Int
+  description_tva String    @db.VarChar(100)
+  Maillot         Maillot[]
 }
 
 model Token {
-  id_token          String   @id @default(cuid())
-  valeur_token      String   @unique
-  expiration_token  DateTime
-  create_at_token   DateTime
+  id_token        BigInt      @id @default(autoincrement())
+  id_utilisateur  Int
+  valeur_token    String?     @unique @db.VarChar(250)
+  date_creation   DateTime?   @default(now()) @db.Timestamp(6)
+  date_expiration DateTime?   @db.Timestamp(6)
+  Utilisateur     Utilisateur @relation(fields: [id_utilisateur], references: [id_utilisateur], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model TypeLivraison {
-  id_typelivraison  BigInt             @id @default(autoincrement())
-  methode_livraison methode_livraison?
-  choix_livreur     choix_livreur?
-  choix_livraison   choix_livraison?
-  prix_livraison    Int?
+  id_typelivraison  Int                    @id
+  methode_livraison methode_livraison_enum
+  choix_livreur     choix_livreur_enum
+  choix_livraison   choix_livraison_enum
+  prix_livraison    Int
   Livraison         Livraison[]
 }
 
-enum choix_livraison {
-  livraison_domicile    @map("livraison domicile")
-  livraison_point_relai @map("livraison point relai")
+model Utilisateur {
+  id_utilisateur    Int         @id @default(autoincrement())
+  nom_account       String      @default(" ") @db.VarChar(255)
+  date_creation     DateTime?   @default(now()) @db.Timestamp(6)
+  status            status_enum @default(active)
+  vente_total       Decimal     @default(0) @db.Decimal(10, 2)
+  nombre_commandes  Int         @default(0)
+  derniere_activite DateTime?   @default(now()) @db.Timestamp(6)
+  Client            Client?
+  Token             Token[]
 }
 
-enum choix_livreur {
+model test {
+  id_test       Int       @id @default(autoincrement())
+  date_creation DateTime? @default(now()) @db.Timestamp(6)
+}
+
+enum choix_livraison_enum {
+  livraison_domicile
+  livraison_point_relai
+}
+
+enum choix_livreur_enum {
   chronopost
   ups
 }
 
-enum methode_livraison {
+enum civilite_enum {
+  femme
+  homme
+  non_specifie
+}
+
+enum methode_livraison_enum {
   livraison_rapide
   livraison_classique
 }
 
-enum motif_retour {
+enum motif_retour_enum {
   taille
-  correspond_pas @map("correspond pas")
+  non_conforme
+  probleme_qualite
 }
 
 enum status_enum {
@@ -120,19 +309,47 @@ enum status_enum {
   inactive
 }
 
-enum statut_commande {
-  en_cours_de_preparation @map("en cours de preparation")
-  en_cours_de_livraison   @map("en cours de livraison")
-  livr_                   @map("livré")
-  en_retard               @map("en retard")
+enum statut_commande_enum {
+  en_cours
+  livraison
+  livre
+  retard
 }
 
-enum type_remboursement {
-  echange
-  avoir
+enum statut_panier_enum {
+  en_cours
+  abandonne
+  transforme
 }
 
-enum type_role {
-  invit_  @map("invité")
-  inscrit
+enum statut_reduction_type_enum {
+  active
+  expiree
+  annulee
+}
+
+enum taille_maillot_enum {
+  XS
+  S
+  M
+  L
+  XL
+}
+
+enum type_mouvement_enum {
+  entree
+  sortie
+}
+
+enum type_personnalisation_enum {
+  name
+  color
+  name_color
+}
+
+enum type_reduction_enum {
+  pourcentage
+  montant_fixe
+  frais_livraison
+  autre
 }

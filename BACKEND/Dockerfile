@@ -9,13 +9,17 @@ COPY package*.json ./
 
 # Étape 4 : Installer les dépendances
 RUN npm install
-RUN npm install prisma --save-dev
+RUN npm install prisma -g
 
 # Étape 5 : Copier le reste du code source
 COPY . .
 
 # Étape 6 : Donner les droits d’exécution au script de démarrage
-RUN chmod +x ./start.sh
+#!/bin/sh
+
+RUN prisma generate
+RUN prisma migrate deploy
+RUN npm run dev
 
 # Étape 7 : Exposer le port sur lequel ton backend écoute
 EXPOSE 4000
