@@ -1,5 +1,6 @@
 ###GET Token
 GET http://localhost:1992/api/tokens
+
 ////////////////////////////////////////////////////////
 
 ###GET Token particulier

@@ -25,4 +25,4 @@ RUN npm run dev
 EXPOSE 4000
 
 # Étape 8 : Lancer le script de démarrage
-CMD ["sh", "start.sh"]
+CMD ["sh"]
