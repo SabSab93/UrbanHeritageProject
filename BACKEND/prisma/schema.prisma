@@ -170,7 +170,7 @@ model Panier {
   PanierLigne   PanierLigne[]
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+
 model PanierLigne {
   id_panier_ligne Int                 @id @default(autoincrement())
   id_panier       Int
