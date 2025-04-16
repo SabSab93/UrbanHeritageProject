@@ -70,8 +70,7 @@ model Avoir {
 }
 
 model Client {
-  id_client             Int           @id
-  id_role               Int
+  id_client             Int           @id @default(autoincrement())
   nom_client            String?       @db.VarChar(100)
   prenom_client         String?       @db.VarChar(100)
   civilite              civilite_enum @default(non_specifie)
@@ -83,8 +82,6 @@ model Client {
   mot_de_passe          String?
   adresse_mail_client   String?       @unique @db.VarChar(100)
   Avis                  Avis[]
-  Utilisateur           Utilisateur   @relation(fields: [id_client], references: [id_utilisateur], onDelete: NoAction, onUpdate: NoAction)
-  Role                  Role          @relation(fields: [id_role], references: [id_role], onDelete: Cascade, onUpdate: NoAction)
   Commande              Commande[]
   Panier                Panier[]
 }
@@ -131,7 +128,7 @@ model Livraison {
 
 model Maillot {
   id_maillot              Int                       @id @default(autoincrement())
-  id_tva                  Int
+  id_tva                  Int                       @default(1)
   nom_maillot             String                    @default("") @db.VarChar(100)
   pays_maillot            String                    @default("") @db.VarChar(100)
   description_maillot     String                    @default("")
@@ -210,11 +207,6 @@ model Retour {
   reception_retour   Boolean           @default(false)
 }
 
-model Role {
-  id_role   Int      @id @default(autoincrement())
-  type_role String   @unique @db.VarChar(10)
-  Client    Client[]
-}
 
 model Stock {
   id_stock        Int                 @id @default(autoincrement())
@@ -242,15 +234,6 @@ model TVA {
   Maillot         Maillot[]
 }
 
-model Token {
-  id_token        BigInt      @id @default(autoincrement())
-  id_utilisateur  Int
-  valeur_token    String?     @unique @db.VarChar(250)
-  date_creation   DateTime?   @default(now()) @db.Timestamp(6)
-  date_expiration DateTime?   @db.Timestamp(6)
-  Utilisateur     Utilisateur @relation(fields: [id_utilisateur], references: [id_utilisateur], onDelete: Cascade, onUpdate: NoAction)
-}
-
 model TypeLivraison {
   id_typelivraison  Int                    @id
   methode_livraison methode_livraison_enum
@@ -260,17 +243,6 @@ model TypeLivraison {
   Livraison         Livraison[]
 }
 
-model Utilisateur {
-  id_utilisateur    Int         @id @default(autoincrement())
-  nom_account       String      @default(" ") @db.VarChar(255)
-  date_creation     DateTime?   @default(now()) @db.Timestamp(6)
-  status            status_enum @default(active)
-  vente_total       Decimal     @default(0) @db.Decimal(10, 2)
-  nombre_commandes  Int         @default(0)
-  derniere_activite DateTime?   @default(now()) @db.Timestamp(6)
-  Client            Client?
-  Token             Token[]
-}
 
 model test {
   id_test       Int       @id @default(autoincrement())

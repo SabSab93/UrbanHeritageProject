@@ -17,14 +17,14 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.5",
-    "@types/node": "^20.3.3",
+    "@types/node": "^20.17.30",
     "concurrently": "^8.2.0",
     "nodemon": "^2.0.22",
-    "prisma": "^6.3.1",
+    "prisma": "^6.5.0",
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@prisma/client": "^6.3.1",
+    "@prisma/client": "^6.5.0",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.7",

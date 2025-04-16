@@ -1,41 +1,35 @@
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
-import cookieParser from "cookie-parser";
-import { tokenHandler } from './middleware/tokenHandler';
+
 import { PrismaClient } from "@prisma/client";
 
-import { tokenRouter } from "./router/tokens";
-// import { userRouter } from "./router/users";
-// import { reparationRouter } from "./router/reparations";
+import { utilisateurRouter } from "./router/clients";
+import { maillotRouter } from "./router/maillots";
 import { monMiddlewareBearer } from "./checkToken";
+
 
 export const prisma = new PrismaClient();
 
 const app = express();
 
-// Middlewares globaux
-app.use(cors());
+app.use(cors()); 
 app.use(express.json());
-app.use(cookieParser()); 
-app.use(tokenHandler);   
 
-// Routes API
+
+
 const apiRouter = express.Router();
 
-// apiRouter.use("/auth", userRouter);
-apiRouter.use("/tokens", tokenRouter);
-// apiRouter.use("/reparations", monMiddlewareBearer, reparationRouter);
+
+apiRouter.use("/auth", utilisateurRouter)
+apiRouter.use("/maillot", maillotRouter);
+// apiRouter.use("/reparations",monMiddlewareBearer, )
 
 app.use("/api", apiRouter);
 
-// Route utilitaire
-app.get("/api-url", (req, res) => {
-  res.json({ apiUrl: `http://localhost:${process.env.PORT}/api` });
-});
+app.use(apiRouter);
 
 app.listen(process.env.PORT, () => {
-  console.log(`Server running on http://localhost:${process.env.PORT}`);
+  console.log(`Example app listening on port ${process.env.PORT}!`)
 });
 
-export default app;
