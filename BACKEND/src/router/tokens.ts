@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
-import { monMiddlewareBearer } from "../checkToken";
 import * as crypto from 'crypto';
 
 export const tokenRouter = Router();
@@ -17,7 +16,6 @@ async function generateUniqueToken() {
 
     tokenExists = await prisma.token.findUnique({ where: { valeur_token: token } });
     console.log("Token exists:", tokenExists); // Log pour vérifier si le token existe déjà
-
   } while (tokenExists); // Vérifie si le token existe déjà
 
   return token;
@@ -29,56 +27,57 @@ tokenRouter.post("/", async (req, res) => {
     // Générer un token unique
     const generatedToken = await generateUniqueToken();
 
-
     const creationDate = new Date();
-    const expirationDate = new Date(creationDate.getTime() + 24 * 60 * 60 * 1000); //24h
+    const expirationDate = new Date(creationDate.getTime() + 24 * 60 * 60 * 1000); // 24h
     console.log("Creation date:", creationDate);
     console.log("Expiration date:", expirationDate);
 
- 
+    const { id_utilisateur } = req.body; // Assurez-vous que l'ID de l'utilisateur est passé dans le corps de la requête.
+
+    // Vérifier si l'id_utilisateur est valide
+    const utilisateur = await prisma.utilisateur.findUnique({ where: { id_utilisateur } });
+    if (!utilisateur) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+
+    // Créer un nouveau token dans la base de données
     const token = await prisma.token.create({
       data: {
         valeur_token: generatedToken,
-        expiration_token: expirationDate,
-        create_at_token: creationDate,
+        date_expiration: expirationDate,
+        date_creation: creationDate,
+        id_utilisateur,
       },
     });
+
     console.log("Token inserted into the database:", token);
-
-
     res.json(token);
   } catch (error: unknown) {
     console.error("Error occurred while generating token:", error);
     if (error instanceof Error) {
-      console.error("Error message:", error.message); 
-      console.error("Stack trace:", error.stack); 
+      console.error("Error message:", error.message);
+      console.error("Stack trace:", error.stack);
     } else {
-      console.error("Unknown error:", error); 
+      console.error("Unknown error:", error);
     }
-
     res.status(500).json({ error: "An error occurred while generating the token." });
   }
 });
-
-
-
-
-
 
 // **************** GET ****************
 tokenRouter.get("/", async (req, res) => {
   try {
     const tokens = await prisma.token.findMany();
 
-    const tokensFormatted = tokens.map(token => ({
+    const tokensFormatted = tokens.map((token) => ({
       id_token: token.id_token,
       valeur_token: token.valeur_token,
-      expiration_token: token.expiration_token,
-      create_at_token: token.create_at_token,
+      date_expiration: token.date_expiration,
+      date_creation: token.date_creation,
     }));
 
     res.json(tokensFormatted);
-  } catch (error: unknown) {  
+  } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Prisma error:", error.message);
       res.status(500).json({ error: "Server error", details: error.message });
@@ -88,12 +87,11 @@ tokenRouter.get("/", async (req, res) => {
   }
 });
 
-
 // **************** GET ID ****************
 tokenRouter.get("/:id_token", async (req, res) => {
   try {
     const token = await prisma.token.findUnique({
-      where: { id_token: req.params.id_token }, // Recherche par id_token
+      where: { id_token: BigInt(req.params.id_token) }, // Recherche par id_token
     });
 
     if (!token) {
@@ -109,14 +107,11 @@ tokenRouter.get("/:id_token", async (req, res) => {
   }
 });
 
-
-
-
 // **************** DELETE ****************
 tokenRouter.delete("/:id_token", async (req, res) => {
   try {
     const token = await prisma.token.findUnique({
-      where: { id_token: req.params.id_token }, // Recherche par id_token
+      where: { id_token: BigInt(req.params.id_token) }, // Recherche par id_token
     });
 
     if (!token) {
@@ -124,7 +119,7 @@ tokenRouter.delete("/:id_token", async (req, res) => {
     }
 
     await prisma.token.delete({
-      where: { id_token: req.params.id_token }, // Suppression du token
+      where: { id_token: BigInt(req.params.id_token) }, // Suppression du token
     });
 
     res.json({ message: "Token deleted" });
@@ -134,5 +129,3 @@ tokenRouter.delete("/:id_token", async (req, res) => {
   }
 });
 
-
-// **************** PUT ****************
