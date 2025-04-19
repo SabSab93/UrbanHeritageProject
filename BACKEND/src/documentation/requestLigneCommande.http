@@ -42,3 +42,14 @@ Content-Type: application/json
 ### ✅ DELETE - supprimer une ligne
 DELETE http://localhost:1992/api/lignecommande/1
 Content-Type: application/json
+
+
+
+### GET - lignes du client 3
+GET http://localhost:1992/api/lignecommande/client/3
+Content-Type: application/json
+
+
+### GET - total du panier du client 3
+GET http://localhost:1992/api/lignecommande/client/3/total
+Content-Type: application/json

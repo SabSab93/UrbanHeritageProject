@@ -1,56 +1,42 @@
-###GET client ok
-GET http://localhost:1992/api/auth
+### ✅ GET - Toutes les commandes de l’utilisateur connecté
+GET http://localhost:1992/api/commande
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
 
 ###
-////////////////////////////////////////////////////////
 
-###GET client particulier ok
-GET http://localhost:1992/api/auth/3
+### ✅ GET - Une commande par ID
+GET http://localhost:1992/api/commande/1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
 
 ###
-////////////////////////////////////////////////////////
 
-###POST client
-POST http://localhost:1992/api/auth/register
-Content-Type: application/json
-
-{
-    "data": {
-        "nom_client": "Hammadi",
-        "prenom_client": "Sabrinaaa",
-        "civilite": "femme",
-        "date_naissance_client": "21/04/1968",
-        "adresse_client": "15 rue des Roses",
-        "code_postal_client": "38100",
-        "ville_client": "Rives",
-        "pays_client": "France",
-        "mot_de_passe": "kiwi",
-        "adresse_mail_client": "sabrrr@gmail.com"
-    }
-}
-###
-////////////////////////////////////////////////////////
-
-###PUT client
-PUT http://localhost:1992/api/auth/4
+### ✅ POST - Créer une commande (à partir des lignes du panier)
+POST http://localhost:1992/api/commande/create
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
 
 {
-    "data": {
-        "date_naissance_client": "09/10/1993"
-    }
+  "data": {}
 }
 
 ###
-////////////////////////////////////////////////////////
 
-###DELETE client particulier
-DELETE http://localhost:1992/api/auth/6
+### ✅ PUT - Modifier le statut d’une commande (admin ou système)
+PUT http://localhost:1992/api/commande/1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
 
+{
+  "data": {
+    "statut_commande": "livraison"
+  }
+}
+
+###
+
+### ✅ DELETE - Supprimer une commande (à utiliser avec précaution)
+DELETE http://localhost:1992/api/commande/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
