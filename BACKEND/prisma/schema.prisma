@@ -74,6 +74,7 @@ model Avoir {
 
 model Client {
   id_client             Int           @id @default(autoincrement())
+  role                  role_enum     @default(client)
   nom_client            String?       @db.VarChar(100)
   prenom_client         String?       @db.VarChar(100)
   civilite              civilite_enum @default(non_specifie)
@@ -330,4 +331,10 @@ enum type_reduction_enum {
   montant_fixe
   frais_livraison
   autre
+}
+
+enum role_enum {
+  client
+  admin
+  systeme
 }

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
+import { isAdmin } from "../isAdmin";
 
 export const commandeRouter = Router();
 const prisma = new PrismaClient();
@@ -70,7 +71,7 @@ commandeRouter.get("/:id", async (req, res) => {
 });
 
 // ✅ PUT - Modifier statut commande (admin ou systeme)
-commandeRouter.put("/:id", async (req, res) => {
+commandeRouter.put("/:id", isAdmin ,async (req, res) => {
   const id = parseInt(req.params.id);
   const { statut_commande } = req.body.data;
 
@@ -90,7 +91,7 @@ commandeRouter.put("/:id", async (req, res) => {
 });
 
 // ✅ DELETE - Supprimer une commande (admin uniquement ?)
-commandeRouter.delete("/:id", async (req, res) => {
+commandeRouter.delete("/:id", isAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
 
