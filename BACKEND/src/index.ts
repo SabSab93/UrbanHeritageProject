@@ -7,6 +7,9 @@ import { PrismaClient } from "@prisma/client";
 import { clientRouter } from "./router/clients";
 import { maillotRouter } from "./router/maillots";
 import { artisteRouter } from "./router/artistes";
+import { associationRouter } from "./router/associations";
+
+
 import { monMiddlewareBearer } from "./checkToken";
 
 
@@ -29,6 +32,7 @@ app.use("/api", apiRouter);
 apiRouter.use("/auth", clientRouter)
 apiRouter.use("/maillot", maillotRouter);
 app.use("/api/artiste", artisteRouter);
+app.use("/api/association", associationRouter);
 // apiRouter.use("/reparations",monMiddlewareBearer, )
 
 
