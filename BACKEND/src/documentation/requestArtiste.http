@@ -1,0 +1,42 @@
+### GET tous les artistes
+GET http://localhost:1992/api/artiste
+
+### GET artiste par ID
+GET http://localhost:1992/api/artiste/1
+Content-Type: application/json
+
+### POST artiste
+POST http://localhost:1992/api/artiste/create
+Content-Type: application/json
+
+{
+  "data": {
+    "id_maillot_artiste": 4,
+    "nom_artiste": "Dali",
+    "prenom_artiste": "Salvador",
+    "pays_artiste": "Espagne",
+    "date_naissance_artiste": "11/05/1904",
+    "site_web_artiste": "https://dali.com",
+    "url_image_artiste_1": "dali1.jpg",
+    "url_image_artiste_2": "dali2.jpg",
+    "url_image_artiste_3": "dali3.jpg",
+    "description_artiste_1": "Surréaliste excentrique",
+    "description_artiste_2": "Peintre de montres molles",
+    "description_artiste_3": "A influencé UrbanHeritage",
+    "url_instagram_reseau_social": "@dali_art",
+    "url_tiktok_reseau_social": "@dali.tok"
+  }
+}
+
+### PUT artiste
+PUT http://localhost:1992/api/artiste/4
+Content-Type: application/json
+
+{
+  "data": {
+    "description_artiste_1": "Artiste mis à jour"
+  }
+}
+
+### DELETE artiste
+DELETE http://localhost:1992/api/artiste/4

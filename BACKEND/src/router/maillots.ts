@@ -12,8 +12,6 @@ const prisma = new PrismaClient();
 maillotRouter.post("/create", async (req, res) => {
     try {
       const data = req.body.data;
-  
-      // Tu peux ajouter ici une validation basique si nécessaire
       if (
         !data ||
         !data.nom_maillot ||
