@@ -30,7 +30,10 @@ clientRouter.get("/:id", monMiddlewareBearer, async (req, res) => {
 clientRouter.post("/register", async (req, res) => {
   try {
     const { adresse_mail_client } = req.body.data;
-    const existing = await prisma.client.findFirst({ where: { adresse_mail_client } });
+
+    const existing = await prisma.client.findFirst({
+      where: { adresse_mail_client }
+    });
 
     if (existing) {
       return res.status(400).json("Email déjà utilisé");
@@ -38,12 +41,26 @@ clientRouter.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(req.body.data.mot_de_passe, 10);
 
+    // 🗓️ Conversion JJ/MM/AAAA → Date
+    let dateNaissance: Date | null = null;
+    if (req.body.data.date_naissance_client) {
+      const [jour, mois, annee] = req.body.data.date_naissance_client.split("/");
+      const parsedDate = new Date(`${annee}-${mois}-${jour}`);
+      if (!isNaN(parsedDate.getTime())) {
+        dateNaissance = parsedDate;
+      } else {
+        return res.status(400).json({
+          message: "Format de date invalide. Utilisez JJ/MM/AAAA."
+        });
+      }
+    }
+
     const newClient = await prisma.client.create({
       data: {
         nom_client: req.body.data.nom_client,
         prenom_client: req.body.data.prenom_client,
         civilite: req.body.data.civilite,
-        date_naissance_client: new Date(req.body.data.date_naissance_client),
+        date_naissance_client: dateNaissance,
         adresse_client: req.body.data.adresse_client,
         code_postal_client: req.body.data.code_postal_client,
         ville_client: req.body.data.ville_client,
@@ -54,7 +71,10 @@ clientRouter.post("/register", async (req, res) => {
     });
 
     const token = jwt.sign(
-      { id_client: newClient.id_client, email: newClient.adresse_mail_client },
+      {
+        id_client: newClient.id_client,
+        email: newClient.adresse_mail_client,
+      },
       process.env.JWT_SECRET!,
       { expiresIn: "24h" }
     );
@@ -62,9 +82,13 @@ clientRouter.post("/register", async (req, res) => {
     return res.status(201).json({ token });
   } catch (error) {
     console.error("Erreur dans /register :", error);
-    res.status(500).json({ message: "Erreur serveur", error });
+    return res.status(500).json({
+      message: "Erreur serveur",
+      error
+    });
   }
 });
+
 
 // ✅ PUT - modification (protégé)
 clientRouter.put("/:id", monMiddlewareBearer, async (req, res) => {
