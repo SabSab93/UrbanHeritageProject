@@ -1,12 +1,16 @@
 ###GET client ok
 GET http://localhost:1992/api/auth
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
 
 ###
 ////////////////////////////////////////////////////////
 
 ###GET client particulier ok
-GET http://localhost:1337/api/auth/1
+GET http://localhost:1992/api/auth/3
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
+
 
 ###
 ////////////////////////////////////////////////////////
@@ -17,28 +21,29 @@ Content-Type: application/json
 
 {
     "data": {
-        "nom_client": "Sabristi",
-        "prenom_client": "sabristi88",
+        "nom_client": "Hammadi",
+        "prenom_client": "Sabrina",
         "civilite": "femme",
-        "date_naissance_client": "1993-10-09T00:00:00.000Z",
+        "date_naissance_client": "21/04/1968",
         "adresse_client": "15 rue des Roses",
         "code_postal_client": "38100",
-        "ville_client": "Grenoble",
+        "ville_client": "Rives",
         "pays_client": "France",
-        "mot_de_passe": "mtp",
-        "adresse_mail_client": "sab@gmail.com"
+        "mot_de_passe": "kiwi",
+        "adresse_mail_client": "sabrrr@gmail.com"
     }
 }
 ###
 ////////////////////////////////////////////////////////
 
 ###PUT client
-PUT http://localhost:1992/api/auth/3
+PUT http://localhost:1992/api/auth/4
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
 
 {
     "data": {
-
+        "date_naissance_client": "09/10/1993"
     }
 }
 
@@ -46,6 +51,7 @@ Content-Type: application/json
 ////////////////////////////////////////////////////////
 
 ###DELETE client particulier
-DELETE http://localhost:1992/api/auth/3
+DELETE http://localhost:1992/api/auth/5
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
 
