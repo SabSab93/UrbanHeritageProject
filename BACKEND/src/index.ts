@@ -13,6 +13,7 @@ import { associationRouter } from "./router/associations";
 import { monMiddlewareBearer } from "./checkToken";
 import { avisRouter } from "./router/avis";
 import { ligneCommandeRouter } from "./router/lignecommandes";
+import { commandeRouter } from "./router/commandes";
 
 
 
@@ -37,6 +38,7 @@ app.use("/api/artiste", artisteRouter);
 app.use("/api/association", associationRouter);
 app.use("/api/avis", avisRouter);
 apiRouter.use("/lignecommande", ligneCommandeRouter);
+apiRouter.use("/commande", monMiddlewareBearer, commandeRouter);
 // apiRouter.use("/reparations",monMiddlewareBearer, )
 
 
