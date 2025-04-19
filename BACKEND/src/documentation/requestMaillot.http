@@ -35,19 +35,19 @@ Content-Type: application/json
 ////////////////////////////////////////////////////////
 
 ###PUT Maillot
-PUT http://localhost:1992/api/auth/3
+PUT http://localhost:1992/api/maillot/5
 Content-Type: application/json
 
 {
     "data": {
-
-    }
+      "prix_ht_maillot": 100
+  }
 }
 
 ###
 ////////////////////////////////////////////////////////
 
 ###DELETE Maillot particulier
-DELETE http://localhost:1992/api/auth/3
+DELETE http://localhost:1992/api/maillot/6
 Content-Type: application/json
 
