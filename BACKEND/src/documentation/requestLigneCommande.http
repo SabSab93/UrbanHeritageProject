@@ -1,0 +1,44 @@
+### ✅ GET - toutes les lignes de commande
+GET http://localhost:1992/api/lignecommande
+Content-Type: application/json
+
+###
+
+### ✅ GET - une ligne par ID
+GET http://localhost:1992/api/lignecommande/1
+Content-Type: application/json
+
+###
+
+### ✅ POST - ajouter un article au panier
+POST http://localhost:1992/api/lignecommande/create
+Content-Type: application/json
+
+{
+  "data": {
+    "id_client": 3,
+    "id_maillot": 4,
+    "taille_maillot": "M",
+    "quantite": 2,
+    "prix_ht": 80,
+    "taux_tva": 20.0
+  }
+}
+
+###
+
+### ✅ PUT - mise à jour de la ligne
+PUT http://localhost:1992/api/lignecommande/1
+Content-Type: application/json
+
+{
+  "data": {
+    "quantite": 3
+  }
+}
+
+###
+
+### ✅ DELETE - supprimer une ligne
+DELETE http://localhost:1992/api/lignecommande/1
+Content-Type: application/json

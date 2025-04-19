@@ -11,7 +11,6 @@ GET http://localhost:1992/api/auth/3
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
 
-
 ###
 ////////////////////////////////////////////////////////
 
