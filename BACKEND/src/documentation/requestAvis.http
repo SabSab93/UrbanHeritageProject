@@ -1,0 +1,39 @@
+### ✅ GET - tous les avis
+GET http://localhost:1992/api/avis
+Content-Type: application/json
+
+###
+
+### ✅ GET - un avis par ID
+GET http://localhost:1992/api/avis/1
+Content-Type: application/json
+
+###
+
+### ✅ GET - tous les avis du maillot 4
+GET http://localhost:1992/api/avis/maillot/4
+Content-Type: application/json
+
+###
+
+### ✅ POST - laisser un avis (avec token !)
+POST http://localhost:1992/api/avis/create
+Content-Type: application/json
+Authorization: Bearer ton_token_ici
+
+{
+  "data": {
+    "id_client": 1,
+    "id_maillot": 4,
+    "classement_avis": 5,
+    "titre_avis": "Top qualité !",
+    "description_avis": "Le maillot est super bien fini, je recommande !"
+  }
+}
+
+###
+
+### ✅ DELETE - supprimer un avis
+DELETE http://localhost:1992/api/avis/1
+Content-Type: application/json
+Authorization: Bearer ton_token_ici
