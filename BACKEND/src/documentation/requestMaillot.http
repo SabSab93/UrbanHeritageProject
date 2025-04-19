@@ -4,8 +4,8 @@ GET http://localhost:1992/api/maillot
 ###
 ////////////////////////////////////////////////////////
 
-###GET Maillot particulier ok
-GET http://localhost:1337/api/maillot/4
+###GET Maillot particulier 
+GET http://localhost:1992/api/maillot/4
 Content-Type: application/json
 
 ###
@@ -18,9 +18,9 @@ Content-Type: application/json
 {
   "data": {
       "id_tva": 1,
-      "nom_maillot": "Maillot de France",
-      "pays_maillot": "France",
-      "description_maillot": "Maillot officiel de l'équipe de France",
+      "nom_maillot": "Maillot d'Algerie",
+      "pays_maillot": "Algerie",
+      "description_maillot": "Maillot officiel de l'équipe d'Algerie",
       "composition_maillot": "100% polyester",
       "url_image_maillot_1": "img1.jpg",
       "url_image_maillot_2": "img2.jpg",

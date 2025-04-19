@@ -4,8 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "concurrently -k -n \"Typescript,Node\" -p \"[{name}]\" -c \"blue,green\" \"tsc --watch\" \"nodemon dist/index.js\"",
-    "start": "tsc && node dist/index.js"
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -19,8 +18,10 @@
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20.17.30",
     "concurrently": "^8.2.0",
-    "nodemon": "^2.0.22",
+    "nodemon": "^3.1.9",
     "prisma": "^6.5.0",
+    "rimraf": "^6.0.1",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.1.6"
   },
   "dependencies": {
