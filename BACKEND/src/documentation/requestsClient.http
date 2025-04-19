@@ -1,44 +1,51 @@
-###GET User
+###GET client ok
 GET http://localhost:1992/api/auth
 
 ###
 ////////////////////////////////////////////////////////
 
-###GET User particulier
-GET http://localhost:1337/api/auth/2
+###GET client particulier ok
+GET http://localhost:1337/api/auth/1
 Content-Type: application/json
 
 ###
 ////////////////////////////////////////////////////////
 
-###POST User
+###POST client
 POST http://localhost:1992/api/auth/register
 Content-Type: application/json
 
 {
     "data": {
-        "pseudo": "Sabristi",
-        "motdepasse": "sabristi88"
+        "nom_client": "Sabristi",
+        "prenom_client": "sabristi88",
+        "civilite": "femme",
+        "date_naissance_client": "1993-10-09T00:00:00.000Z",
+        "adresse_client": "15 rue des Roses",
+        "code_postal_client": "38100",
+        "ville_client": "Grenoble",
+        "pays_client": "France",
+        "mot_de_passe": "mtp",
+        "adresse_mail_client": "sab@gmail.com"
     }
 }
 ###
 ////////////////////////////////////////////////////////
 
-###PUT User
+###PUT client
 PUT http://localhost:1992/api/auth/3
 Content-Type: application/json
 
 {
     "data": {
-        "pseudo": "Sabristi",
-        "motdepasse": "sabristi88"
+
     }
 }
 
 ###
 ////////////////////////////////////////////////////////
 
-###DELETE User particulier
+###DELETE client particulier
 DELETE http://localhost:1992/api/auth/3
 Content-Type: application/json
 

@@ -1,0 +1,53 @@
+###GET Maillot ok
+GET http://localhost:1992/api/maillot
+
+###
+////////////////////////////////////////////////////////
+
+###GET Maillot particulier 
+GET http://localhost:1992/api/maillot/4
+Content-Type: application/json
+
+###
+////////////////////////////////////////////////////////
+
+###POST Maillot
+POST http://localhost:1992/api/maillot/create
+Content-Type: application/json
+
+{
+  "data": {
+      "id_tva": 1,
+      "nom_maillot": "Maillot d'Algerie",
+      "pays_maillot": "Algerie",
+      "description_maillot": "Maillot officiel de l'équipe d'Algerie",
+      "composition_maillot": "100% polyester",
+      "url_image_maillot_1": "img1.jpg",
+      "url_image_maillot_2": "img2.jpg",
+      "url_image_maillot_3": "img3.jpg",
+      "origine": "France",
+      "tracabilite": "Made in France",
+      "entretien": "Lavage à 30°C",
+      "prix_ht_maillot": 80
+  }
+}
+###
+////////////////////////////////////////////////////////
+
+###PUT Maillot
+PUT http://localhost:1992/api/auth/3
+Content-Type: application/json
+
+{
+    "data": {
+
+    }
+}
+
+###
+////////////////////////////////////////////////////////
+
+###DELETE Maillot particulier
+DELETE http://localhost:1992/api/auth/3
+Content-Type: application/json
+

@@ -4,9 +4,11 @@
     "esModuleInterop": true,
     "outDir": "dist",
     "target": "es6",
-    "strict": true
+    "strict": true,
+    "types": ["node"]
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "prisma/**/*"
   ]
 }
