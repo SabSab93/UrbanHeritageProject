@@ -4,7 +4,7 @@ import express from "express";
 
 import { PrismaClient } from "@prisma/client";
 
-import { utilisateurRouter } from "./router/clients";
+import { clientRouter } from "./router/clients";
 import { maillotRouter } from "./router/maillots";
 import { monMiddlewareBearer } from "./checkToken";
 
@@ -25,7 +25,7 @@ const apiRouter = express.Router();
 app.use("/api", apiRouter); 
 
 
-apiRouter.use("/auth", utilisateurRouter)
+apiRouter.use("/auth", clientRouter)
 apiRouter.use("/maillot", maillotRouter);
 // apiRouter.use("/reparations",monMiddlewareBearer, )
 

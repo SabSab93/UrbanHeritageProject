@@ -2,23 +2,43 @@ import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { monMiddlewareBearer } from "../checkToken";
 
-export const utilisateurRouter = Router();
+export const clientRouter = Router();
 const prisma = new PrismaClient();
 
-// POST
-utilisateurRouter.post('/register', async (req, res) => {
+// ✅ GET - tous les clients (protégé)
+clientRouter.get("/", monMiddlewareBearer, async (req, res) => {
+  const clients = await prisma.client.findMany();
+  res.json(clients);
+});
+
+// ✅ GET - client par ID (protégé)
+clientRouter.get("/:id", monMiddlewareBearer, async (req, res) => {
+  const clientId = parseInt(req.params.id);
+  if (isNaN(clientId)) return res.status(400).json({ message: "ID invalide" });
+
+  const client = await prisma.client.findUnique({
+    where: { id_client: clientId },
+  });
+
+  if (!client) return res.status(404).json({ message: "Client non trouvé" });
+  res.json(client);
+});
+
+// ✅ POST - inscription (public)
+clientRouter.post("/register", async (req, res) => {
   try {
     const { adresse_mail_client } = req.body.data;
-    const userWithEmail = await prisma.client.findFirst({ where: { adresse_mail_client } });
+    const existing = await prisma.client.findFirst({ where: { adresse_mail_client } });
 
-    if (userWithEmail) {
-      return res.status(400).json("Email already in use");
+    if (existing) {
+      return res.status(400).json("Email déjà utilisé");
     }
 
     const hashedPassword = await bcrypt.hash(req.body.data.mot_de_passe, 10);
 
-    const newUser = await prisma.client.create({
+    const newClient = await prisma.client.create({
       data: {
         nom_client: req.body.data.nom_client,
         prenom_client: req.body.data.prenom_client,
@@ -29,104 +49,78 @@ utilisateurRouter.post('/register', async (req, res) => {
         ville_client: req.body.data.ville_client,
         pays_client: req.body.data.pays_client,
         mot_de_passe: hashedPassword,
-        adresse_mail_client: req.body.data.adresse_mail_client
-      }
+        adresse_mail_client: adresse_mail_client,
+      },
     });
 
-    const token = jwt.sign({ adresse_mail_client: newUser.adresse_mail_client }, process.env.JWT_SECRET!);
-    return res.status(201).json({ token });
+    const token = jwt.sign(
+      { id_client: newClient.id_client, email: newClient.adresse_mail_client },
+      process.env.JWT_SECRET!,
+      { expiresIn: "24h" }
+    );
 
+    return res.status(201).json({ token });
   } catch (error) {
     console.error("Erreur dans /register :", error);
-    return res.status(500).json({ message: "Erreur serveur", error });
+    res.status(500).json({ message: "Erreur serveur", error });
   }
 });
 
+// ✅ PUT - modification (protégé)
+clientRouter.put("/:id", monMiddlewareBearer, async (req, res) => {
+  const clientId = parseInt(req.params.id);
+  if (isNaN(clientId)) return res.status(400).json({ message: "ID invalide" });
 
-// GET
-utilisateurRouter.get("/", async (req, res) => {
-  const users = await prisma.client.findMany();
-  res.json(users);
-});
+  const existing = await prisma.client.findUnique({ where: { id_client: clientId } });
+  if (!existing) return res.status(404).json({ message: "Client non trouvé" });
 
-// GET ID
-utilisateurRouter.get("/:id", async (req, res) => {
-  const userId = parseInt(req.params.id);
+  const data = req.body.data;
+  let hashedPassword = existing.mot_de_passe;
 
-  if (isNaN(userId)) {
-    return res.status(400).json({ message: "Invalid user ID" });
+  if (data.mot_de_passe) {
+    hashedPassword = await bcrypt.hash(data.mot_de_passe, 10);
   }
 
-  const user = await prisma.client.findUnique({
-    where: { id_client: userId },
-  });
-
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+  // Gestion du format JJ/MM/AAAA
+  let dateNaissance: Date | undefined = undefined;
+  if (data.date_naissance_client) {
+    const [jour, mois, annee] = data.date_naissance_client.split("/");
+    const parsedDate = new Date(`${annee}-${mois}-${jour}`);
+    if (!isNaN(parsedDate.getTime())) {
+      dateNaissance = parsedDate;
+    } else {
+      return res.status(400).json({ message: "Format de date invalide. Utiliser JJ/MM/AAAA." });
+    }
   }
 
-  res.json(user);
-});
-
-// DELETE
-utilisateurRouter.delete("/:id", async (req, res) => {
-  const userId = parseInt(req.params.id);
-
-  if (isNaN(userId)) {
-    return res.status(400).json({ message: "Invalid user ID" });
-  }
-
-  const user = await prisma.client.findUnique({
-    where: { id_client: userId },
-  });
-
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-
-  await prisma.client.delete({
-    where: { id_client: userId },
-  });
-
-  res.json({ message: "User deleted" });
-});
-
-// PUT
-utilisateurRouter.put("/:id", async (req, res) => {
-  const userId = parseInt(req.params.id);
-
-  if (isNaN(userId)) {
-    return res.status(400).json({ message: "Invalid user ID" });
-  }
-
-  const user = await prisma.client.findUnique({
-    where: { id_client: userId },
-  });
-
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-
-  let hashedPassword = user.mot_de_passe;
-
-  if (req.body.data.mot_de_passe) {
-    hashedPassword = await bcrypt.hash(req.body.data.mot_de_passe, 10);
-  }
-
-  const updatedUser = await prisma.client.update({
-    where: { id_client: userId },
+  const updatedClient = await prisma.client.update({
+    where: { id_client: clientId },
     data: {
-      nom_client: req.body.data.nom_client,
-      prenom_client: req.body.data.prenom_client,
-      civilite: req.body.data.civilite,
-      date_naissance_client: req.body.data.date_naissance_client,
-      adresse_client: req.body.data.adresse_client,
-      code_postal_client: req.body.data.code_postal_client,
-      ville_client: req.body.data.ville_client,
-      pays_client: req.body.data.pays_client,
+      nom_client: data.nom_client ?? undefined,
+      prenom_client: data.prenom_client ?? undefined,
+      civilite: data.civilite ?? undefined,
+      date_naissance_client: dateNaissance ?? undefined,
+      adresse_client: data.adresse_client ?? undefined,
+      code_postal_client: data.code_postal_client ?? undefined,
+      ville_client: data.ville_client ?? undefined,
+      pays_client: data.pays_client ?? undefined,
       mot_de_passe: hashedPassword,
     },
   });
 
-  res.json({ message: "User updated" });
+  res.json({ message: "Client mis à jour", client: updatedClient });
+});
+
+
+// ✅ DELETE - suppression (protégé)
+clientRouter.delete("/:id", monMiddlewareBearer, async (req, res) => {
+  const clientId = parseInt(req.params.id);
+  if (isNaN(clientId)) return res.status(400).json({ message: "ID invalide" });
+
+  const client = await prisma.client.findUnique({ where: { id_client: clientId } });
+  if (!client) return res.status(404).json({ message: "Client non trouvé" });
+
+  await prisma.client.delete({ where: { id_client: clientId } });
+
+  res.json({ message: "Client supprimé" });
 });
