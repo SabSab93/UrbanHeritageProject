@@ -11,6 +11,7 @@ import { associationRouter } from "./router/associations";
 
 
 import { monMiddlewareBearer } from "./checkToken";
+import { avisRouter } from "./router/avis";
 
 
 
@@ -33,6 +34,7 @@ apiRouter.use("/auth", clientRouter)
 apiRouter.use("/maillot", maillotRouter);
 app.use("/api/artiste", artisteRouter);
 app.use("/api/association", associationRouter);
+app.use("/api/avis", avisRouter);
 // apiRouter.use("/reparations",monMiddlewareBearer, )
 
 
