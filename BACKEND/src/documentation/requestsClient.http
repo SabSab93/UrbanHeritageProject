@@ -23,13 +23,13 @@ Content-Type: application/json
         "nom_client": "Hammadi",
         "prenom_client": "Sabrinaaa",
         "civilite": "femme",
-        "date_naissance_client": "21/04/1968",
-        "adresse_client": "15 rue des Roses",
-        "code_postal_client": "38100",
-        "ville_client": "Rives",
-        "pays_client": "France",
-        "mot_de_passe": "kiwi",
-        "adresse_mail_client": "sabrrr@gmail.com"
+        "date_naissance_client": "",
+        "adresse_client": "",
+        "code_postal_client": "",
+        "ville_client": "",
+        "pays_client": "",
+        "mot_de_passe": "",
+        "adresse_mail_client": ""
     }
 }
 ###

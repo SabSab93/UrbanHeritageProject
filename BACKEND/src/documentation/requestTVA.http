@@ -7,7 +7,7 @@ GET http://localhost:1992/api/tva/1
 ### POST TVA (admin)
 POST http://localhost:1992/api/tva/create
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjcsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiY2xpZW50IiwiaWF0IjoxNzQ1MTQxNDU2LCJleHAiOjE3NDUyMjc4NTZ9.6-QIHckCyU24q2H2wkn8R5twbvrdwuMlKdOp6teBAEc
 
 {
   "data": {
