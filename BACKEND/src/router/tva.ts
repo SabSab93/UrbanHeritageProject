@@ -53,7 +53,7 @@ tvaRouter.post("/create",monMiddlewareBearer, isAdmin, async (req, res) => {
 });
 
 // ✅ PUT - modification (admin only)
-tvaRouter.put("/:id",monMiddlewareBearer,  isAdmin, async (req, res) => {
+tvaRouter.put("/:id",monMiddlewareBearer, isAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   const data = req.body.data;
 
