@@ -41,7 +41,6 @@ clientRouter.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(req.body.data.mot_de_passe, 10);
 
-    // 🗓️ Conversion JJ/MM/AAAA → Date
     let dateNaissance: Date | null = null;
     if (req.body.data.date_naissance_client) {
       const [jour, mois, annee] = req.body.data.date_naissance_client.split("/");
@@ -74,6 +73,7 @@ clientRouter.post("/register", async (req, res) => {
       {
         id_client: newClient.id_client,
         email: newClient.adresse_mail_client,
+        role: newClient.role,
       },
       process.env.JWT_SECRET!,
       { expiresIn: "24h" }
@@ -82,13 +82,9 @@ clientRouter.post("/register", async (req, res) => {
     return res.status(201).json({ token });
   } catch (error) {
     console.error("Erreur dans /register :", error);
-    return res.status(500).json({
-      message: "Erreur serveur",
-      error
-    });
+    return res.status(500).json({ message: "Erreur serveur", error });
   }
 });
-
 
 // ✅ PUT - modification (protégé)
 clientRouter.put("/:id", monMiddlewareBearer, async (req, res) => {
@@ -105,7 +101,10 @@ clientRouter.put("/:id", monMiddlewareBearer, async (req, res) => {
     hashedPassword = await bcrypt.hash(data.mot_de_passe, 10);
   }
 
-  // Gestion du format JJ/MM/AAAA
+  if (data.role && req.decoded?.role !== "admin") {
+    return res.status(403).json({ message: "Seul un administrateur peut changer un rôle." });
+  }
+
   let dateNaissance: Date | undefined = undefined;
   if (data.date_naissance_client) {
     const [jour, mois, annee] = data.date_naissance_client.split("/");
@@ -129,12 +128,12 @@ clientRouter.put("/:id", monMiddlewareBearer, async (req, res) => {
       ville_client: data.ville_client ?? undefined,
       pays_client: data.pays_client ?? undefined,
       mot_de_passe: hashedPassword,
+      role: data.role ?? undefined,
     },
   });
 
   res.json({ message: "Client mis à jour", client: updatedClient });
 });
-
 
 // ✅ DELETE - suppression (protégé)
 clientRouter.delete("/:id", monMiddlewareBearer, async (req, res) => {
