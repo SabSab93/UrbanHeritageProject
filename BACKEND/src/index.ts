@@ -1,7 +1,7 @@
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
-import './types/express';
+
 
 import { PrismaClient } from "@prisma/client";
 
@@ -9,7 +9,7 @@ import { clientRouter } from "./router/clients";
 import { maillotRouter } from "./router/maillots";
 import { artisteRouter } from "./router/artistes";
 import { associationRouter } from "./router/associations";
-import { monMiddlewareBearer } from "./checkToken";
+import { monMiddlewareBearer } from "../middleware/checkToken";
 import { avisRouter } from "./router/avis";
 import { ligneCommandeRouter } from "./router/lignecommandes";
 import { commandeRouter } from "./router/commandes";

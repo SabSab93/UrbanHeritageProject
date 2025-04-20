@@ -2,7 +2,7 @@ import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { monMiddlewareBearer } from "../checkToken";
+import { monMiddlewareBearer } from "../../middleware/checkToken";
 
 export const clientRouter = Router();
 const prisma = new PrismaClient();

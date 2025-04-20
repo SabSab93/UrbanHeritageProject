@@ -12,5 +12,5 @@
     "src/**/*",
     "prisma/**/*",
     "types/**/*"
-  ]
+, "middleware/isAdmin.ts", "middleware/checkToken.ts"  ]
 }
