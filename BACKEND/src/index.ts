@@ -14,6 +14,8 @@ import { monMiddlewareBearer } from "./checkToken";
 import { avisRouter } from "./router/avis";
 import { ligneCommandeRouter } from "./router/lignecommandes";
 import { commandeRouter } from "./router/commandes";
+import { ligneCommandeReductionRouter } from "./router/lignecomandereduction";
+import { reductionRouter } from "./router/reductions";
 
 
 
@@ -39,7 +41,9 @@ app.use("/api/association", associationRouter);
 app.use("/api/avis", avisRouter);
 apiRouter.use("/lignecommande", ligneCommandeRouter);
 apiRouter.use("/commande", monMiddlewareBearer, commandeRouter);
-// apiRouter.use("/reparations",monMiddlewareBearer, )
+apiRouter.use("/lignecommande-reduction", ligneCommandeReductionRouter);
+apiRouter.use("/reduction", reductionRouter);
+
 
 
 
