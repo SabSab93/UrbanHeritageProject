@@ -36,13 +36,13 @@ Content-Type: application/json
 ////////////////////////////////////////////////////////
 
 ###PUT client
-PUT http://localhost:1992/api/auth/4
+PUT http://localhost:1992/api/auth/8
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
+Authorization: Bearer 
 
 {
     "data": {
-        "role": "admin"
+        "id_role": 2
     }
 }
 
@@ -50,7 +50,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsI
 ////////////////////////////////////////////////////////
 
 ###DELETE client particulier
-DELETE http://localhost:1992/api/auth/6
+DELETE http://localhost:1992/api/auth/7
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
 

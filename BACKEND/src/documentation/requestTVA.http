@@ -1,3 +1,4 @@
+@env = dev
 ### GET toutes les TVA
 GET http://localhost:1992/api/tva
 
@@ -8,12 +9,16 @@ GET http://localhost:1992/api/tva/1
 POST http://localhost:1992/api/tva/create
 Content-Type: application/json
 Authorization: Bearer {{ADMIN_TOKEN}}
+
 {
   "data": {
     "taux_tva": 5,
     "description_tva": "TVA réduite pour UE"
   }
 }
+
+### ✅ Vérif simple que ADMIN_TOKEN est injecté
+GET https://postman-echo.com/get?adminToken={{ADMIN_TOKEN}}
 
 ### PUT TVA (admin)
 PUT http://localhost:1992/api/tva/1
