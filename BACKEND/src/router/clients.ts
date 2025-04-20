@@ -147,3 +147,39 @@ clientRouter.delete("/:id", monMiddlewareBearer, async (req, res) => {
 
   res.json({ message: "Client supprimé" });
 });
+
+
+// ✅ POST - Connexion
+clientRouter.post("/login", async (req, res) => {
+  const { email, mot_de_passe } = req.body;
+
+  try {
+    const client = await prisma.client.findUnique({
+      where: { adresse_mail_client: email },
+    });
+
+    if (!client) {
+      return res.status(404).json({ message: "Email non trouvé" });
+    }
+    console.log("Client trouvé :", client);
+    const passwordValid = await bcrypt.compare(mot_de_passe, client.mot_de_passe);
+    if (!passwordValid) {
+      return res.status(401).json({ message: "Mot de passe incorrect" });
+    }
+
+    const token = jwt.sign(
+      {
+        id_client: client.id_client,
+        email: client.adresse_mail_client,
+        role: client.role,
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: "24h" }
+    );
+
+    res.json({ token, client });
+  } catch (error) {
+    console.error("Erreur dans /login :", error);
+    res.status(500).json({ message: "Erreur serveur", error });
+  }
+});

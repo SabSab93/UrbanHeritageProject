@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { isAdmin } from "../../middleware/isAdmin";
+import { monMiddlewareBearer } from "../../middleware/checkToken";
 
 export const tvaRouter = Router();
 const prisma = new PrismaClient();
@@ -52,7 +53,7 @@ tvaRouter.post("/create", isAdmin, async (req, res) => {
 });
 
 // ✅ PUT - modification (admin only)
-tvaRouter.put("/:id", isAdmin, async (req, res) => {
+tvaRouter.put("/:id",monMiddlewareBearer,  isAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   const data = req.body.data;
 
@@ -72,7 +73,7 @@ tvaRouter.put("/:id", isAdmin, async (req, res) => {
 });
 
 // ✅ DELETE - suppression (admin only)
-tvaRouter.delete("/:id", isAdmin, async (req, res) => {
+tvaRouter.delete("/:id",monMiddlewareBearer, isAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
 
