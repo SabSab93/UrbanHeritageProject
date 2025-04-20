@@ -5,10 +5,12 @@
     "outDir": "dist",
     "target": "es6",
     "strict": true,
-    "types": ["node"]
+    "types": ["node"],
+    "typeRoots": ["./types", "./node_modules/@types"]
   },
   "include": [
     "src/**/*",
-    "prisma/**/*"
-  ]
+    "prisma/**/*",
+    "types/**/*"
+, "middleware/isAdmin.ts", "middleware/checkToken.ts"  ]
 }

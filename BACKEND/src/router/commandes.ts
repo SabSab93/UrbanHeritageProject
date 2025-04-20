@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
-import { isAdmin } from "../isAdmin";
+import { isAdmin } from "../../middleware/isAdmin";
 
 export const commandeRouter = Router();
 const prisma = new PrismaClient();

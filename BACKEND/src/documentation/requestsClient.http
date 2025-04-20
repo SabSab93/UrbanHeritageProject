@@ -42,7 +42,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsI
 
 {
     "data": {
-        "date_naissance_client": "09/10/1993"
+        "role": "admin"
     }
 }
 

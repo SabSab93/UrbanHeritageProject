@@ -1,0 +1,20 @@
+### ✅ Connexion d'un admin pour obtenir le token
+POST http://localhost:1992/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "mot_de_passe": "admin123"
+}
+
+### ✅ Création d'une TVA (admin uniquement)
+POST http://localhost:1992/api/tva/create
+Content-Type: application/json
+Authorization: Bearer {{COLLE_ICI_TON_TOKEN_ADMIN}}
+
+{
+  "data": {
+    "taux_tva": 10,
+    "description_tva": "TVA réduite - produits solidaires"
+  }
+}

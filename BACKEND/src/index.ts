@@ -2,20 +2,20 @@ import cors from "cors";
 import "dotenv/config";
 import express from "express";
 
+
 import { PrismaClient } from "@prisma/client";
 
 import { clientRouter } from "./router/clients";
 import { maillotRouter } from "./router/maillots";
 import { artisteRouter } from "./router/artistes";
 import { associationRouter } from "./router/associations";
-
-
-import { monMiddlewareBearer } from "./checkToken";
+import { monMiddlewareBearer } from "../middleware/checkToken";
 import { avisRouter } from "./router/avis";
 import { ligneCommandeRouter } from "./router/lignecommandes";
 import { commandeRouter } from "./router/commandes";
 import { ligneCommandeReductionRouter } from "./router/lignecomandereduction";
 import { reductionRouter } from "./router/reductions";
+import { tvaRouter } from "./router/tva";
 
 
 
@@ -43,6 +43,7 @@ apiRouter.use("/lignecommande", ligneCommandeRouter);
 apiRouter.use("/commande", monMiddlewareBearer, commandeRouter);
 apiRouter.use("/lignecommande-reduction", ligneCommandeReductionRouter);
 apiRouter.use("/reduction", reductionRouter);
+apiRouter.use("/tva", tvaRouter);
 
 
 
