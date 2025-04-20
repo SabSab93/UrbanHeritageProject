@@ -72,10 +72,17 @@ model Avoir {
   date_avoir    DateTime? @db.Timestamp(6)
   avoir_hors_ue Boolean   @default(false)
 }
+model Role {
+  id_role     Int      @id @default(autoincrement())
+  nom_role    String   @unique @db.VarChar(50)  
+  description String?
+  Clients     Client[] 
+}
 
 model Client {
   id_client             Int           @id @default(autoincrement())
-  role                  role_enum     @default(client)
+  id_role               Int?          
+  Role                  Role?         @relation(fields: [id_role], references: [id_role])
   nom_client            String        @db.VarChar(100)
   prenom_client         String?       @db.VarChar(100)
   civilite              civilite_enum @default(non_specifie)
@@ -88,7 +95,7 @@ model Client {
   adresse_mail_client   String        @unique @db.VarChar(100)
   Avis                  Avis[]
   Commande              Commande[]
-  LigneCommande LigneCommande[]
+  LigneCommande         LigneCommande[]
 }
 
 model Commande {
@@ -167,7 +174,6 @@ model MaillotPersonnalisation {
 
   @@id([id_maillot, id_personnalisation])
 }
-
 
 
 model Personnalisation {
@@ -312,7 +318,3 @@ enum type_reduction_enum {
   autre
 }
 
-enum role_enum {
-  client
-  admin
-}
