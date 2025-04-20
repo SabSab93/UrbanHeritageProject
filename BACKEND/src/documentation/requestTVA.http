@@ -17,14 +17,11 @@ Authorization: Bearer {{ADMIN_TOKEN}}
   }
 }
 
-### ✅ Vérif simple que ADMIN_TOKEN est injecté
-GET https://postman-echo.com/get?adminToken={{ADMIN_TOKEN}}
 
 ### PUT TVA (admin)
 PUT http://localhost:1992/api/tva/1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
-
+Authorization: Bearer {{ADMIN_TOKEN}}
 
 {
   "data": {
