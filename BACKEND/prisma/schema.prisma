@@ -9,12 +9,13 @@ datasource db {
 }
 
 //Reste lui à creer 
-model ApplicationReduction {
-  id_commande  Int
-  id_reduction Int
-  Reduction    Reduction @relation(fields: [id_reduction], references: [id_reduction], onDelete: Cascade, onUpdate: NoAction)
+model LigneCommandeReduction {
+  id_lignecommande Int
+  id_reduction     Int
+  Reduction        Reduction     @relation(fields: [id_reduction], references: [id_reduction], onDelete: Cascade)
+  LigneCommande    LigneCommande @relation(fields: [id_lignecommande], references: [id_lignecommande], onDelete: Cascade)
 
-  @@id([id_commande, id_reduction])
+  @@id([id_lignecommande, id_reduction])
 }
 
 model Artiste {
@@ -87,7 +88,6 @@ model Client {
   adresse_mail_client   String?       @unique @db.VarChar(100)
   Avis                  Avis[]
   Commande              Commande[]
-  Panier                Panier[]
   LigneCommande LigneCommande[]
 }
 
@@ -118,6 +118,8 @@ model LigneCommande {
   Client           Client              @relation(fields: [id_client], references: [id_client], onDelete: Cascade)
   Maillot          Maillot             @relation(fields: [id_maillot], references: [id_maillot], onDelete: Cascade)
   Commande         Commande?           @relation(fields: [id_commande], references: [id_commande], onDelete: Cascade)
+
+  LigneCommandeReduction LigneCommandeReduction[]
 }
 
 model Livraison {
@@ -152,7 +154,7 @@ model Maillot {
   LigneCommande           LigneCommande[]
   TVA                     TVA                       @relation(fields: [id_tva], references: [id_tva], onDelete: NoAction, onUpdate: NoAction)
   MaillotPersonnalisation MaillotPersonnalisation[]
-  PanierLigne             PanierLigne[]
+
 }
 
 model MaillotPersonnalisation {
@@ -164,25 +166,7 @@ model MaillotPersonnalisation {
   @@id([id_maillot, id_personnalisation])
 }
 
-model Panier {
-  id_panier     Int                @id @default(autoincrement())
-  id_client     Int?
-  date_creation DateTime?          @default(now()) @db.Timestamp(6)
-  statut_panier statut_panier_enum
-  Client        Client?            @relation(fields: [id_client], references: [id_client], onDelete: Cascade, onUpdate: NoAction)
-  PanierLigne   PanierLigne[]
-}
 
-
-model PanierLigne {
-  id_panier_ligne Int                 @id @default(autoincrement())
-  id_panier       Int
-  id_maillot      Int
-  taille_maillot  taille_maillot_enum
-  quantite        Int
-  Maillot         Maillot             @relation(fields: [id_maillot], references: [id_maillot], onDelete: Cascade, onUpdate: NoAction)
-  Panier          Panier              @relation(fields: [id_panier], references: [id_panier], onDelete: Cascade, onUpdate: NoAction)
-}
 
 model Personnalisation {
   id_personnalisation     Int                        @id @default(autoincrement())
@@ -202,7 +186,8 @@ model Reduction {
   type_reduction       type_reduction_enum
   statut_reduction     statut_reduction_type_enum
   date_creation        DateTime?                  @default(now()) @db.Timestamp(6)
-  ApplicationReduction ApplicationReduction[]
+
+  LigneCommandeReduction LigneCommandeReduction[]
 }
 
 model Retour {
@@ -250,10 +235,6 @@ model TypeLivraison {
 }
 
 
-model test {
-  id_test       Int       @id @default(autoincrement())
-  date_creation DateTime? @default(now()) @db.Timestamp(6)
-}
 
 enum choix_livraison_enum {
   livraison_domicile
@@ -295,11 +276,6 @@ enum statut_commande_enum {
   retour
 }
 
-enum statut_panier_enum {
-  en_cours
-  abandonne
-  transforme
-}
 
 enum statut_reduction_type_enum {
   active
