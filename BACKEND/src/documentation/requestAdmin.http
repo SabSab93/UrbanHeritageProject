@@ -1,4 +1,24 @@
-### ✅ Connexion d'un admin pour obtenir le token
+### ✅ POST - Création d'un admin
+POST http://localhost:1992/api/auth/register
+Content-Type: application/json
+
+{
+  "data": {
+    "nom_client": "Hammadi",
+    "prenom_client": "Sabrina",
+    "civilite": "femme",
+    "date_naissance_client": "01/01/1980",
+    "adresse_client": "99 rue des Admins",
+    "code_postal_client": "75001",
+    "ville_client": "Paris",
+    "pays_client": "France",
+    "mot_de_passe": "admin123",
+    "adresse_mail_client": "admin@example.com",
+    "role": "admin"
+  }
+}
+
+### ✅ Login admin
 POST http://localhost:1992/api/auth/login
 Content-Type: application/json
 
@@ -7,14 +27,5 @@ Content-Type: application/json
   "mot_de_passe": "admin123"
 }
 
-### ✅ Création d'une TVA (admin uniquement)
-POST http://localhost:1992/api/tva/create
-Content-Type: application/json
-Authorization: Bearer {{COLLE_ICI_TON_TOKEN_ADMIN}}
 
-{
-  "data": {
-    "taux_tva": 10,
-    "description_tva": "TVA réduite - produits solidaires"
-  }
-}
+

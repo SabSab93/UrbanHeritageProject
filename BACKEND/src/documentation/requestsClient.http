@@ -23,26 +23,26 @@ Content-Type: application/json
         "nom_client": "Hammadi",
         "prenom_client": "Sabrinaaa",
         "civilite": "femme",
-        "date_naissance_client": "21/04/1968",
-        "adresse_client": "15 rue des Roses",
-        "code_postal_client": "38100",
-        "ville_client": "Rives",
-        "pays_client": "France",
-        "mot_de_passe": "kiwi",
-        "adresse_mail_client": "sabrrr@gmail.com"
+        "date_naissance_client": "",
+        "adresse_client": "",
+        "code_postal_client": "",
+        "ville_client": "",
+        "pays_client": "",
+        "mot_de_passe": "",
+        "adresse_mail_client": ""
     }
 }
 ###
 ////////////////////////////////////////////////////////
 
 ###PUT client
-PUT http://localhost:1992/api/auth/4
+PUT http://localhost:1992/api/auth/8
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
+Authorization: Bearer 
 
 {
     "data": {
-        "role": "admin"
+        "id_role": 2
     }
 }
 
@@ -50,7 +50,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsI
 ////////////////////////////////////////////////////////
 
 ###DELETE client particulier
-DELETE http://localhost:1992/api/auth/6
+DELETE http://localhost:1992/api/auth/7
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
 

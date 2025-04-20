@@ -7,7 +7,7 @@ declare global {
       decoded?: {
         id_client: number;
         email: string;
-        role: string;
+        id_role: number;
       };
     }
   }

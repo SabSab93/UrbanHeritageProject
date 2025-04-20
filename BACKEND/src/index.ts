@@ -16,6 +16,7 @@ import { commandeRouter } from "./router/commandes";
 import { ligneCommandeReductionRouter } from "./router/lignecomandereduction";
 import { reductionRouter } from "./router/reductions";
 import { tvaRouter } from "./router/tva";
+import { roleRouter } from "./router/roles";
 
 
 
@@ -44,6 +45,7 @@ apiRouter.use("/commande", monMiddlewareBearer, commandeRouter);
 apiRouter.use("/lignecommande-reduction", ligneCommandeReductionRouter);
 apiRouter.use("/reduction", reductionRouter);
 apiRouter.use("/tva", tvaRouter);
+apiRouter.use("/role", roleRouter);
 
 
 

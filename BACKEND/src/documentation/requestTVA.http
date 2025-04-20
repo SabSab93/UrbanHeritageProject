@@ -1,3 +1,4 @@
+@env = dev
 ### GET toutes les TVA
 GET http://localhost:1992/api/tva
 
@@ -7,7 +8,7 @@ GET http://localhost:1992/api/tva/1
 ### POST TVA (admin)
 POST http://localhost:1992/api/tva/create
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
+Authorization: Bearer {{ADMIN_TOKEN}}
 
 {
   "data": {
@@ -16,11 +17,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsI
   }
 }
 
+
 ### PUT TVA (admin)
 PUT http://localhost:1992/api/tva/1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
-
+Authorization: Bearer {{ADMIN_TOKEN}}
 
 {
   "data": {
