@@ -315,5 +315,4 @@ enum type_reduction_enum {
 enum role_enum {
   client
   admin
-  systeme
 }
