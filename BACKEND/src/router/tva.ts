@@ -34,7 +34,7 @@ tvaRouter.get("/:id", async (req, res) => {
 });
 
 // ✅ POST - création (admin only)
-tvaRouter.post("/create", isAdmin, async (req, res) => {
+tvaRouter.post("/create",monMiddlewareBearer, isAdmin, async (req, res) => {
   const data = req.body.data;
 
   try {
