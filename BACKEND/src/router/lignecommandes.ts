@@ -34,7 +34,8 @@ ligneCommandeRouter.post("/create", async (req, res) => {
         id_maillot: data.id_maillot,
         taille_maillot: data.taille_maillot,
         quantite: data.quantite,
-        prix_ht: data.prix_ht
+        prix_ht: data.prix_ht,
+        id_tva: data.id_tva ?? 1, // ✅ TVA par défaut à 20%
       },
     });
 
@@ -77,9 +78,7 @@ ligneCommandeRouter.delete("/:id", async (req, res) => {
   }
 });
 
-
-
-
+// ✅ GET - lignes par client
 ligneCommandeRouter.get("/client/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID client invalide" });
@@ -89,6 +88,7 @@ ligneCommandeRouter.get("/client/:id", async (req, res) => {
       where: { id_client: id },
       include: {
         Maillot: true,
+        TVA: true
       },
     });
 
@@ -99,26 +99,24 @@ ligneCommandeRouter.get("/client/:id", async (req, res) => {
   }
 });
 
-
+// ✅ GET - total panier client 
 ligneCommandeRouter.get("/client/:id/total", async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID client invalide" });
 
   try {
     const lignes = await prisma.ligneCommande.findMany({
-      where: { id_client: id },
+      where: {
+        id_client: id,
+        id_commande: null, 
+      },
       include: {
-        Maillot: {
-          select: {
-            id_tva: true,
-            TVA: { select: { taux_tva: true } }
-          }
-        }
-      }
+        TVA: true
+      },
     });
 
     const total = lignes.reduce((acc, ligne) => {
-      const tva = ligne.Maillot.TVA?.taux_tva ?? 20; 
+      const tva = ligne.TVA?.taux_tva ?? 20;
       const prixAvecTva = Number(ligne.prix_ht) * (1 + Number(tva) / 100);
       return acc + ligne.quantite * prixAvecTva;
     }, 0);
