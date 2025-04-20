@@ -118,7 +118,7 @@ ligneCommandeRouter.get("/client/:id/total", async (req, res) => {
     });
 
     const total = lignes.reduce((acc, ligne) => {
-      const tva = ligne.Maillot.TVA?.taux_tva ?? 20; // sécurité si tva non liée
+      const tva = ligne.Maillot.TVA?.taux_tva ?? 20; 
       const prixAvecTva = Number(ligne.prix_ht) * (1 + Number(tva) / 100);
       return acc + ligne.quantite * prixAvecTva;
     }, 0);
