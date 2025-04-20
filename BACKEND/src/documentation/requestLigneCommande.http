@@ -16,12 +16,11 @@ Content-Type: application/json
 
 {
   "data": {
-    "id_client": 3,
+    "id_client": 2,
     "id_maillot": 4,
     "taille_maillot": "M",
-    "quantite": 2,
-    "prix_ht": 80,
-    "taux_tva": 20.0
+    "quantite": 3,
+    "prix_ht": 80
   }
 }
 

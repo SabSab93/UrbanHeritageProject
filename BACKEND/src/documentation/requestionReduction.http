@@ -1,0 +1,59 @@
+### GET toutes les réductions
+GET http://localhost:1992/api/reduction
+
+### GET réduction par ID
+GET http://localhost:1992/api/reduction/1
+
+### POST création réduction
+POST http://localhost:1992/api/reduction/create
+Content-Type: application/json
+
+{
+  "data": {
+    "code_reduction": "ETE15",
+    "description": "Réduction d'été -15€",
+    "valeur_reduction": 15.00,
+    "date_debut_reduction": "2025-06-15T00:00:00Z",
+    "date_fin_reduction": "2025-08-31T23:59:59Z",
+    "type_reduction": "montant_fixe",
+    "statut_reduction": "active"
+  }
+}
+
+### PUT modification réduction
+PUT http://localhost:1992/api/reduction/1
+Content-Type: application/json
+
+{
+  "data": {
+    "description": "Mise à jour de la description"
+  }
+}
+
+### DELETE réduction
+DELETE http://localhost:1992/api/reduction/1
+
+---
+
+### GET toutes les liaisons ligneCommande-reduction
+GET http://localhost:1992/api/lignecommande-reduction
+
+### POST appliquer une réduction à une ligne de commande
+POST http://localhost:1992/api/lignecommande-reduction/create
+Content-Type: application/json
+
+{
+  "data": {
+    "id_lignecommande": 4,
+    "id_reduction": 2
+  }
+}
+
+### DELETE suppression liaison
+DELETE http://localhost:1992/api/lignecommande-reduction
+Content-Type: application/json
+
+{
+  "id_lignecommande": 4,
+  "id_reduction": 2
+}
