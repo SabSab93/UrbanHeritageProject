@@ -109,6 +109,7 @@ model Commande {
   statut_commande statut_commande_enum  @default(en_cours)
   Client          Client               @relation(fields: [id_client], references: [id_client], onDelete: Cascade, onUpdate: NoAction)
   LigneCommande   LigneCommande[]
+  statut_paiement statut_paiement_enum @default(en_attente)
 }
 
 model Facture {
@@ -169,7 +170,7 @@ model Maillot {
   LigneCommande           LigneCommande[]
 
 }
-
+//ok
 model LigneCommandePersonnalisation {
   id_lignecommande         Int
   id_personnalisation      Int
@@ -181,7 +182,7 @@ model LigneCommandePersonnalisation {
   @@id([id_lignecommande, id_personnalisation])
 }
 
-
+//ok
 model Personnalisation {
   id_personnalisation     Int                        @id @default(autoincrement())
   type_personnalisation   type_personnalisation_enum
@@ -325,3 +326,8 @@ enum type_reduction_enum {
   autre
 }
 
+enum statut_paiement_enum {
+  en_attente
+  paye
+  echec
+}
