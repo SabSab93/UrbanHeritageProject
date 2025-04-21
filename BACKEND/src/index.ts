@@ -19,6 +19,10 @@ import { tvaRouter } from "./router/tva";
 import { roleRouter } from "./router/roles";
 import { personnalisationRouter } from "./router/personnalisations";
 import { ligneCommandePersonnalisationRouter } from "./router/lignecommandepersonnalisation";
+import { livraisonRouter } from "./router/livraisons";
+import { livreurRouter } from "./router/livreurs";
+import { lieuLivraisonRouter } from "./router/lieuLivraisons";
+import { methodeLivraisonRouter } from "./router/methodeLivraisons";
 
 
 
@@ -50,7 +54,10 @@ apiRouter.use("/tva", tvaRouter);
 apiRouter.use("/role", roleRouter);
 apiRouter.use("/personnalisation", personnalisationRouter);
 apiRouter.use("/lignecommande-personnalisation", ligneCommandePersonnalisationRouter);
-
+apiRouter.use("/livraison", livraisonRouter);
+apiRouter.use("/livreur", livreurRouter);
+apiRouter.use("/lieu-livraison", lieuLivraisonRouter);
+apiRouter.use("/methode-livraison", methodeLivraisonRouter);
 
 
 app.listen(process.env.PORT, () => {
