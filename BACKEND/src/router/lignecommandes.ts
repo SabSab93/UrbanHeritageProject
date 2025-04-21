@@ -127,3 +127,34 @@ ligneCommandeRouter.get("/client/:id/total", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
+//ajouter une ligne de commande avec personnalisation
+
+
+// ✅ GET - ligne commande avec personnalisation
+ligneCommandeRouter.get("/:id/details", async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
+
+  try {
+    const ligne = await prisma.ligneCommande.findUnique({
+      where: { id_lignecommande: id },
+      include: {
+        Maillot: true,
+        TVA: true,
+        LigneCommandePersonnalisation: {
+          include: {
+            Personnalisation: true
+          }
+        }
+      },
+    });
+
+    if (!ligne) return res.status(404).json({ message: "Ligne non trouvée" });
+
+    res.json(ligne);
+  } catch (error) {
+    console.error("Erreur récupération détails ligne commande :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
