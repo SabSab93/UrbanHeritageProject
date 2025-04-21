@@ -17,6 +17,8 @@ import { ligneCommandeReductionRouter } from "./router/lignecomandereduction";
 import { reductionRouter } from "./router/reductions";
 import { tvaRouter } from "./router/tva";
 import { roleRouter } from "./router/roles";
+import { personnalisationRouter } from "./router/personnalisations";
+import { ligneCommandePersonnalisationRouter } from "./router/lignecommandepersonnalisation";
 
 
 
@@ -46,7 +48,8 @@ apiRouter.use("/lignecommande-reduction", ligneCommandeReductionRouter);
 apiRouter.use("/reduction", reductionRouter);
 apiRouter.use("/tva", tvaRouter);
 apiRouter.use("/role", roleRouter);
-
+apiRouter.use("/personnalisation", personnalisationRouter);
+apiRouter.use("/lignecommande-personnalisation", ligneCommandePersonnalisationRouter);
 
 
 
