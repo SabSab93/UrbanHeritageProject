@@ -23,19 +23,28 @@ ligneCommandeRouter.get("/:id", async (req, res) => {
   res.json(ligne);
 });
 
-// ✅ POST - ajouter au panier
+// ✅ POST - ajouter au panier avec récupération automatique du prix HT
 ligneCommandeRouter.post("/create", async (req, res) => {
   const data = req.body.data;
 
   try {
+    // On récupère le maillot pour obtenir son prix
+    const maillot = await prisma.maillot.findUnique({
+      where: { id_maillot: data.id_maillot },
+    });
+
+    if (!maillot) {
+      return res.status(404).json({ message: "Maillot non trouvé" });
+    }
+
     const ligne = await prisma.ligneCommande.create({
       data: {
         id_client: data.id_client,
         id_maillot: data.id_maillot,
         taille_maillot: data.taille_maillot,
         quantite: data.quantite,
-        prix_ht: data.prix_ht,
-        id_tva: data.id_tva ?? 1, // ✅ TVA par défaut à 20%
+        prix_ht: maillot.prix_ht_maillot, // ✅ Récupéré automatiquement
+        id_tva: data.id_tva ?? 1,
       },
     });
 
@@ -45,6 +54,7 @@ ligneCommandeRouter.post("/create", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
 
 // ✅ PUT - modifier une ligne
 ligneCommandeRouter.put("/:id", async (req, res) => {
@@ -124,6 +134,92 @@ ligneCommandeRouter.get("/client/:id/total", async (req, res) => {
     res.json({ total: total.toFixed(2) + " €" });
   } catch (error) {
     console.error("Erreur calcul total panier :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+//ajouter une ligne de commande avec personnalisation
+
+
+// ✅ GET - ligne commande avec personnalisation
+ligneCommandeRouter.get("/:id/details", async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
+
+  try {
+    const ligne = await prisma.ligneCommande.findUnique({
+      where: { id_lignecommande: id },
+      include: {
+        Maillot: true,
+        TVA: true,
+        LigneCommandePersonnalisation: {
+          include: {
+            Personnalisation: true
+          }
+        }
+      },
+    });
+
+    if (!ligne) return res.status(404).json({ message: "Ligne non trouvée" });
+
+    res.json(ligne);
+  } catch (error) {
+    console.error("Erreur récupération détails ligne commande :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+
+ligneCommandeRouter.get("/client/:id/details", async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) return res.status(400).json({ message: "ID client invalide" });
+
+  try {
+    const lignes = await prisma.ligneCommande.findMany({
+      where: { id_client: id },
+      include: {
+        Maillot: true,
+        TVA: true,
+        LigneCommandePersonnalisation: {
+          include: {
+            Personnalisation: true,
+          },
+        },
+        LigneCommandeReduction: {
+          include: {
+            Reduction: true,
+          },
+        },
+      },
+    });
+
+    const lignesAvecTotal = lignes.map((ligne) => {
+      const prixBase = Number(ligne.prix_ht);
+      const personnalisations = ligne.LigneCommandePersonnalisation.map(p => Number(p.prix_personnalisation_ht));
+      const totalPerso = personnalisations.reduce((sum, val) => sum + val, 0);
+
+      const reductions = ligne.LigneCommandeReduction.map(r => Number(r.Reduction.valeur_reduction));
+      const totalReduction = reductions.reduce((sum, val) => sum + val, 0);
+
+      const totalHT = (prixBase + totalPerso - totalReduction) * ligne.quantite;
+      const totalTTC = totalHT * (1 + (ligne.TVA?.taux_tva ?? 20) / 100);
+
+      return {
+        id_lignecommande: ligne.id_lignecommande,
+        taille_maillot: ligne.taille_maillot,
+        quantite: ligne.quantite,
+        prix_ht: ligne.prix_ht,
+        maillot: ligne.Maillot,
+        personnalisations: ligne.LigneCommandePersonnalisation,
+        reductions: ligne.LigneCommandeReduction,
+        prix_total_ht: totalHT.toFixed(2),
+        prix_total_ttc: totalTTC.toFixed(2),
+      };
+    });
+
+    res.json(lignesAvecTotal);
+  } catch (error) {
+    console.error("Erreur récupération lignes client :", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });

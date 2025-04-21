@@ -16,23 +16,22 @@ Content-Type: application/json
 
 {
   "data": {
-    "id_client": 2,
+    "id_client": 8,
     "id_maillot": 4,
     "taille_maillot": "M",
-    "quantite": 3,
-    "prix_ht": 80
+    "quantite": 1
   }
 }
 
 ###
 
 ### ✅ PUT - mise à jour de la ligne
-PUT http://localhost:1992/api/lignecommande/1
+PUT http://localhost:1992/api/lignecommande/8
 Content-Type: application/json
 
 {
   "data": {
-    "quantite": 3
+    "quantite": 2
   }
 }
 
@@ -51,4 +50,13 @@ Content-Type: application/json
 
 ### GET - total du panier du client 3
 GET http://localhost:1992/api/lignecommande/client/3/total
+Content-Type: application/json
+
+
+### GET détails ligne commande avec personnalisations
+GET http://localhost:1992/api/lignecommande/8/details
+Content-Type: application/json
+
+### GET détails ligne commande avec personnalisations du point de vue client
+GET http://localhost:1992/api/lignecommande/client/8/details
 Content-Type: application/json

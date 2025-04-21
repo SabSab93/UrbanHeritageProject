@@ -1,7 +1,7 @@
 ###GET client ok
 GET http://localhost:1992/api/auth
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpZF9yb2xlIjoyLCJpYXQiOjE3NDUyNDQ0NjcsImV4cCI6MTc0NTMzMDg2N30.fzuOeqnjaiIpaGv9CKqtHZzX6HAxoLcwW5kQd8bqzqQ
 
 ###
 ////////////////////////////////////////////////////////
