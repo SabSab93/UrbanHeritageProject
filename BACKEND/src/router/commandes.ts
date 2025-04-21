@@ -103,3 +103,36 @@ commandeRouter.delete("/:id", isAdmin, async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
+
+commandeRouter.get("/:id/details", async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
+
+  try {
+    const commande = await prisma.commande.findUnique({
+      where: { id_commande: id },
+      include: {
+        Livraison: {
+          include: {
+            MethodeLivraison: true,
+            LieuLivraison: true,
+            Livreur: true,
+          },
+        },
+        LigneCommande: {
+          include: {
+            Maillot: true,
+          },
+        },
+      },
+    });
+
+    if (!commande) return res.status(404).json({ message: "Commande introuvable" });
+
+    res.json(commande);
+  } catch (error) {
+    console.error("Erreur récupération commande :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
