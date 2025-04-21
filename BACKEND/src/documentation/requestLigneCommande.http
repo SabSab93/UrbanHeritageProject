@@ -52,3 +52,8 @@ Content-Type: application/json
 ### GET - total du panier du client 3
 GET http://localhost:1992/api/lignecommande/client/3/total
 Content-Type: application/json
+
+
+### GET détails ligne commande avec personnalisations
+GET http://localhost:1992/api/lignecommande/3/details
+Content-Type: application/json
