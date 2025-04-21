@@ -109,6 +109,9 @@ model Commande {
   statut_commande statut_commande_enum  @default(en_cours)
   Client          Client               @relation(fields: [id_client], references: [id_client], onDelete: Cascade, onUpdate: NoAction)
   LigneCommande   LigneCommande[]
+  statut_paiement statut_paiement_enum @default(en_attente)
+
+  Livraison Livraison[]
 }
 
 model Facture {
@@ -136,18 +139,44 @@ model LigneCommande {
   LigneCommandeReduction LigneCommandeReduction[]
   LigneCommandePersonnalisation LigneCommandePersonnalisation[]
 }
-
 model Livraison {
-  id_livraison          Int           @id @default(autoincrement())
-  id_typelivraison      Int
+  id_livraison          Int              @id @default(autoincrement())
   id_commande           Int
-  date_livraison        DateTime?     @db.Timestamp(6)
-  adresse_livraison     String        @default("") @db.VarChar(500)
-  code_postal_livraison String?       @db.VarChar(5)
-  ville_livraison       String        @default("") @db.VarChar(100)
-  pays_livraison        String        @default("") @db.VarChar(100)
-  TypeLivraison         TypeLivraison @relation(fields: [id_typelivraison], references: [id_typelivraison], onDelete: Cascade, onUpdate: NoAction)
+  id_methode_livraison  Int
+  id_lieu_livraison     Int
+  id_livreur            Int
+  date_livraison        DateTime?        @db.Timestamp(6)
+  adresse_livraison     String           @default("") @db.VarChar(500)
+  code_postal_livraison String?          @db.VarChar(5)
+  ville_livraison       String           @default("") @db.VarChar(100)
+  pays_livraison        String           @default("") @db.VarChar(100)
+
+  MethodeLivraison MethodeLivraison @relation(fields: [id_methode_livraison], references: [id_methode_livraison])
+  LieuLivraison    LieuLivraison    @relation(fields: [id_lieu_livraison], references: [id_lieu_livraison])
+  Livreur          Livreur          @relation(fields: [id_livreur], references: [id_livreur])
+  Commande         Commande         @relation(fields: [id_commande], references: [id_commande])
 }
+
+model MethodeLivraison {
+  id_methode_livraison Int              @id @default(autoincrement())
+  nom_methode          String           @unique @db.VarChar(50) 
+  prix_methode         Int              @default(0) 
+  Livraison            Livraison[]
+}
+
+model LieuLivraison {
+  id_lieu_livraison Int              @id @default(autoincrement())
+  nom_lieu           String           @unique @db.VarChar(50)
+  prix_lieu          Int              @default(0) // 
+  Livraison          Livraison[]
+}
+
+model Livreur {
+  id_livreur   Int       @id @default(autoincrement())
+  nom_livreur String     @unique @db.VarChar(50) 
+  Livraison   Livraison[]
+}
+
 //ok
 model Maillot {
   id_maillot              Int                       @id @default(autoincrement())
@@ -169,7 +198,7 @@ model Maillot {
   LigneCommande           LigneCommande[]
 
 }
-
+//ok
 model LigneCommandePersonnalisation {
   id_lignecommande         Int
   id_personnalisation      Int
@@ -181,7 +210,7 @@ model LigneCommandePersonnalisation {
   @@id([id_lignecommande, id_personnalisation])
 }
 
-
+//ok
 model Personnalisation {
   id_personnalisation     Int                        @id @default(autoincrement())
   type_personnalisation   type_personnalisation_enum
@@ -241,37 +270,12 @@ model TVA {
   LigneCommande LigneCommande[]
 }
 
-model TypeLivraison {
-  id_typelivraison  Int                    @id
-  methode_livraison methode_livraison_enum
-  choix_livreur     choix_livreur_enum
-  choix_livraison   choix_livraison_enum
-  prix_livraison    Int
-  Livraison         Livraison[]
-}
-
-
-
-enum choix_livraison_enum {
-  livraison_domicile
-  livraison_point_relai
-}
-
-enum choix_livreur_enum {
-  chronopost
-  ups
-}
-
 enum civilite_enum {
   femme
   homme
   non_specifie
 }
 
-enum methode_livraison_enum {
-  livraison_rapide
-  livraison_classique
-}
 
 enum motif_retour_enum {
   taille
@@ -325,3 +329,8 @@ enum type_reduction_enum {
   autre
 }
 
+enum statut_paiement_enum {
+  en_attente
+  paye
+  echec
+}

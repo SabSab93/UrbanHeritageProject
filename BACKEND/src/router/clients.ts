@@ -175,3 +175,57 @@ clientRouter.post("/login", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", error });
   }
 });
+
+
+// ✅ GET - détails complets pour un client
+// clientRouter.ts ou dans une nouvelle route dédiée
+
+clientRouter.get("/:id/details", async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) return res.status(400).json({ message: "ID client invalide" });
+
+  try {
+    const client = await prisma.client.findUnique({
+      where: { id_client: id },
+      include: {
+        Commande: {
+          include: {
+            LigneCommande: {
+              include: {
+                Maillot: true,
+                TVA: true,
+                LigneCommandePersonnalisation: {
+                  include: {
+                    Personnalisation: true,
+                  },
+                },
+                LigneCommandeReduction: {
+                  include: {
+                    Reduction: true,
+                  },
+                },
+              },
+            },
+            Livraison: {
+              include: {
+                MethodeLivraison: true,
+                LieuLivraison: true,
+                Livreur: true,
+              },
+            },
+          },
+        },
+        Role: true,
+      },
+    });
+
+    if (!client) return res.status(404).json({ message: "Client non trouvé" });
+
+    res.json(client);
+  } catch (error) {
+    console.error("Erreur récupération détails client :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+
