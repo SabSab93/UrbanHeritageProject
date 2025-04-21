@@ -89,10 +89,6 @@ ligneCommandePersonnalisationRouter.delete("/:id_lignecommande/:id_personnalisat
   const id_lignecommande = parseInt(req.params.id_lignecommande);
   const id_personnalisation = parseInt(req.params.id_personnalisation);
 
-  if (isNaN(id_lignecommande) || isNaN(id_personnalisation)) {
-    return res.status(400).json({ message: "ID(s) invalide(s)" });
-  }
-
   try {
     await prisma.ligneCommandePersonnalisation.delete({
       where: {
@@ -103,7 +99,7 @@ ligneCommandePersonnalisationRouter.delete("/:id_lignecommande/:id_personnalisat
       },
     });
 
-    res.json({ message: "Supprimée avec succès" });
+    res.json({ message: "Personnalisation supprimée avec succès" });
   } catch (error) {
     console.error("Erreur suppression :", error);
     res.status(500).json({ message: "Erreur serveur" });

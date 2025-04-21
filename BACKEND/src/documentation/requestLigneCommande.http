@@ -55,5 +55,5 @@ Content-Type: application/json
 
 
 ### GET détails ligne commande avec personnalisations
-GET http://localhost:1992/api/lignecommande/3/details
+GET http://localhost:1992/api/lignecommande/6/details
 Content-Type: application/json
