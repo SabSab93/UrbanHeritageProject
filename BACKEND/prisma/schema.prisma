@@ -139,6 +139,7 @@ model LigneCommande {
   LigneCommandeReduction LigneCommandeReduction[]
   LigneCommandePersonnalisation LigneCommandePersonnalisation[]
 }
+//ok
 model Livraison {
   id_livraison          Int              @id @default(autoincrement())
   id_commande           Int
@@ -156,21 +157,21 @@ model Livraison {
   Livreur          Livreur          @relation(fields: [id_livreur], references: [id_livreur])
   Commande         Commande         @relation(fields: [id_commande], references: [id_commande])
 }
-
+//ok
 model MethodeLivraison {
   id_methode_livraison Int              @id @default(autoincrement())
   nom_methode          String           @unique @db.VarChar(50) 
   prix_methode         Int              @default(0) 
   Livraison            Livraison[]
 }
-
+//ok
 model LieuLivraison {
   id_lieu_livraison Int              @id @default(autoincrement())
   nom_lieu           String           @unique @db.VarChar(50)
   prix_lieu          Int              @default(0) // 
   Livraison          Livraison[]
 }
-
+//ok
 model Livreur {
   id_livreur   Int       @id @default(autoincrement())
   nom_livreur String     @unique @db.VarChar(50) 
