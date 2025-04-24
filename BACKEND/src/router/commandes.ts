@@ -1,6 +1,10 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { isAdmin } from "../../middleware/isAdmin";
+import { checkCommandeTransaction } from "../utils/CheckCommandeTransaction";
+import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { validerPaiementTransaction } from "../utils/ValiderPaiementTransaction";
+
 
 export const commandeRouter = Router();
 const prisma = new PrismaClient();
@@ -134,5 +138,54 @@ commandeRouter.get("/:id/details", async (req, res) => {
   } catch (error) {
     console.error("Erreur récupération commande :", error);
     res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+
+
+commandeRouter.post("/finaliser", monMiddlewareBearer, async (req: Request, res: Response) => {
+  try {
+    const { id_client, lignes, livraison } = req.body;
+
+    if (!id_client || !lignes || !livraison) {
+      return res.status(400).json({ message: "Champs manquants dans la requête." });
+    }
+
+    const commande = await checkCommandeTransaction(id_client, lignes, livraison);
+    return res.status(201).json({
+      message: "Commande finalisée avec succès",
+      commande,
+    });
+  } catch (error: any) {
+    console.error("Erreur de commande :", error);
+    return res.status(500).json({
+      message: "Une erreur est survenue lors de la finalisation de la commande.",
+      details: error?.message || error,
+    });
+  }
+});
+
+
+
+commandeRouter.post("/valider-paiement/:id", async (req, res) => {
+  const id_commande = parseInt(req.params.id);
+
+  if (isNaN(id_commande)) {
+    return res.status(400).json({ message: "ID de commande invalide" });
+  }
+
+  try {
+    const result = await validerPaiementTransaction(id_commande);
+
+    return res.status(200).json({
+      message: "Commande payée et stock mis à jour.",
+      details: result,
+    });
+  } catch (error: any) {
+    console.error("Erreur validation paiement :", error);
+    return res.status(500).json({
+      message: "Erreur lors de la validation du paiement.",
+      erreur: error?.message || error,
+    });
   }
 });
