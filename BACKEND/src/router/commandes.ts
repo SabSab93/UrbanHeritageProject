@@ -1,6 +1,9 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { isAdmin } from "../../middleware/isAdmin";
+import { checkCommandeTransaction } from "../utils/CheckCommandeTransaction";
+import { monMiddlewareBearer } from "../../middleware/checkToken";
+
 
 export const commandeRouter = Router();
 const prisma = new PrismaClient();
@@ -134,5 +137,29 @@ commandeRouter.get("/:id/details", async (req, res) => {
   } catch (error) {
     console.error("Erreur récupération commande :", error);
     res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+
+
+commandeRouter.post("/finaliser", monMiddlewareBearer, async (req: Request, res: Response) => {
+  try {
+    const { id_client, lignes, livraison } = req.body;
+
+    if (!id_client || !lignes || !livraison) {
+      return res.status(400).json({ message: "Champs manquants dans la requête." });
+    }
+
+    const commande = await checkCommandeTransaction(id_client, lignes, livraison);
+    return res.status(201).json({
+      message: "Commande finalisée avec succès",
+      commande,
+    });
+  } catch (error: any) {
+    console.error("Erreur de commande :", error);
+    return res.status(500).json({
+      message: "Une erreur est survenue lors de la finalisation de la commande.",
+      details: error?.message || error,
+    });
   }
 });
