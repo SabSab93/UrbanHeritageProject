@@ -21,7 +21,7 @@ Content-Type: application/json
 {
     "data": {
         "nom_client": "Hammadi",
-        "prenom_client": "Sabrinaaa",
+        "prenom_client": "Sabrina",
         "civilite": "femme",
         "date_naissance_client": "",
         "adresse_client": "",
@@ -38,11 +38,11 @@ Content-Type: application/json
 ###PUT client
 PUT http://localhost:1992/api/auth/8
 Content-Type: application/json
-Authorization: Bearer 
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpZF9yb2xlIjoyLCJpYXQiOjE3NDU1ODg3NzAsImV4cCI6MTc0NTY3NTE3MH0.Xohc8H90hchcixqJ-H0ZTdBmlIMsvbKyac7QW1PGMvw
 
 {
     "data": {
-        "id_role": 2
+        "adresse_mail_client": "sabrinah_38@hotmail.fr"
     }
 }
 
