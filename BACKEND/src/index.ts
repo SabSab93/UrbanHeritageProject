@@ -26,6 +26,7 @@ import { methodeLivraisonRouter } from "./router/methodeLivraisons";
 import { stockRouter } from "./router/stocks";
 import { stockmaillotRouter } from "./router/stockMaillots";
 import { stripeRouter } from "./router/stripe";
+import { factureRouter } from "./router/factures";
 
 
 
@@ -64,6 +65,7 @@ apiRouter.use("/methode-livraison", methodeLivraisonRouter);
 apiRouter.use('/stock', stockRouter);
 apiRouter.use("/stockmaillot", stockmaillotRouter);
 apiRouter.use("/stripe", stripeRouter);
+apiRouter.use("/facture", factureRouter);
 
 
 app.listen(process.env.PORT, () => {
