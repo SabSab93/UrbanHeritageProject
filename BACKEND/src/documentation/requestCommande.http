@@ -47,7 +47,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsI
 ###
 
 ### 🧪 TEST - Valider le paiement (ex : commande ID 1)
-POST http://localhost:1992/api/commande/valider-paiement/1
+POST http://localhost:1992/api/commande/valider-paiement/2
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpZF9yb2xlIjoyLCJpYXQiOjE3NDU1NTgyMzksImV4cCI6MTc0NTY0NDYzOX0.BQl6-qAPKj6og__6ipuMdejDMqw4z-2-AMicsp5tyf4
 ###
