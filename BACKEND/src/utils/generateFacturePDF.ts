@@ -33,7 +33,7 @@ interface Facture {
 
 export const generateFacturePDF = async (facture: Facture): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const dir = path.join(__dirname, '../../factures');
+    const dir = path.join(__dirname, '../../Factures');
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
