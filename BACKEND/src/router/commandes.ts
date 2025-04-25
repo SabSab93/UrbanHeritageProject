@@ -1,10 +1,8 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { isAdmin } from "../../middleware/isAdmin";
-import { checkCommandeTransaction } from "../utils/CheckCommandeTransaction";
-import { monMiddlewareBearer } from "../../middleware/checkToken";
 import { validerPaiementTransaction } from "../utils/ValiderPaiementTransaction";
-
+import { checkCommandeTransaction } from "../utils/CheckCommandeTransaction";
 
 export const commandeRouter = Router();
 const prisma = new PrismaClient();
@@ -142,8 +140,7 @@ commandeRouter.get("/:id/details", async (req, res) => {
 });
 
 
-
-commandeRouter.post("/finaliser", monMiddlewareBearer, async (req: Request, res: Response) => {
+commandeRouter.post("/finaliser",  async (req, res) => {
   try {
     const { id_client, lignes, livraison } = req.body;
 
@@ -166,7 +163,7 @@ commandeRouter.post("/finaliser", monMiddlewareBearer, async (req: Request, res:
 });
 
 
-
+// ✅ POST /commande/valider-paiement/:id
 commandeRouter.post("/valider-paiement/:id", async (req, res) => {
   const id_commande = parseInt(req.params.id);
 

@@ -1,8 +1,7 @@
 ### ✅ GET - Toutes les commandes de l’utilisateur connecté
 GET http://localhost:1992/api/commande
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpZF9yb2xlIjoyLCJpYXQiOjE3NDUyNDQ0NjcsImV4cCI6MTc0NTMzMDg2N30.fzuOeqnjaiIpaGv9CKqtHZzX6HAxoLcwW5kQd8bqzqQ
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpZF9yb2xlIjoyLCJpYXQiOjE3NDU1NTgyMzksImV4cCI6MTc0NTY0NDYzOX0.BQl6-qAPKj6og__6ipuMdejDMqw4z-2-AMicsp5tyf4
 ###
 
 ### ✅ GET - Une commande par ID
@@ -44,10 +43,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsI
 ### ✅ Finaliser - Finalise la commande
 POST http://localhost:1992/api/commande/finaliser
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpZF9yb2xlIjoyLCJpYXQiOjE3NDUyNDQ0NjcsImV4cCI6MTc0NTMzMDg2N30.fzuOeqnjaiIpaGv9CKqtHZzX6HAxoLcwW5kQd8bqzqQ
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpZF9yb2xlIjoyLCJpYXQiOjE3NDU1NTgyMzksImV4cCI6MTc0NTY0NDYzOX0.BQl6-qAPKj6og__6ipuMdejDMqw4z-2-AMicsp5tyf4
+###
 
 ### 🧪 TEST - Valider le paiement (ex : commande ID 1)
-POST http://localhost:3000/commande/valider-paiement/1
+POST http://localhost:1992/api/commande/valider-paiement/1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpZF9yb2xlIjoyLCJpYXQiOjE3NDUyNDQ0NjcsImV4cCI6MTc0NTMzMDg2N30.fzuOeqnjaiIpaGv9CKqtHZzX6HAxoLcwW5kQd8bqzqQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpZF9yb2xlIjoyLCJpYXQiOjE3NDU1NTgyMzksImV4cCI6MTc0NTY0NDYzOX0.BQl6-qAPKj6og__6ipuMdejDMqw4z-2-AMicsp5tyf4
+###
