@@ -11,11 +11,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsI
 
 ###
 
-### ✅ POST - Créer une commande (à partir des lignes du panier)
+### ✅ POST - Créer une commande (à partir des lignes du panier) A VOIR SI ON CONSERVE JE NE PENSE PAS
 POST http://localhost:1992/api/commande/create
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpZF9yb2xlIjoyLCJpYXQiOjE3NDUyNDUyMTYsImV4cCI6MTc0NTMzMTYxNn0.XCE5Pv1tTZ8VJ4-G7lwEMcJcGkV6ShIfiBx_5if8B_4
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpZF9yb2xlIjoyLCJpYXQiOjE3NDU1NTgyMzksImV4cCI6MTc0NTY0NDYzOX0.BQl6-qAPKj6og__6ipuMdejDMqw4z-2-AMicsp5tyf4
+###
 {
   "data": {}
 }
@@ -47,7 +47,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsI
 ###
 
 ### 🧪 TEST - Valider le paiement (ex : commande ID 1)
-POST http://localhost:1992/api/commande/valider-paiement/2
+POST http://localhost:1992/api/commande/valider-paiement/3
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpZF9yb2xlIjoyLCJpYXQiOjE3NDU1NTgyMzksImV4cCI6MTc0NTY0NDYzOX0.BQl6-qAPKj6og__6ipuMdejDMqw4z-2-AMicsp5tyf4
 ###
