@@ -113,8 +113,8 @@ stripeRouter.post("/create-checkout-session/:id_commande", async (req, res) => {
       payment_method_types: ["card"],
       mode: "payment",
       line_items,
-      success_url: `${process.env.FRONTEND_URL}/paiement/success`,
-      cancel_url: `${process.env.FRONTEND_URL}/paiement/cancel`,
+      success_url: "https://www.google.com",
+      cancel_url: "https://www.google.com",
     });
 
     res.status(200).json({ url: session.url });
