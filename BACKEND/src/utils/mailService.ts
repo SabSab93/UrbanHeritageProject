@@ -28,7 +28,8 @@ export const sendMail = async (options: {
 interface SendMailWithAttachmentOptions {
   to: string;
   subject: string;
-  text: string;
+  text?: string;
+  html?: string;
   attachmentPath: string;
 }
 
