@@ -19,11 +19,11 @@ Content-Type: application/json
 ### ✅ POST - laisser un avis (avec token !)
 POST http://localhost:1992/api/avis/create
 Content-Type: application/json
-Authorization: Bearer ton_token_ici
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjExLCJlbWFpbCI6InNhYnJpbmFoXzM4QGhvdG1haWwuZnIiLCJpZF9yb2xlIjoxLCJpYXQiOjE3NDU2ODU4ODYsImV4cCI6MTc0NTc3MjI4Nn0.X95tkfhgLZT96J1ASLxDtCjdriFtJ6jcYppixMHv5yw
 
 {
   "data": {
-    "id_client": 1,
+    "id_client": 11,
     "id_maillot": 4,
     "classement_avis": 5,
     "titre_avis": "Top qualité !",
@@ -37,3 +37,8 @@ Authorization: Bearer ton_token_ici
 DELETE http://localhost:1992/api/avis/1
 Content-Type: application/json
 Authorization: Bearer ton_token_ici
+
+
+### Stats d'un maillot
+GET http://localhost:1992/api/avis/maillot/4/stats
+Content-Type: application/json
