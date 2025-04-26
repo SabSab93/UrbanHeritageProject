@@ -7,6 +7,9 @@ import { monMiddlewareBearer } from "../../middleware/checkToken";
 import { sendMail } from "../utils/mailService";
 import { templateExpeditionCommande } from "../templateMails/commande/commandeExpedition";
 import { templateCommandeRetour } from "../templateMails/commande/commandeRetour";
+import { templateDemandeAvis } from "../templateMails/commande/commandeDemandeAvis";
+import { templateLivraisonConfirmee } from "../templateMails/commande/commandeLivree";
+import { templateCommandeRetard } from "../templateMails/commande/commandeRetard";
 
 export const commandeRouter = Router();
 const prisma = new PrismaClient();
@@ -68,7 +71,10 @@ commandeRouter.get("/:id", async (req, res) => {
 
   const commande = await prisma.commande.findUnique({
     where: { id_commande: id },
-    include: { LigneCommande: true }
+    include: { 
+      Client: true,
+      LigneCommande: { include: { Maillot: true } } // ⬅️ ajoute ça ici !!
+    },
   });
 
   if (!commande) return res.status(404).json({ message: "Commande non trouvée" });
@@ -94,8 +100,14 @@ commandeRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
     // Récupérer la commande avec son client
     const commande = await prisma.commande.findUnique({
       where: { id_commande: id },
-      include: { Client: true },
+      include: {
+        Client: true,
+        LigneCommande: {
+          include: { Maillot: true },
+        },
+      },
     });
+    
 
     if (!commande) {
       return res.status(404).json({ message: "Commande non trouvée." });
@@ -126,6 +138,24 @@ commandeRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
             subject: "✅ Votre commande a été livrée !",
             html: templateLivraisonConfirmee(client.prenom_client || client.nom_client, commande.id_commande.toString()),
           });
+
+          // ➡️ Ensuite envoyer la demande d'avis pour chaque maillot
+          commande.LigneCommande.forEach(async (ligne) => {
+            try {
+              await sendMail({
+                to: client.adresse_mail_client,
+                subject: "⭐ Donnez votre avis sur votre maillot UrbanHeritage",
+                html: templateDemandeAvis(
+                  client.prenom_client || client.nom_client,
+                  ligne.id_maillot,
+                  ligne.Maillot?.nom_maillot || "votre maillot"
+                ),
+              });
+              console.log(`Demande d'avis envoyée pour le maillot ID ${ligne.id_maillot}`);
+            } catch (error) {
+              console.error("Erreur envoi mail demande avis :", error);
+            }
+          });
           break;
 
         case "retard":
@@ -153,9 +183,12 @@ commandeRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
       commande: updatedCommande,
     });
 
-  } catch (error) {
-    console.error("Erreur update statut commande :", error);
-    res.status(500).json({ message: "Erreur serveur." });
+  } catch (error: any) {
+    console.error("Erreur update statut commande :", error.message || error);
+    res.status(500).json({ 
+      message: "Erreur serveur.",
+      details: error.message || error
+    });
   }
 });
 
@@ -252,11 +285,4 @@ commandeRouter.post("/valider-paiement/:id", async (req, res) => {
     });
   }
 });
-function templateLivraisonConfirmee(arg0: string, arg1: string): string | undefined {
-  throw new Error("Function not implemented.");
-}
-
-function templateCommandeRetard(arg0: string, arg1: string): string | undefined {
-  throw new Error("Function not implemented.");
-}
 
