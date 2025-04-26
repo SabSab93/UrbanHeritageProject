@@ -57,6 +57,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsI
 
 
 ###Detail d'un client
-GET http://localhost:1992/api/auth/3/details
+GET http://localhost:1992/api/auth/11/details
 Content-Type: application/json
-Authorization: Bearer {{ADMIN_TOKEN}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjExLCJlbWFpbCI6InNhYnJpbmFoXzM4QGhvdG1haWwuZnIiLCJpZF9yb2xlIjoxLCJpYXQiOjE3NDU2NTQ4MDEsImV4cCI6MTc0NTc0MTIwMX0.Xsfx8i-5b8-OMbC6Z0WsAbQWlNEe0OY2066y7v9NEIc
