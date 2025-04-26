@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { isAdmin } from "../../middleware/isAdmin";
 import { validerPaiementTransaction } from "../utils/ValiderPaiementTransaction";
 import { checkCommandeTransaction } from "../utils/CheckCommandeTransaction";
+import { monMiddlewareBearer } from "../../middleware/checkToken";
 
 export const commandeRouter = Router();
 const prisma = new PrismaClient();
@@ -139,18 +140,19 @@ commandeRouter.get("/:id/details", async (req, res) => {
   }
 });
 
-
-commandeRouter.post("/finaliser",  async (req, res) => {
+commandeRouter.post("/finaliser", monMiddlewareBearer, async (req: any, res) => {
   try {
-    const { id_client, lignes, livraison } = req.body;
+    const id_client = req.decoded.id_client; // Le client connecté via le token
+    const { lignes, livraison } = req.body;
 
-    if (!id_client || !lignes || !livraison) {
+    if (!lignes || !livraison) {
       return res.status(400).json({ message: "Champs manquants dans la requête." });
     }
 
     const commande = await checkCommandeTransaction(id_client, lignes, livraison);
+
     return res.status(201).json({
-      message: "Commande finalisée avec succès",
+      message: "Commande finalisée avec succès 🚀",
       commande,
     });
   } catch (error: any) {
