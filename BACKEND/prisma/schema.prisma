@@ -97,6 +97,8 @@ model Client {
   pays_client           String        @db.VarChar(100)
   mot_de_passe          String
   adresse_mail_client   String        @unique @db.VarChar(100)
+  activation_token      String?  
+  statut_compte         statut_compte_enum @default(en_attente)
   Avis                  Avis[]
   Commande              Commande[]
   LigneCommande         LigneCommande[]
@@ -335,4 +337,11 @@ enum statut_paiement_enum {
   en_attente
   paye
   echec
+}
+
+
+enum statut_compte_enum {
+  en_attente
+  actif
+  bloque
 }
