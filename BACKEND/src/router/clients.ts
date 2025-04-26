@@ -3,8 +3,8 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
-import { sendMail } from "../utils/mailService"; // 📧 import pour envoyer les mails d'activation
-import crypto from "crypto"; // pour générer un token d'activation sécurisé
+import { sendMail } from "../utils/mailService"; 
+import crypto from "crypto"; 
 import { templateActivationCompte } from "../templateMails/compte/activationCompte";
 import { isAdmin } from "../../middleware/isAdmin";
 
