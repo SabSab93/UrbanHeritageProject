@@ -1,7 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import { generateFacturePDF } from "./generateFacturePDF";
-import { sendMailWithAttachment } from "./mailService";
+import { sendMail, sendMailWithAttachment } from "./mailService";
 import path from "path";
+import { templateConfirmationCommande } from "../templateMails/commande/confirmationCommande";
+import { templateFactureEnvoyee } from "../templateMails/commande/envoiFacture";
 
 const prisma = new PrismaClient();
 
@@ -116,23 +118,20 @@ export const validerPaiementTransaction = async (id_commande: number) => {
           (commandeComplete.Livraison[0]?.LieuLivraison.prix_lieu || 0),
       },
     };
-
+    await sendMail({
+      to: commandeComplete.Client.adresse_mail_client,
+      subject: "🎉 Confirmation de votre commande UrbanHeritage",
+      html: templateConfirmationCommande(commandeComplete.Client.prenom_client, commandeComplete.id_commande.toString()),
+    });
+    
     const pdfPath = await generateFacturePDF(pdfData);
 
-    await sendMailWithAttachment({
-      to: commandeComplete.Client.adresse_mail_client,
-      subject: "🎉 Merci pour votre commande chez UrbanHeritage !",
-      text: `Bonjour ${commandeComplete.Client.prenom_client || commandeComplete.Client.nom_client},
-
-Merci beaucoup pour votre commande sur UrbanHeritage ✨ !
-
-Veuillez trouver en pièce jointe votre facture officielle.
-
-Nous espérons que votre nouveau maillot vous plaira autant que nous avons aimé le créer ❤️.
-
-À très bientôt sur UrbanHeritage !`,
-      attachmentPath: pdfPath,
-    });
+    + await sendMailWithAttachment({
+         to: commandeComplete.Client.adresse_mail_client,
+         subject: "🧾 Votre facture UrbanHeritage",
+         html: templateFactureEnvoyee(commandeComplete.Client.prenom_client || commandeComplete.Client.nom_client),
+         attachmentPath: pdfPath,
+      });
 
     return { message: "Paiement validé, stock mis à jour, facture générée et email envoyé." };
   });
