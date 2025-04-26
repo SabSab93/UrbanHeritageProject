@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { generateFacturePDF } from "./generateFacturePDF";
 import { sendMail, sendMailWithAttachment } from "./mailService";
 import path from "path";
-import { templateConfirmationCommande } from "../templateMails/commande/confirmationCommande";
+import { templateConfirmationCommande } from "../templateMails/commande/commandeConfirmation";
 import { templateFactureEnvoyee } from "../templateMails/commande/envoiFacture";
 
 const prisma = new PrismaClient();
