@@ -1,5 +1,3 @@
-// src/templateMails/retour/bonRetour.ts
-
 export const templateBonRetour = (prenom_client: string, id_commande: number) => `
   <div style="font-family: Arial, sans-serif; color: #333;">
     <h2>Votre retour est prêt 📦</h2>

@@ -1,5 +1,3 @@
-// src/routers/retourRouter.ts
-
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
