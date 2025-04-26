@@ -4,6 +4,8 @@ import { isAdmin } from "../../middleware/isAdmin";
 import { validerPaiementTransaction } from "../utils/ValiderPaiementTransaction";
 import { checkCommandeTransaction } from "../utils/CheckCommandeTransaction";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { sendMail } from "../utils/mailService";
+import { templateExpeditionCommande } from "../templateMails/commande/expeditionCommande";
 
 export const commandeRouter = Router();
 const prisma = new PrismaClient();
@@ -73,6 +75,7 @@ commandeRouter.get("/:id", async (req, res) => {
   res.json(commande);
 });
 
+
 // ✅ PUT - Modifier le statut d'une commande (ADMIN uniquement)
 commandeRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
@@ -82,22 +85,75 @@ commandeRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
     return res.status(400).json({ message: "ID de commande invalide." });
   }
 
-  // Vérifier que le statut est correct
-  const statutsValides = ["en_cours", "livraison", "livre", "retard", "retour"];
-  if (!statut_commande || !statutsValides.includes(statut_commande)) {
-    return res.status(400).json({ message: "Statut de commande invalide." });
+  if (!statut_commande) {
+    return res.status(400).json({ message: "Nouveau statut de commande manquant." });
   }
 
   try {
+    // Récupérer la commande avec son client
+    const commande = await prisma.commande.findUnique({
+      where: { id_commande: id },
+      include: { Client: true },
+    });
+
+    if (!commande) {
+      return res.status(404).json({ message: "Commande non trouvée." });
+    }
+
+    // Mettre à jour le statut
     const updatedCommande = await prisma.commande.update({
       where: { id_commande: id },
       data: { statut_commande },
     });
 
+    // 💌 En fonction du statut, envoyer un email différent
+    const client = commande.Client;
+
+    if (client) {
+      switch (statut_commande) {
+        case "livraison":
+          await sendMail({
+            to: client.adresse_mail_client,
+            subject: "📦 Votre commande est expédiée !",
+            html: templateExpeditionCommande(client.prenom_client || client.nom_client, commande.id_commande.toString()),
+          });
+          break;
+        
+        case "livre":
+          await sendMail({
+            to: client.adresse_mail_client,
+            subject: "✅ Votre commande a été livrée !",
+            html: templateLivraisonConfirmee(client.prenom_client || client.nom_client, commande.id_commande.toString()),
+          });
+          break;
+
+        case "retard":
+          await sendMail({
+            to: client.adresse_mail_client,
+            subject: "⏳ Votre commande rencontre un retard",
+            html: templateCommandeRetard(client.prenom_client || client.nom_client, commande.id_commande.toString()),
+          });
+          break;
+
+        // case "retour":
+        //   await sendMail({
+        //     to: client.adresse_mail_client,
+        //     subject: "↩️ Retour de votre commande UrbanHeritage",
+        //     html: templateCommandeRetour(client.prenom_client || client.nom_client, commande.id_commande.toString()),
+        //   });
+          break;
+
+        default:
+          // Pas de mail pour les autres statuts
+          break;
+      }
+    }
+
     res.status(200).json({
       message: `Statut de la commande mis à jour en "${statut_commande}" avec succès 🚚`,
       commande: updatedCommande,
     });
+
   } catch (error) {
     console.error("Erreur update statut commande :", error);
     res.status(500).json({ message: "Erreur serveur." });
@@ -197,3 +253,11 @@ commandeRouter.post("/valider-paiement/:id", async (req, res) => {
     });
   }
 });
+function templateLivraisonConfirmee(arg0: string, arg1: string): string | undefined {
+  throw new Error("Function not implemented.");
+}
+
+function templateCommandeRetard(arg0: string, arg1: string): string | undefined {
+  throw new Error("Function not implemented.");
+}
+
