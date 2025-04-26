@@ -73,12 +73,20 @@ commandeRouter.get("/:id", async (req, res) => {
   res.json(commande);
 });
 
-// ✅ PUT - Modifier statut commande (admin ou systeme)
-commandeRouter.put("/:id", isAdmin ,async (req, res) => {
+// ✅ PUT - Modifier le statut d'une commande (ADMIN uniquement)
+commandeRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   const { statut_commande } = req.body.data;
 
-  if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
+  if (isNaN(id)) {
+    return res.status(400).json({ message: "ID de commande invalide." });
+  }
+
+  // Vérifier que le statut est correct
+  const statutsValides = ["en_cours", "livraison", "livre", "retard", "retour"];
+  if (!statut_commande || !statutsValides.includes(statut_commande)) {
+    return res.status(400).json({ message: "Statut de commande invalide." });
+  }
 
   try {
     const updatedCommande = await prisma.commande.update({
@@ -86,12 +94,16 @@ commandeRouter.put("/:id", isAdmin ,async (req, res) => {
       data: { statut_commande },
     });
 
-    res.json({ message: "Statut mis à jour", commande: updatedCommande });
+    res.status(200).json({
+      message: `Statut de la commande mis à jour en "${statut_commande}" avec succès 🚚`,
+      commande: updatedCommande,
+    });
   } catch (error) {
-    console.error("Erreur update commande :", error);
-    res.status(500).json({ message: "Erreur serveur" });
+    console.error("Erreur update statut commande :", error);
+    res.status(500).json({ message: "Erreur serveur." });
   }
 });
+
 
 // ✅ DELETE - Supprimer une commande (admin uniquement ?)
 commandeRouter.delete("/:id", isAdmin, async (req, res) => {

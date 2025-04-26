@@ -1,13 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import { generateFacturePDF } from "./generateFacturePDF";
-import { sendMailWithAttachment } from "./mailService"; // pense à bien importer ça
+import { sendMail, sendMailWithAttachment } from "./mailService";
 import path from "path";
+import { templateConfirmationCommande } from "../templateMails/commande/confirmationCommande";
+import { templateFactureEnvoyee } from "../templateMails/commande/envoiFacture";
 
 const prisma = new PrismaClient();
 
 export const validerPaiementTransaction = async (id_commande: number) => {
   return await prisma.$transaction(async (tx) => {
-    // 1. Récupération de la commande
     const commande = await tx.commande.findUnique({
       where: { id_commande },
       include: {
@@ -19,7 +20,7 @@ export const validerPaiementTransaction = async (id_commande: number) => {
       throw new Error("Commande introuvable");
     }
 
-    // 2. Vérification stock pour chaque ligne
+    // Vérification du stock
     for (const ligne of commande.LigneCommande) {
       const stock = await tx.stock.findFirst({
         where: {
@@ -50,16 +51,16 @@ export const validerPaiementTransaction = async (id_commande: number) => {
       });
     }
 
-    // 3. Mise à jour du statut de la commande
+    // ✅ Ici, uniquement le statut paiement !
     await tx.commande.update({
       where: { id_commande },
       data: {
-        statut_commande: "livraison",
+        statut_commande: "en_cours_de_preparation",
         statut_paiement: "paye",
       },
     });
 
-    // 4. Génération de la facture et envoi d'email
+    // Génération facture
     const commandeComplete = await prisma.commande.findUnique({
       where: { id_commande },
       include: {
@@ -76,7 +77,7 @@ export const validerPaiementTransaction = async (id_commande: number) => {
     });
 
     if (!commandeComplete) {
-      throw new Error("Impossible de charger les détails de la commande.");
+      throw new Error("Impossible de charger la commande complète");
     }
 
     const numero_facture = `FCT-${id_commande}-${Date.now()}`;
@@ -117,23 +118,20 @@ export const validerPaiementTransaction = async (id_commande: number) => {
           (commandeComplete.Livraison[0]?.LieuLivraison.prix_lieu || 0),
       },
     };
-
+    await sendMail({
+      to: commandeComplete.Client.adresse_mail_client,
+      subject: "🎉 Confirmation de votre commande UrbanHeritage",
+      html: templateConfirmationCommande(commandeComplete.Client.prenom_client, commandeComplete.id_commande.toString()),
+    });
+    
     const pdfPath = await generateFacturePDF(pdfData);
 
-    await sendMailWithAttachment({
-      to: commandeComplete.Client.adresse_mail_client,
-      subject: "🎉 Merci pour votre commande chez UrbanHeritage !",
-      text: `Bonjour ${commandeComplete.Client.prenom_client || commandeComplete.Client.nom_client},
-
-Merci beaucoup pour votre commande sur UrbanHeritage ✨ !
-
-Veuillez trouver en pièce jointe votre facture officielle.
-
-Nous espérons que votre nouveau maillot vous plaira autant que nous avons aimé le créer ❤️.
-
-À très bientôt sur UrbanHeritage !`,
-      attachmentPath: pdfPath,
-    });
+    + await sendMailWithAttachment({
+         to: commandeComplete.Client.adresse_mail_client,
+         subject: "🧾 Votre facture UrbanHeritage",
+         html: templateFactureEnvoyee(commandeComplete.Client.prenom_client || commandeComplete.Client.nom_client),
+         attachmentPath: pdfPath,
+      });
 
     return { message: "Paiement validé, stock mis à jour, facture générée et email envoyé." };
   });

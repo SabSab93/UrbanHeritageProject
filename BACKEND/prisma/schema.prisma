@@ -294,6 +294,7 @@ enum status_enum {
 
 enum statut_commande_enum {
   en_cours
+  en_cours_de_preparation
   livraison
   livre
   retard
