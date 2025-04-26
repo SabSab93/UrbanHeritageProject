@@ -166,16 +166,13 @@ commandeRouter.post("/finaliser",  async (req, res) => {
 // ✅ POST /commande/valider-paiement/:id
 commandeRouter.post("/valider-paiement/:id", async (req, res) => {
   const id_commande = parseInt(req.params.id);
-
   if (isNaN(id_commande)) {
     return res.status(400).json({ message: "ID de commande invalide" });
   }
-
   try {
-    const result = await validerPaiementTransaction(id_commande);
-
+    const result = await validerPaiementTransaction(id_commande); 
     return res.status(200).json({
-      message: "Commande payée et stock mis à jour.",
+      message: "Commande payée, facture générée et email envoyé 🎉",
       details: result,
     });
   } catch (error: any) {
