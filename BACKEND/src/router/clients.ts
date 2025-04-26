@@ -8,6 +8,7 @@ import crypto from "crypto";
 import { templateActivationCompte } from "../templateMails/compte/activationCompte";
 import { isAdmin } from "../../middleware/isAdmin";
 import { templateBienvenueCompte } from "../templateMails/compte/bienvenueCompte";
+import { templateForgotPassword } from "../templateMails/compte/resetMotDePasse";
 
 export const clientRouter = Router();
 const prisma = new PrismaClient();
@@ -254,5 +255,77 @@ clientRouter.get("/:id/details",monMiddlewareBearer, async (req, res) => {
   } catch (error) {
     console.error("Erreur récupération détails client :", error);
     res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+// ✅ POST - Réinitialisation mot de passe
+clientRouter.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const client = await prisma.client.findUnique({
+      where: { adresse_mail_client: email },
+    });
+
+    if (!client) {
+      return res.status(404).json({ message: "Aucun compte trouvé avec cet email." });
+    }
+
+    const resetToken = crypto.randomBytes(30).toString("hex");
+
+    // Stocker temporairement dans la base
+    await prisma.client.update({
+      where: { id_client: client.id_client },
+      data: {
+        activation_token: resetToken, 
+      },
+    });
+
+    await sendMail({
+      to: client.adresse_mail_client,
+      subject: "🔑 UrbanHeritage - Réinitialisation de votre mot de passe",
+      html: templateForgotPassword(client.prenom_client || client.nom_client, resetToken),
+    });
+
+    res.status(200).json({ message: "Email de réinitialisation envoyé. Merci de vérifier votre boite mail." });
+
+  } catch (error) {
+    console.error("Erreur dans /forgot-password :", error);
+    res.status(500).json({ message: "Erreur serveur", error });
+  }
+});
+
+
+clientRouter.post("/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    return res.status(400).json({ message: "Données manquantes." });
+  }
+
+  try {
+    const client = await prisma.client.findFirst({
+      where: { activation_token: token },
+    });
+
+    if (!client) {
+      return res.status(404).json({ message: "Token invalide ou expiré." });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.client.update({
+      where: { id_client: client.id_client },
+      data: {
+        mot_de_passe: hashedPassword,
+        activation_token: null, 
+      },
+    });
+
+    res.status(200).json({ message: "Votre mot de passe a été réinitialisé avec succès." });
+
+  } catch (error) {
+    console.error("Erreur dans /reset-password :", error);
+    res.status(500).json({ message: "Erreur serveur", error });
   }
 });
