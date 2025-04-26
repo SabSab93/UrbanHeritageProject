@@ -5,9 +5,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsI
 ###
 
 ### ✅ GET - Une commande par ID
-GET http://localhost:1992/api/commande/2
+GET http://localhost:1992/api/commande/4
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpZF9yb2xlIjoyLCJpYXQiOjE3NDUyNDUyMTYsImV4cCI6MTc0NTMzMTYxNn0.XCE5Pv1tTZ8VJ4-G7lwEMcJcGkV6ShIfiBx_5if8B_4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjExLCJlbWFpbCI6InNhYnJpbmFoXzM4QGhvdG1haWwuZnIiLCJpZF9yb2xlIjoxLCJpYXQiOjE3NDU2ODU0NjUsImV4cCI6MTc0NTc3MTg2NX0.uD9SEQ07TqmO_qrkLeMz0dzgxKv7nnQXc5j-pug5Hyg
 
 ###
 
@@ -23,13 +23,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsI
 ###
 
 ### ✅ PUT - Modifier le statut d’une commande (admin)
-PUT http://localhost:1992/api/commande/1
+PUT http://localhost:1992/api/commande/4
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjMsImVtYWlsIjoiZGFsaWxhQGdtYWlsLmNvbSIsImlhdCI6MTc0NTA5MjY4MiwiZXhwIjoxNzQ1MTc5MDgyfQ.nSJq-sJmLczJkjokmh8ud2RWzPxcm20c7npQ7cMkC9g
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsImVtYWlsIjoidXJiYW5oZXJpdGFnZS5wcm9qZWN0Lm1kc0BnbWFpbC5jb20iLCJpZF9yb2xlIjoyLCJpYXQiOjE3NDU2ODU0MTMsImV4cCI6MTc0NTc3MTgxM30.SfaRgt-65aRIAt18GdT4UZh9YlKr5LKdid3fYmYCqNc
 
 {
   "data": {
-    "statut_commande": "livraison"
+    "statut_commande": "livre"
   }
 }
 

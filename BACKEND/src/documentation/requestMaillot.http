@@ -51,3 +51,4 @@ Content-Type: application/json
 DELETE http://localhost:1992/api/maillot/6
 Content-Type: application/json
 
+

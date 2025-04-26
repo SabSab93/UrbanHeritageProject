@@ -8,7 +8,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//ok
+
 model LigneCommandeReduction {
   id_lignecommande Int
   id_reduction     Int
@@ -18,7 +18,7 @@ model LigneCommandeReduction {
   @@id([id_lignecommande, id_reduction])
 }
 
-//ok
+
 model Artiste {
   id_maillot_artiste          Int     @id @default(autoincrement())
   nom_artiste                 String  @db.VarChar(100)
@@ -37,7 +37,7 @@ model Artiste {
   Maillot                     Maillot @relation(fields: [id_maillot_artiste], references: [id_maillot], onDelete: Cascade, onUpdate: NoAction)
 }
 
-//ok
+
 model Association {
   id_maillot_association            Int     @id @default(autoincrement())
   nom_association                   String  @db.VarChar(100)
@@ -54,7 +54,7 @@ model Association {
   Maillot                           Maillot @relation(fields: [id_maillot_association], references: [id_maillot], onDelete: Cascade, onUpdate: NoAction)
 }
 
-//ok
+
 model Avis {
   id_avis          Int                   @id @default(autoincrement())
   id_maillot       Int
@@ -75,14 +75,14 @@ model Avoir {
   avoir_hors_ue Boolean   @default(false)
 }
 
-//ok
+
 model Role {
   id_role     Int      @id @default(autoincrement())
   nom_role    String   @unique @db.VarChar(50)  
   description String?
   Clients     Client[] 
 }
-//ok
+
 model Client {
   id_client             Int           @id @default(autoincrement())
   id_role               Int?          
@@ -103,7 +103,7 @@ model Client {
   Commande              Commande[]
   LigneCommande         LigneCommande[]
 }
-//ok
+
 model Commande {
   id_commande     Int                  @id @default(autoincrement())
   id_client       Int
@@ -123,7 +123,7 @@ model Facture {
   date_facture    DateTime? @default(now()) @db.Timestamp(6)
   facture_hors_ue Boolean?  @default(false)
 }
-//ok
+
 model LigneCommande {
   id_lignecommande Int                 @id @default(autoincrement())
   id_client        Int
@@ -142,7 +142,7 @@ model LigneCommande {
   LigneCommandeReduction LigneCommandeReduction[]
   LigneCommandePersonnalisation LigneCommandePersonnalisation[]
 }
-//ok
+
 model Livraison {
   id_livraison          Int              @id @default(autoincrement())
   id_commande           Int
@@ -160,28 +160,28 @@ model Livraison {
   Livreur          Livreur          @relation(fields: [id_livreur], references: [id_livreur])
   Commande         Commande         @relation(fields: [id_commande], references: [id_commande])
 }
-//ok
+
 model MethodeLivraison {
   id_methode_livraison Int              @id @default(autoincrement())
   nom_methode          String           @unique @db.VarChar(50) 
   prix_methode         Int              @default(0) 
   Livraison            Livraison[]
 }
-//ok
+
 model LieuLivraison {
   id_lieu_livraison Int              @id @default(autoincrement())
   nom_lieu           String           @unique @db.VarChar(50)
   prix_lieu          Int              @default(0) // 
   Livraison          Livraison[]
 }
-//ok
+
 model Livreur {
   id_livreur   Int       @id @default(autoincrement())
   nom_livreur String     @unique @db.VarChar(50) 
   Livraison   Livraison[]
 }
 
-//ok
+
 model Maillot {
   id_maillot              Int                       @id @default(autoincrement())
   id_tva                  Int                       @default(1)
@@ -202,7 +202,7 @@ model Maillot {
   LigneCommande           LigneCommande[]
 
 }
-//ok
+
 model LigneCommandePersonnalisation {
   id_lignecommande         Int
   id_personnalisation      Int
@@ -214,7 +214,7 @@ model LigneCommandePersonnalisation {
   @@id([id_lignecommande, id_personnalisation])
 }
 
-//ok
+
 model Personnalisation {
   id_personnalisation     Int                        @id @default(autoincrement())
   type_personnalisation   type_personnalisation_enum
@@ -223,7 +223,7 @@ model Personnalisation {
   LigneCommandePersonnalisation LigneCommandePersonnalisation[]
 }
 
-//ok
+
 model Reduction {
   id_reduction         Int                        @id @default(autoincrement())
   code_reduction       String                     @unique @db.VarChar(100)
