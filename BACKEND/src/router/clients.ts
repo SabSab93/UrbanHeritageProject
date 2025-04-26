@@ -3,12 +3,16 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { sendMail } from "../utils/mailService"; 
+import crypto from "crypto"; 
+import { templateActivationCompte } from "../templateMails/compte/activationCompte";
+import { isAdmin } from "../../middleware/isAdmin";
 
 export const clientRouter = Router();
 const prisma = new PrismaClient();
 
 // ✅ GET - Tous les clients
-clientRouter.get("/", monMiddlewareBearer, async (req, res) => {
+clientRouter.get("/", monMiddlewareBearer,isAdmin, async (req, res) => {
   const clients = await prisma.client.findMany({
     include: { Role: true },
   });
@@ -32,56 +36,74 @@ clientRouter.get("/:id", monMiddlewareBearer, async (req, res) => {
 // ✅ POST - Inscription
 clientRouter.post("/register", async (req, res) => {
   try {
-    const { adresse_mail_client, id_role } = req.body.data;
+    const { adresse_mail_client } = req.body.data;
 
     const existing = await prisma.client.findFirst({ where: { adresse_mail_client } });
-    if (existing) return res.status(400).json("Email déjà utilisé");
+    if (existing) return res.status(400).json({ message: "Email déjà utilisé" });
 
-    const hashedPassword = await bcrypt.hash(req.body.data.mot_de_passe, 10);
+    const activationToken = crypto.randomBytes(30).toString("hex");
 
-    let dateNaissance: Date | null = null;
-    if (req.body.data.date_naissance_client) {
-      const [jour, mois, annee] = req.body.data.date_naissance_client.split("/");
-      const parsedDate = new Date(`${annee}-${mois}-${jour}`);
-      if (!isNaN(parsedDate.getTime())) {
-        dateNaissance = parsedDate;
-      } else {
-        return res.status(400).json({ message: "Format de date invalide. Utilisez JJ/MM/AAAA." });
-      }
-    }
-
-    const newClient = await prisma.client.create({
-      data: {
-        nom_client: req.body.data.nom_client,
-        prenom_client: req.body.data.prenom_client,
-        civilite: req.body.data.civilite,
-        date_naissance_client: dateNaissance,
-        adresse_client: req.body.data.adresse_client,
-        code_postal_client: req.body.data.code_postal_client,
-        ville_client: req.body.data.ville_client,
-        pays_client: req.body.data.pays_client,
-        mot_de_passe: hashedPassword,
-        adresse_mail_client,
-        id_role: id_role ?? 1, // 1 = client
-      },
+    await sendMail({
+      to: adresse_mail_client,
+      subject: "🎉 Bienvenue chez UrbanHeritage - Activez votre compte",
+      html: templateActivationCompte(req.body.data.prenom_client || req.body.data.nom_client, activationToken),
     });
 
-    const token = jwt.sign(
-      {
-        id_client: newClient.id_client,
-        email: newClient.adresse_mail_client,
-        id_role: newClient.id_role, 
-      },
-      process.env.JWT_SECRET!,
-      { expiresIn: "24h" }
-    );
+    res.status(201).json({ 
+      message: "Email d'activation envoyé. Merci de vérifier vos mails.",
+      tempData: { 
+        ...req.body.data,
+        activation_token: activationToken
+      }
+    });
 
-    res.status(201).json({ token });
   } catch (error) {
     console.error("Erreur dans /register :", error);
     res.status(500).json({ message: "Erreur serveur", error });
   }
 });
+
+// ✅ GET - Activation compte
+clientRouter.post("/activate", async (req, res) => {
+  const { token, data } = req.body;
+
+  if (!token || !data) {
+    return res.status(400).json({ message: "Données d'activation manquantes." });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(data.mot_de_passe, 10);
+
+    const [jour, mois, annee] = data.date_naissance_client.split("/");
+    const parsedDate = new Date(`${annee}-${mois}-${jour}`);
+
+    await prisma.client.create({
+      data: {
+        nom_client: data.nom_client,
+        prenom_client: data.prenom_client,
+        civilite: data.civilite,
+        date_naissance_client: !isNaN(parsedDate.getTime()) ? parsedDate : undefined,
+        adresse_client: data.adresse_client,
+        code_postal_client: data.code_postal_client,
+        ville_client: data.ville_client,
+        pays_client: data.pays_client,
+        mot_de_passe: hashedPassword,
+        adresse_mail_client: data.adresse_mail_client,
+        id_role: 1,
+        activation_token: null,
+        statut_compte: "actif",
+      },
+    });
+
+    res.status(200).json({ message: "Votre compte a été activé avec succès 🎉" });
+
+  } catch (error) {
+    console.error("Erreur activation compte :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+
 
 // ✅ PUT - Modifier un client
 clientRouter.put("/:id", monMiddlewareBearer, async (req, res) => {
@@ -133,7 +155,7 @@ clientRouter.put("/:id", monMiddlewareBearer, async (req, res) => {
 });
 
 // ✅ DELETE - Supprimer un client
-clientRouter.delete("/:id", async (req, res) => {
+clientRouter.delete("/:id",monMiddlewareBearer, async (req, res) => {
   const clientId = parseInt(req.params.id);
   if (isNaN(clientId)) return res.status(400).json({ message: "ID invalide" });
 
@@ -156,6 +178,10 @@ clientRouter.post("/login", async (req, res) => {
 
     if (!client) return res.status(404).json({ message: "Email non trouvé" });
 
+    if (client.statut_compte !== "actif") {
+      return res.status(403).json({ message: "Votre compte n'est pas activé. Merci de vérifier vos mails." });
+    }
+
     const passwordValid = await bcrypt.compare(mot_de_passe, client.mot_de_passe);
     if (!passwordValid) return res.status(401).json({ message: "Mot de passe incorrect" });
 
@@ -176,11 +202,8 @@ clientRouter.post("/login", async (req, res) => {
   }
 });
 
-
-// ✅ GET - détails complets pour un client
-// clientRouter.ts ou dans une nouvelle route dédiée
-
-clientRouter.get("/:id/details", async (req, res) => {
+// ✅ GET - Détail complet client
+clientRouter.get("/:id/details",monMiddlewareBearer, async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID client invalide" });
 
@@ -227,5 +250,3 @@ clientRouter.get("/:id/details", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
-
-
