@@ -7,6 +7,7 @@ import { sendMail } from "../utils/mailService";
 import crypto from "crypto"; 
 import { templateActivationCompte } from "../templateMails/compte/activationCompte";
 import { isAdmin } from "../../middleware/isAdmin";
+import { templateBienvenueCompte } from "../templateMails/compte/bienvenueCompte";
 
 export const clientRouter = Router();
 const prisma = new PrismaClient();
@@ -94,7 +95,12 @@ clientRouter.post("/activate", async (req, res) => {
         statut_compte: "actif",
       },
     });
-
+    
+    await sendMail({
+      to: data.adresse_mail_client,
+      subject: "🎉 Bienvenue sur UrbanHeritage",
+      html: templateBienvenueCompte(data.prenom_client || data.nom_client),
+    });
     res.status(200).json({ message: "Votre compte a été activé avec succès 🎉" });
 
   } catch (error) {
