@@ -5,7 +5,8 @@ import { validerPaiementTransaction } from "../utils/ValiderPaiementTransaction"
 import { checkCommandeTransaction } from "../utils/CheckCommandeTransaction";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
 import { sendMail } from "../utils/mailService";
-import { templateExpeditionCommande } from "../templateMails/commande/expeditionCommande";
+import { templateExpeditionCommande } from "../templateMails/commande/commandeExpedition";
+import { templateCommandeRetour } from "../templateMails/commande/commandeRetour";
 
 export const commandeRouter = Router();
 const prisma = new PrismaClient();
@@ -135,16 +136,14 @@ commandeRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
           });
           break;
 
-        // case "retour":
-        //   await sendMail({
-        //     to: client.adresse_mail_client,
-        //     subject: "↩️ Retour de votre commande UrbanHeritage",
-        //     html: templateCommandeRetour(client.prenom_client || client.nom_client, commande.id_commande.toString()),
-        //   });
+        case "retour":
+          await sendMail({
+            to: client.adresse_mail_client,
+            subject: "↩️ Retour de votre commande UrbanHeritage",
+            html: templateCommandeRetour(client.prenom_client || client.nom_client, commande.id_commande.toString()),
+          });
           break;
-
         default:
-          // Pas de mail pour les autres statuts
           break;
       }
     }
