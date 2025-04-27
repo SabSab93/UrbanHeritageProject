@@ -115,6 +115,8 @@ model Commande {
   statut_paiement statut_paiement_enum @default(en_attente)
 
   Livraison Livraison[]
+
+  Retour Retour[]
 }
 
 model Facture {
@@ -141,6 +143,8 @@ model LigneCommande {
 
   LigneCommandeReduction LigneCommandeReduction[]
   LigneCommandePersonnalisation LigneCommandePersonnalisation[]
+
+  RetourLigneCommande RetourLigneCommande[]
 }
 
 model Livraison {
@@ -239,11 +243,24 @@ model Reduction {
 }
 
 model Retour {
-  id_commande_retour Int               @id
-  motif_retour       motif_retour_enum
-  date_retour        DateTime          @db.Timestamp(6)
-  droit_retour       Boolean           @default(false)
-  reception_retour   Boolean           @default(false)
+  id_commande_retour Int @id
+  motif_retour motif_retour_enum
+  date_retour DateTime
+  droit_retour Boolean @default(false)
+  reception_retour Boolean @default(false)
+
+  Commande Commande @relation(fields: [id_commande_retour], references: [id_commande], onDelete: Cascade) 
+  RetourLigneCommande RetourLigneCommande[]
+}
+
+model RetourLigneCommande {
+  id_retour Int
+  id_lignecommande Int
+
+  Retour Retour @relation(fields: [id_retour], references: [id_commande_retour], onDelete: Cascade)
+  LigneCommande LigneCommande @relation(fields: [id_lignecommande], references: [id_lignecommande], onDelete: Cascade)
+
+  @@id([id_retour, id_lignecommande]) 
 }
 
 
@@ -265,7 +282,7 @@ model StockMaillot {
   date_mouvement   DateTime?           @default(now()) @db.Timestamp(6)
   Stock            Stock               @relation(fields: [id_stock], references: [id_stock], onDelete: Cascade, onUpdate: NoAction)
 }
-//ok
+
 model TVA {
   id_tva          Int       @id @default(autoincrement())
   taux_tva        Int
