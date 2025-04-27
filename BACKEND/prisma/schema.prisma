@@ -20,26 +20,27 @@ model LigneCommandeReduction {
 
 
 model Artiste {
-  id_maillot_artiste          Int     @id @default(autoincrement())
-  nom_artiste                 String  @db.VarChar(100)
-  prenom_artiste              String  @db.VarChar(100)
-  pays_artiste                String  @default(" ") @db.VarChar(100)
-  date_naissance_artiste      String  @default(" ") @db.VarChar(100)
-  site_web_artiste            String  @default(" ") @db.VarChar(500)
-  url_image_artiste_1         String  @default(" ")
-  url_image_artiste_2         String  @default(" ")
-  url_image_artiste_3         String  @default(" ")
-  description_artiste_1       String  @default(" ")
-  description_artiste_2       String  @default(" ")
-  description_artiste_3       String  @default(" ")
+  id_artiste              Int     @id @default(autoincrement())
+  nom_artiste            String   @db.VarChar(100)
+  prenom_artiste         String   @db.VarChar(100)
+  pays_artiste           String   @default(" ") @db.VarChar(100)
+  date_naissance_artiste String   @default(" ") @db.VarChar(100)
+  site_web_artiste       String   @default(" ") @db.VarChar(500)
+  url_image_artiste_1    String   @default(" ")
+  url_image_artiste_2    String   @default(" ")
+  url_image_artiste_3    String   @default(" ")
+  description_artiste_1  String   @default(" ")
+  description_artiste_2  String   @default(" ")
+  description_artiste_3  String   @default(" ")
   url_instagram_reseau_social String?
   url_tiktok_reseau_social    String?
-  Maillot                     Maillot @relation(fields: [id_maillot_artiste], references: [id_maillot], onDelete: Cascade, onUpdate: NoAction)
+
+  Maillots Maillot[]
 }
 
 
 model Association {
-  id_maillot_association            Int     @id @default(autoincrement())
+  id_association                    Int     @id @default(autoincrement())
   nom_association                   String  @db.VarChar(100)
   numero_identification_association String  @db.VarChar(100)
   adresse_siege_social_association  String  @default(" ")
@@ -51,7 +52,7 @@ model Association {
   description_association_1         String  @default(" ")
   description_association_2         String  @default(" ")
   description_association_3         String  @default(" ")
-  Maillot                           Maillot @relation(fields: [id_maillot_association], references: [id_maillot], onDelete: Cascade, onUpdate: NoAction)
+  Maillots                          Maillot[]
 }
 
 
@@ -73,8 +74,9 @@ model Avoir {
   numero_avoir  String?   @unique @db.VarChar(100)
   date_avoir    DateTime? @db.Timestamp(6)
   avoir_hors_ue Boolean   @default(false)
+  id_commande_retour   Int
+  Retour        Retour    @relation(fields: [id_commande_retour], references: [id_commande_retour])
 }
-
 
 model Role {
   id_role     Int      @id @default(autoincrement())
@@ -117,6 +119,8 @@ model Commande {
   Livraison Livraison[]
 
   Retour Retour[]
+
+  Facture Facture[]
 }
 
 model Facture {
@@ -124,6 +128,7 @@ model Facture {
   id_commande     Int
   date_facture    DateTime? @default(now()) @db.Timestamp(6)
   facture_hors_ue Boolean?  @default(false)
+  Commande        Commande  @relation(fields: [id_commande], references: [id_commande])
 }
 
 model LigneCommande {
@@ -188,6 +193,8 @@ model Livreur {
 
 model Maillot {
   id_maillot              Int                       @id @default(autoincrement())
+  id_artiste              Int 
+  id_association          Int
   id_tva                  Int                       @default(1)
   nom_maillot             String                    @default("") @db.VarChar(100)
   pays_maillot            String                    @default("") @db.VarChar(100)
@@ -200,11 +207,10 @@ model Maillot {
   tracabilite             String                    @default("")
   entretien               String                    @default("")
   prix_ht_maillot         Int                       @default(0)
-  Artiste                 Artiste?
-  Association             Association?
   Avis                    Avis[]
   LigneCommande           LigneCommande[]
-
+  Artiste                 Artiste                   @relation(fields: [id_artiste], references: [id_artiste])
+  Association             Association               @relation(fields: [id_association], references: [id_association])
 }
 
 model LigneCommandePersonnalisation {
@@ -251,6 +257,8 @@ model Retour {
 
   Commande Commande @relation(fields: [id_commande_retour], references: [id_commande], onDelete: Cascade) 
   RetourLigneCommande RetourLigneCommande[]
+
+  Avoir Avoir[]
 }
 
 model RetourLigneCommande {
@@ -265,13 +273,10 @@ model RetourLigneCommande {
 
 
 model Stock {
-  id_stock        Int                 @id @default(autoincrement())
-  id_maillot      Int
-  taille_maillot  taille_maillot_enum
-  quantite_entree Int                 @default(0)
-  quantite_sortie Int                 @default(0)
-  quantite_total  Int                 @default(0)
-  StockMaillot    StockMaillot[]
+  id_stock       Int                @id @default(autoincrement())
+  id_maillot     Int
+  taille_maillot taille_maillot_enum
+  StockMaillot   StockMaillot[]
 }
 
 model StockMaillot {
@@ -326,7 +331,6 @@ enum statut_reduction_type_enum {
 }
 
 enum taille_maillot_enum {
-  XS
   S
   M
   L

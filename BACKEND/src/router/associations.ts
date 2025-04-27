@@ -17,7 +17,7 @@ associationRouter.get("/:id", async (req, res) => {
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
 
   const association = await prisma.association.findUnique({
-    where: { id_maillot_association: id },
+    where: { id_association: id }, // <<--- changé ici
   });
 
   if (!association) return res.status(404).json({ message: "Association non trouvée" });
@@ -42,7 +42,7 @@ associationRouter.post("/create", async (req, res) => {
         description_association_1: data.description_association_1,
         description_association_2: data.description_association_2,
         description_association_3: data.description_association_3,
-        id_maillot_association: data.id_maillot_association
+        // pas besoin d'id_association : il est auto-généré
       },
     });
 
@@ -62,7 +62,7 @@ associationRouter.put("/:id", async (req, res) => {
 
   try {
     const updatedAssociation = await prisma.association.update({
-      where: { id_maillot_association: id },
+      where: { id_association: id }, // <<--- changé ici
       data: {
         ...data
       },
@@ -81,7 +81,7 @@ associationRouter.delete("/:id", async (req, res) => {
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
 
   try {
-    await prisma.association.delete({ where: { id_maillot_association: id } });
+    await prisma.association.delete({ where: { id_association: id } }); // <<--- changé ici
     res.json({ message: "Association supprimée" });
   } catch (error) {
     console.error("Erreur delete association :", error);

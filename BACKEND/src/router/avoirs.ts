@@ -1,9 +1,6 @@
 import { Router } from "express"; 
 import { PrismaClient } from "@prisma/client";
 import { isAdmin } from "../../middleware/isAdmin";
-import { sendMailWithAttachment } from "../utils/mailService";
-import { templateAvoirCreation } from "../templateMails/avoir/avoirCreation";
-import { generateAvoirPDF } from "../utils/generateAvoirPDF";
 import { creerAvoirDepuisRetour } from "../utils/creerAvoirDepuisRetour";
 
 export const avoirRouter = Router();
@@ -22,5 +19,18 @@ avoirRouter.post("/create", isAdmin, async (req, res) => {
   } catch (error: any) {
     console.error("Erreur création avoir :", error);
     res.status(500).json({ message: "Erreur serveur", details: error.message || error });
+  }
+});
+// ✅ GET - Liste de tous les avoirs
+avoirRouter.get("/", isAdmin, async (req, res) => {
+  try {
+    const avoirs = await prisma.avoir.findMany({
+      orderBy: { date_avoir: "desc" },
+    });
+
+    res.json(avoirs);
+  } catch (error) {
+    console.error("Erreur récupération avoirs :", error);
+    res.status(500).json({ message: "Erreur serveur" });
   }
 });

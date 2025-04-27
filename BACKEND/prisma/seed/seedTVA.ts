@@ -1,24 +1,14 @@
-/// <reference types="node" />
-
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function main() {
-  const tvaEntry = await prisma.tVA.create({
-    data: {
-      taux_tva: 20,
-      description_tva: "TVA de 20%"
-    }
+export const seedTVA = async () => {
+  console.log("Seeding TVA...");
+  await prisma.tVA.createMany({
+    data: [
+      { taux_tva: 20, description_tva: "TVA France 20%" },
+      { taux_tva: 0, description_tva: "TVA Suisse 0%" },
+    ],
+    skipDuplicates: true,
   });
-  console.log("TVA créée :", tvaEntry);
-}
-
-main()
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+};

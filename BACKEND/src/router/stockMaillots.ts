@@ -115,6 +115,37 @@ stockmaillotRouter.post("/create", async (req, res) => {
   }
 });
 
+
+// ✅ GET - Tous les mouvements d'un stock précis
+stockmaillotRouter.get("/stock/:id_stock", async (req, res) => {
+  const id_stock = parseInt(req.params.id_stock);
+
+  if (isNaN(id_stock)) {
+    return res.status(400).json({ message: "ID stock invalide" });
+  }
+
+  try {
+    const mouvements = await prisma.stockMaillot.findMany({
+      where: { id_stock },
+      orderBy: { date_mouvement: "desc" }, // dernier mouvement en premier
+      include: {
+        Stock: {
+          select: {
+            id_maillot: true,
+            taille_maillot: true,
+          },
+        },
+      },
+    });
+
+    res.json(mouvements);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des mouvements par stock :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+
 // ✅ DELETE - supprimer un mouvement (sans mise à jour des champs obsolètes)
 stockmaillotRouter.delete("/:id", async (req, res) => {
   const id = parseInt(req.params.id);

@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router } from "express"; 
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
 
@@ -17,7 +17,7 @@ artisteRouter.get("/:id", async (req, res) => {
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
 
   const artiste = await prisma.artiste.findUnique({
-    where: { id_maillot_artiste: id },
+    where: { id_artiste: id },
   });
 
   if (!artiste) return res.status(404).json({ message: "Artiste non trouvé" });
@@ -44,7 +44,7 @@ artisteRouter.post("/create", async (req, res) => {
         description_artiste_3: data.description_artiste_3,
         url_instagram_reseau_social: data.url_instagram_reseau_social,
         url_tiktok_reseau_social: data.url_tiktok_reseau_social,
-        id_maillot_artiste: data.id_maillot_artiste, // correspond à la FK vers le maillot
+
       },
     });
 
@@ -64,7 +64,7 @@ artisteRouter.put("/:id", async (req, res) => {
 
   try {
     const updatedArtiste = await prisma.artiste.update({
-      where: { id_maillot_artiste: id },
+      where: { id_artiste: id }, 
       data: {
         ...data
       },
@@ -83,7 +83,7 @@ artisteRouter.delete("/:id", async (req, res) => {
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
 
   try {
-    await prisma.artiste.delete({ where: { id_maillot_artiste: id } });
+    await prisma.artiste.delete({ where: { id_artiste: id } }); // <-- changé ici
     res.json({ message: "Artiste supprimé" });
   } catch (error) {
     console.error("Erreur delete artiste :", error);

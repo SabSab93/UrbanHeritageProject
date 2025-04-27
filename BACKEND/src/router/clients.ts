@@ -91,7 +91,7 @@ clientRouter.post("/activate", async (req, res) => {
         pays_client: data.pays_client,
         mot_de_passe: hashedPassword,
         adresse_mail_client: data.adresse_mail_client,
-        id_role: 1,
+        id_role: data.role === "admin" ? 2 : 1,
         activation_token: null,
         statut_compte: "actif",
       },
