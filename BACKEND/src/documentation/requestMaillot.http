@@ -1,26 +1,29 @@
-###GET Maillot ok
+### GET Maillots - Liste tous les maillots
 GET http://localhost:1992/api/maillot
+Content-Type: application/json
 
 ###
 ////////////////////////////////////////////////////////
 
-###GET Maillot particulier 
+### GET Maillot particulier - Récupère un maillot par ID
 GET http://localhost:1992/api/maillot/4
 Content-Type: application/json
 
 ###
 ////////////////////////////////////////////////////////
 
-###POST Maillot
+### POST Maillot - Créer un nouveau maillot (mise à jour avec id_artiste et id_association)
 POST http://localhost:1992/api/maillot/create
 Content-Type: application/json
 
 {
   "data": {
+      "id_artiste": 1,
+      "id_association": 1,
       "id_tva": 1,
-      "nom_maillot": "Maillot d'Algerie",
-      "pays_maillot": "Algerie",
-      "description_maillot": "Maillot officiel de l'équipe d'Algerie",
+      "nom_maillot": "Maillot d'Algérie",
+      "pays_maillot": "Algérie",
+      "description_maillot": "Maillot officiel de l'équipe d'Algérie",
       "composition_maillot": "100% polyester",
       "url_image_maillot_1": "img1.jpg",
       "url_image_maillot_2": "img2.jpg",
@@ -31,24 +34,23 @@ Content-Type: application/json
       "prix_ht_maillot": 80
   }
 }
+
 ###
 ////////////////////////////////////////////////////////
 
-###PUT Maillot
+### PUT Maillot - Modifier un maillot existant
 PUT http://localhost:1992/api/maillot/5
 Content-Type: application/json
 
 {
-    "data": {
-      "prix_ht_maillot": 100
+  "data": {
+    "prix_ht_maillot": 100
   }
 }
 
 ###
 ////////////////////////////////////////////////////////
 
-###DELETE Maillot particulier
+### DELETE Maillot particulier - Supprimer un maillot par ID
 DELETE http://localhost:1992/api/maillot/6
 Content-Type: application/json
-
-

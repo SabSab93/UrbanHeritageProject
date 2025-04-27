@@ -211,6 +211,8 @@ model Maillot {
   LigneCommande           LigneCommande[]
   Artiste                 Artiste                   @relation(fields: [id_artiste], references: [id_artiste])
   Association             Association               @relation(fields: [id_association], references: [id_association])
+
+  Stock Stock[]
 }
 
 model LigneCommandePersonnalisation {
@@ -276,9 +278,9 @@ model Stock {
   id_stock       Int                @id @default(autoincrement())
   id_maillot     Int
   taille_maillot taille_maillot_enum
+  Maillot        Maillot            @relation(fields: [id_maillot], references: [id_maillot])
   StockMaillot   StockMaillot[]
 }
-
 model StockMaillot {
   id_stock_maillot Int                 @id @default(autoincrement())
   id_stock         Int

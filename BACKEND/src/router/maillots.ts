@@ -6,44 +6,47 @@ export const maillotRouter = Router();
 const prisma = new PrismaClient();
 
 
-
-
 // POST
 maillotRouter.post("/create", async (req, res) => {
-    try {
-      const data = req.body.data;
-      if (
-        !data ||
-        !data.nom_maillot ||
-        !data.pays_maillot ||
-        typeof data.prix_ht_maillot !== "number"
-      ) {
-        return res.status(400).json({ message: "Données incomplètes" });
-      }
-  
-      const newMaillot = await prisma.maillot.create({
-        data: {
-          id_tva: data.id_tva,
-          nom_maillot: data.nom_maillot,
-          pays_maillot: data.pays_maillot,
-          description_maillot: data.description_maillot,
-          composition_maillot: data.composition_maillot,
-          url_image_maillot_1: data.url_image_maillot_1,
-          url_image_maillot_2: data.url_image_maillot_2,
-          url_image_maillot_3: data.url_image_maillot_3,
-          origine: data.origine,
-          tracabilite: data.tracabilite,
-          entretien: data.entretien,
-          prix_ht_maillot: data.prix_ht_maillot,
-        },
-      });
-  
-      return res.status(201).json(newMaillot);
-    } catch (error) {
-      console.error("Erreur lors de la création du maillot :", error);
-      return res.status(500).json({ message: "Erreur serveur lors de la création du maillot" });
+  try {
+    const data = req.body.data;
+
+    if (
+      !data ||
+      !data.nom_maillot ||
+      !data.pays_maillot ||
+      typeof data.prix_ht_maillot !== "number" ||
+      !data.id_artiste ||
+      !data.id_association
+    ) {
+      return res.status(400).json({ message: "Données incomplètes" });
     }
-  });
+
+    const newMaillot = await prisma.maillot.create({
+      data: {
+        id_artiste: data.id_artiste,
+        id_association: data.id_association,
+        id_tva: data.id_tva,
+        nom_maillot: data.nom_maillot,
+        pays_maillot: data.pays_maillot,
+        description_maillot: data.description_maillot,
+        composition_maillot: data.composition_maillot,
+        url_image_maillot_1: data.url_image_maillot_1,
+        url_image_maillot_2: data.url_image_maillot_2,
+        url_image_maillot_3: data.url_image_maillot_3,
+        origine: data.origine,
+        tracabilite: data.tracabilite,
+        entretien: data.entretien,
+        prix_ht_maillot: data.prix_ht_maillot,
+      },
+    });
+
+    return res.status(201).json(newMaillot);
+  } catch (error) {
+    console.error("Erreur lors de la création du maillot :", error);
+    return res.status(500).json({ message: "Erreur serveur lors de la création du maillot" });
+  }
+});
 
 // GET
 maillotRouter.get("/", async (req, res) => {
