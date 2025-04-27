@@ -20,21 +20,22 @@ model LigneCommandeReduction {
 
 
 model Artiste {
-  id_maillot_artiste          Int     @id @default(autoincrement())
-  nom_artiste                 String  @db.VarChar(100)
-  prenom_artiste              String  @db.VarChar(100)
-  pays_artiste                String  @default(" ") @db.VarChar(100)
-  date_naissance_artiste      String  @default(" ") @db.VarChar(100)
-  site_web_artiste            String  @default(" ") @db.VarChar(500)
-  url_image_artiste_1         String  @default(" ")
-  url_image_artiste_2         String  @default(" ")
-  url_image_artiste_3         String  @default(" ")
-  description_artiste_1       String  @default(" ")
-  description_artiste_2       String  @default(" ")
-  description_artiste_3       String  @default(" ")
+  id_artiste              Int     @id @default(autoincrement())
+  nom_artiste            String   @db.VarChar(100)
+  prenom_artiste         String   @db.VarChar(100)
+  pays_artiste           String   @default(" ") @db.VarChar(100)
+  date_naissance_artiste String   @default(" ") @db.VarChar(100)
+  site_web_artiste       String   @default(" ") @db.VarChar(500)
+  url_image_artiste_1    String   @default(" ")
+  url_image_artiste_2    String   @default(" ")
+  url_image_artiste_3    String   @default(" ")
+  description_artiste_1  String   @default(" ")
+  description_artiste_2  String   @default(" ")
+  description_artiste_3  String   @default(" ")
   url_instagram_reseau_social String?
   url_tiktok_reseau_social    String?
-  Maillot                     Maillot @relation(fields: [id_maillot_artiste], references: [id_maillot], onDelete: Cascade, onUpdate: NoAction)
+
+  Maillots Maillot[]
 }
 
 
@@ -188,6 +189,7 @@ model Livreur {
 
 model Maillot {
   id_maillot              Int                       @id @default(autoincrement())
+  id_artiste              Int 
   id_tva                  Int                       @default(1)
   nom_maillot             String                    @default("") @db.VarChar(100)
   pays_maillot            String                    @default("") @db.VarChar(100)
@@ -200,11 +202,10 @@ model Maillot {
   tracabilite             String                    @default("")
   entretien               String                    @default("")
   prix_ht_maillot         Int                       @default(0)
-  Artiste                 Artiste?
   Association             Association?
   Avis                    Avis[]
   LigneCommande           LigneCommande[]
-
+  Artiste                 Artiste                   @relation(fields: [id_artiste], references: [id_artiste])
 }
 
 model LigneCommandePersonnalisation {
