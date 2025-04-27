@@ -74,8 +74,9 @@ model Avoir {
   numero_avoir  String?   @unique @db.VarChar(100)
   date_avoir    DateTime? @db.Timestamp(6)
   avoir_hors_ue Boolean   @default(false)
+  id_commande_retour   Int
+  Retour        Retour    @relation(fields: [id_commande_retour], references: [id_commande_retour])
 }
-
 
 model Role {
   id_role     Int      @id @default(autoincrement())
@@ -256,6 +257,8 @@ model Retour {
 
   Commande Commande @relation(fields: [id_commande_retour], references: [id_commande], onDelete: Cascade) 
   RetourLigneCommande RetourLigneCommande[]
+
+  Avoir Avoir[]
 }
 
 model RetourLigneCommande {
