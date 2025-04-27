@@ -270,13 +270,10 @@ model RetourLigneCommande {
 
 
 model Stock {
-  id_stock        Int                 @id @default(autoincrement())
-  id_maillot      Int
-  taille_maillot  taille_maillot_enum
-  quantite_entree Int                 @default(0)
-  quantite_sortie Int                 @default(0)
-  quantite_total  Int                 @default(0)
-  StockMaillot    StockMaillot[]
+  id_stock       Int                @id @default(autoincrement())
+  id_maillot     Int
+  taille_maillot taille_maillot_enum
+  StockMaillot   StockMaillot[]
 }
 
 model StockMaillot {
@@ -331,7 +328,6 @@ enum statut_reduction_type_enum {
 }
 
 enum taille_maillot_enum {
-  XS
   S
   M
   L
