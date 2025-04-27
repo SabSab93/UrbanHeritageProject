@@ -67,7 +67,7 @@ model Avis {
   Maillot          Maillot               @relation(fields: [id_maillot], references: [id_maillot], onDelete: Cascade, onUpdate: NoAction)
 }
 
-//Reste lui à creer 
+
 model Avoir {
   id_avoir      Int       @id @default(autoincrement())
   numero_avoir  String?   @unique @db.VarChar(100)
