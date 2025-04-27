@@ -28,6 +28,9 @@ import { stockmaillotRouter } from "./router/stockMaillots";
 import { stripeRouter } from "./router/stripe";
 import { factureRouter } from "./router/factures";
 import { testMailRouter } from "./router/mails";
+import { retourRouter } from "./router/retours";
+import { isAdmin } from "../middleware/isAdmin";
+import { avoirRouter } from "./router/avoirs";
 
 testMailRouter
 
@@ -69,6 +72,8 @@ apiRouter.use("/stripe", stripeRouter);
 apiRouter.use("/facture", factureRouter);
 apiRouter.use("/mail", testMailRouter);
 
+apiRouter.use("/retour", retourRouter);
+apiRouter.use("/avoir", monMiddlewareBearer, isAdmin, avoirRouter);
 
 
 app.listen(process.env.PORT, () => {
