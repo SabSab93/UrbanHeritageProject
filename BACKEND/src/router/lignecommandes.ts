@@ -39,11 +39,11 @@ ligneCommandeRouter.post("/create", async (req, res) => {
 
     const ligne = await prisma.ligneCommande.create({
       data: {
-        id_client: data.id_client,
+        ...(data.id_client ? { id_client: data.id_client } : {}), 
         id_maillot: data.id_maillot,
         taille_maillot: data.taille_maillot,
         quantite: data.quantite,
-        prix_ht: maillot.prix_ht_maillot, // ✅ Récupéré automatiquement
+        prix_ht: maillot.prix_ht_maillot,
         id_tva: data.id_tva ?? 1,
       },
     });
@@ -76,17 +76,6 @@ ligneCommandeRouter.put("/:id", async (req, res) => {
   }
 });
 
-// ✅ DELETE - supprimer une ligne
-ligneCommandeRouter.delete("/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  try {
-    await prisma.ligneCommande.delete({ where: { id_lignecommande: id } });
-    res.json({ message: "Ligne supprimée" });
-  } catch (error) {
-    console.error("Erreur suppression ligne commande :", error);
-    res.status(500).json({ message: "Erreur serveur" });
-  }
-});
 
 // ✅ GET - lignes par client
 ligneCommandeRouter.get("/client/:id", async (req, res) => {
@@ -138,7 +127,7 @@ ligneCommandeRouter.get("/client/:id/total", async (req, res) => {
   }
 });
 
-//ajouter une ligne de commande avec personnalisation
+
 
 
 // ✅ GET - ligne commande avec personnalisation
@@ -223,3 +212,30 @@ ligneCommandeRouter.get("/client/:id/details", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
+
+// ✅ DELETE - supprimer une ligne
+ligneCommandeRouter.delete("/cleanup", async (req, res) => {
+  try {
+    const cutoff = new Date();
+    cutoff.setMinutes(cutoff.getMinutes() - 1);
+
+    const deleted = await prisma.ligneCommande.deleteMany({
+      where: {
+        id_client: null,
+        date_creation: {
+          lt: cutoff, 
+        },
+      },
+    });
+
+    res.json({ message: `${deleted.count} lignes supprimées.` });
+  } catch (error) {
+    console.error("Erreur nettoyage paniers invités :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+function subHours(arg0: Date, arg1: number) {
+  throw new Error("Function not implemented.");
+}
