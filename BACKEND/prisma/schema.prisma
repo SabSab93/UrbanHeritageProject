@@ -118,6 +118,8 @@ model Commande {
   Livraison Livraison[]
 
   Retour Retour[]
+
+  Facture Facture[]
 }
 
 model Facture {
@@ -125,6 +127,7 @@ model Facture {
   id_commande     Int
   date_facture    DateTime? @default(now()) @db.Timestamp(6)
   facture_hors_ue Boolean?  @default(false)
+  Commande        Commande  @relation(fields: [id_commande], references: [id_commande])
 }
 
 model LigneCommande {
