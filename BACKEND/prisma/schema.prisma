@@ -40,7 +40,7 @@ model Artiste {
 
 
 model Association {
-  id_maillot_association            Int     @id @default(autoincrement())
+  id_association                    Int     @id @default(autoincrement())
   nom_association                   String  @db.VarChar(100)
   numero_identification_association String  @db.VarChar(100)
   adresse_siege_social_association  String  @default(" ")
@@ -52,7 +52,7 @@ model Association {
   description_association_1         String  @default(" ")
   description_association_2         String  @default(" ")
   description_association_3         String  @default(" ")
-  Maillot                           Maillot @relation(fields: [id_maillot_association], references: [id_maillot], onDelete: Cascade, onUpdate: NoAction)
+  Maillots                          Maillot[]
 }
 
 
@@ -190,6 +190,7 @@ model Livreur {
 model Maillot {
   id_maillot              Int                       @id @default(autoincrement())
   id_artiste              Int 
+  id_association          Int
   id_tva                  Int                       @default(1)
   nom_maillot             String                    @default("") @db.VarChar(100)
   pays_maillot            String                    @default("") @db.VarChar(100)
@@ -202,10 +203,10 @@ model Maillot {
   tracabilite             String                    @default("")
   entretien               String                    @default("")
   prix_ht_maillot         Int                       @default(0)
-  Association             Association?
   Avis                    Avis[]
   LigneCommande           LigneCommande[]
   Artiste                 Artiste                   @relation(fields: [id_artiste], references: [id_artiste])
+  Association             Association               @relation(fields: [id_association], references: [id_association])
 }
 
 model LigneCommandePersonnalisation {
