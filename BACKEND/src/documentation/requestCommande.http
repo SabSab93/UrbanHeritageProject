@@ -7,7 +7,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjgsI
 ### ✅ GET - Une commande par ID
 GET http://localhost:1992/api/commande/4
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjExLCJlbWFpbCI6InNhYnJpbmFoXzM4QGhvdG1haWwuZnIiLCJpZF9yb2xlIjoxLCJpYXQiOjE3NDU2ODU0NjUsImV4cCI6MTc0NTc3MTg2NX0.uD9SEQ07TqmO_qrkLeMz0dzgxKv7nnQXc5j-pug5Hyg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9jbGllbnQiOjExLCJlbWFpbCI6InNhYnJpbmFoXzM4QGhvdG1haWwuZnIiLCJpZF9yb2xlIjoxLCJpYXQiOjE3NDU3MzIyODcsImV4cCI6MTc0NTgxODY4N30.VtKw9hn_BBkTRCbVsfHkR2q5igRgEPBCHiBURki4f9c
 
 ###
 
