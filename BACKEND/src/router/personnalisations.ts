@@ -33,7 +33,7 @@ personnalisationRouter.get("/:id", async (req, res) => {
 });
 
 // ✅ POST - créer une personnalisation (admin uniquement)
-personnalisationRouter.post("/create", monMiddlewareBearer, isAdmin, async (req, res) => {
+personnalisationRouter.post("/create", async (req, res) => {
   const data = req.body.data;
 
   try {
@@ -53,7 +53,7 @@ personnalisationRouter.post("/create", monMiddlewareBearer, isAdmin, async (req,
 });
 
 // ✅ PUT - modifier une personnalisation (admin uniquement)
-personnalisationRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
+personnalisationRouter.put("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   const data = req.body.data;
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
@@ -76,7 +76,7 @@ personnalisationRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res
 });
 
 // ✅ DELETE - supprimer une personnalisation (admin uniquement)
-personnalisationRouter.delete("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
+personnalisationRouter.delete("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
 
