@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
  * @param idClient  ID du client à anonymiser
  */
 export const anonymiseClient = async (idClient: number) => {
-  const placeholder = `deleted_user_${idClient}`;
+  const placeholder = `user_${idClient}`;
   const fakeHash    = await bcrypt.hash(crypto.randomUUID(), 10);   // mot-de-passe fantôme
 
   // 1) anonymisation de la fiche client
