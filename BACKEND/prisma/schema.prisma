@@ -9,14 +9,16 @@ datasource db {
 }
 
 
-model LigneCommandeReduction {
-  id_lignecommande Int
-  id_reduction     Int
-  Reduction        Reduction     @relation(fields: [id_reduction], references: [id_reduction], onDelete: Cascade)
-  LigneCommande    LigneCommande @relation(fields: [id_lignecommande], references: [id_lignecommande], onDelete: Cascade)
+model CommandeReduction {
+  id_commande   Int   @unique
+  id_reduction  Int
 
-  @@id([id_lignecommande, id_reduction])
+  Commande      Commande  @relation(fields: [id_commande], references: [id_commande], onDelete: Cascade)
+  Reduction     Reduction @relation(fields: [id_reduction], references: [id_reduction], onDelete: Cascade)
+
+  @@id([id_commande, id_reduction])
 }
+
 
 
 model Artiste {
@@ -107,20 +109,18 @@ model Client {
 }
 
 model Commande {
-  id_commande     Int                  @id @default(autoincrement())
-  id_client       Int
-  date_commande   DateTime?            @db.Timestamp(6)
+  id_commande       Int                  @id @default(autoincrement())
+  id_client         Int
+  date_commande     DateTime?            @db.Timestamp(6)
   montant_total_ttc Decimal?             @db.Decimal(10,2) 
-  statut_commande statut_commande_enum  @default(en_cours)
-  Client          Client               @relation(fields: [id_client], references: [id_client], onDelete: Cascade, onUpdate: NoAction)
-  LigneCommande   LigneCommande[]
-  statut_paiement statut_paiement_enum @default(en_attente)
-
-  Livraison Livraison[]
-
-  Retour Retour[]
-
-  Facture Facture[]
+  statut_commande   statut_commande_enum  @default(en_cours)
+  Client            Client               @relation(fields: [id_client], references: [id_client], onDelete: Cascade, onUpdate: NoAction)
+  LigneCommande     LigneCommande[]
+  statut_paiement   statut_paiement_enum @default(en_attente)
+  Livraison         Livraison[]
+  Retour            Retour[]
+  Facture           Facture[]
+  CommandeReduction CommandeReduction?
 }
 
 model Facture {
@@ -147,7 +147,6 @@ model LigneCommande {
   Commande                    Commande?            @relation(fields: [id_commande], references: [id_commande], onDelete: Cascade)
   TVA                         TVA                  @relation(fields: [id_tva], references: [id_tva])
 
-  LigneCommandeReduction      LigneCommandeReduction[]
   LigneCommandePersonnalisation LigneCommandePersonnalisation[]
   RetourLigneCommande         RetourLigneCommande[]
 }
@@ -248,7 +247,9 @@ model Reduction {
   statut_reduction     statut_reduction_type_enum
   date_creation        DateTime?                  @default(now()) @db.Timestamp(6)
 
-  LigneCommandeReduction LigneCommandeReduction[]
+  
+
+  CommandeReduction CommandeReduction[]
 }
 
 model Retour {
