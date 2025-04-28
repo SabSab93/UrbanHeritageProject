@@ -101,5 +101,5 @@ export const checkCommandeTransaction = async (
     }
 
     return commande;
-  });
+  }, { timeout: 15000 });
 };

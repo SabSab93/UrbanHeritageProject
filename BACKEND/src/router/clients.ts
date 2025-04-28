@@ -107,11 +107,6 @@ clientRouter.get("/:id/details",monMiddlewareBearer, async (req, res) => {
                     Personnalisation: true,
                   },
                 },
-                LigneCommandeReduction: {
-                  include: {
-                    Reduction: true,
-                  },
-                },
               },
             },
             Livraison: {

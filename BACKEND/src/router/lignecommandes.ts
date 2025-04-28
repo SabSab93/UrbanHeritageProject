@@ -28,7 +28,6 @@ ligneCommandeRouter.post("/create", async (req, res) => {
   const data = req.body.data;
 
   try {
-    // On récupère le maillot pour obtenir son prix
     const maillot = await prisma.maillot.findUnique({
       where: { id_maillot: data.id_maillot },
     });
@@ -55,7 +54,6 @@ ligneCommandeRouter.post("/create", async (req, res) => {
   }
 });
 
-
 // ✅ PUT - modifier une ligne
 ligneCommandeRouter.put("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
@@ -64,9 +62,7 @@ ligneCommandeRouter.put("/:id", async (req, res) => {
   try {
     const updated = await prisma.ligneCommande.update({
       where: { id_lignecommande: id },
-      data: {
-        ...data,
-      },
+      data: { ...data },
     });
 
     res.json(updated);
@@ -75,7 +71,6 @@ ligneCommandeRouter.put("/:id", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
-
 
 // ✅ GET - lignes par client
 ligneCommandeRouter.get("/client/:id", async (req, res) => {
@@ -87,7 +82,7 @@ ligneCommandeRouter.get("/client/:id", async (req, res) => {
       where: { id_client: id },
       include: {
         Maillot: true,
-        TVA: true
+        TVA: true,
       },
     });
 
@@ -98,7 +93,7 @@ ligneCommandeRouter.get("/client/:id", async (req, res) => {
   }
 });
 
-// ✅ GET - total panier client 
+// ✅ GET - total panier client
 ligneCommandeRouter.get("/client/:id/total", async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID client invalide" });
@@ -107,11 +102,9 @@ ligneCommandeRouter.get("/client/:id/total", async (req, res) => {
     const lignes = await prisma.ligneCommande.findMany({
       where: {
         id_client: id,
-        id_commande: null, 
+        id_commande: null,
       },
-      include: {
-        TVA: true
-      },
+      include: { TVA: true },
     });
 
     const total = lignes.reduce((acc, ligne) => {
@@ -127,10 +120,7 @@ ligneCommandeRouter.get("/client/:id/total", async (req, res) => {
   }
 });
 
-
-
-
-// ✅ GET - ligne commande avec personnalisation
+// ✅ GET - détail d'une ligne avec personnalisation
 ligneCommandeRouter.get("/:id/details", async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
@@ -142,15 +132,12 @@ ligneCommandeRouter.get("/:id/details", async (req, res) => {
         Maillot: true,
         TVA: true,
         LigneCommandePersonnalisation: {
-          include: {
-            Personnalisation: true
-          }
-        }
+          include: { Personnalisation: true },
+        },
       },
     });
 
     if (!ligne) return res.status(404).json({ message: "Ligne non trouvée" });
-
     res.json(ligne);
   } catch (error) {
     console.error("Erreur récupération détails ligne commande :", error);
@@ -159,62 +146,50 @@ ligneCommandeRouter.get("/:id/details", async (req, res) => {
 });
 
 
-ligneCommandeRouter.get("/client/:id/details", async (req, res) => {
+ligneCommandeRouter.get("/client/:id/panier", async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID client invalide" });
 
   try {
-    const lignes = await prisma.ligneCommande.findMany({
-      where: { id_client: id },
-      include: {
-        Maillot: true,
-        TVA: true,
-        LigneCommandePersonnalisation: {
-          include: {
-            Personnalisation: true,
-          },
-        },
-        LigneCommandeReduction: {
-          include: {
-            Reduction: true,
-          },
-        },
+    const panier = await prisma.ligneCommande.findMany({
+      where: {
+        id_client   : id,
+        id_commande : null          // 🔑 seulement les lignes encore au panier
       },
+      include: {
+        Maillot : true,
+        TVA     : true,
+        LigneCommandePersonnalisation: { include: { Personnalisation: true } },
+      },
+      orderBy: { date_creation: "asc" },
     });
 
-    const lignesAvecTotal = lignes.map((ligne) => {
-      const prixBase = Number(ligne.prix_ht);
-      const personnalisations = ligne.LigneCommandePersonnalisation.map(p => Number(p.prix_personnalisation_ht));
-      const totalPerso = personnalisations.reduce((sum, val) => sum + val, 0);
-
-      const reductions = ligne.LigneCommandeReduction.map(r => Number(r.Reduction.valeur_reduction));
-      const totalReduction = reductions.reduce((sum, val) => sum + val, 0);
-
-      const totalHT = (prixBase + totalPerso - totalReduction) * ligne.quantite;
-      const totalTTC = totalHT * (1 + (ligne.TVA?.taux_tva ?? 20) / 100);
-
-      return {
-        id_lignecommande: ligne.id_lignecommande,
-        taille_maillot: ligne.taille_maillot,
-        quantite: ligne.quantite,
-        prix_ht: ligne.prix_ht,
-        maillot: ligne.Maillot,
-        personnalisations: ligne.LigneCommandePersonnalisation,
-        reductions: ligne.LigneCommandeReduction,
-        prix_total_ht: totalHT.toFixed(2),
-        prix_total_ttc: totalTTC.toFixed(2),
-      };
-    });
-
-    res.json(lignesAvecTotal);
-  } catch (error) {
-    console.error("Erreur récupération lignes client :", error);
+    res.json(panier);
+  } catch (e) {
+    console.error("Erreur récupération panier :", e);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
 
+// GET /client/:id/lignes?all=true (historique)  ou  ?all=false (défaut = panier)
+ligneCommandeRouter.get("/client/:id/lignes", async (req, res) => {
+  const id  = parseInt(req.params.id);
+  const all = req.query.all === "true";
 
-// ✅ DELETE - supprimer une ligne
+  const where: any = { id_client: id };
+  if (!all) where.id_commande = null;   // filtre par défaut
+
+  const lignes = await prisma.ligneCommande.findMany({
+    where,
+    include:{ Maillot:true, TVA:true },
+    orderBy:{ date_creation:"asc" }
+  });
+
+  res.json(lignes);
+});
+
+
+// ✅ DELETE - supprimer les paniers invités expirés
 ligneCommandeRouter.delete("/cleanup", async (req, res) => {
   try {
     const cutoff = new Date();
@@ -223,9 +198,7 @@ ligneCommandeRouter.delete("/cleanup", async (req, res) => {
     const deleted = await prisma.ligneCommande.deleteMany({
       where: {
         id_client: null,
-        date_creation: {
-          lt: cutoff, 
-        },
+        date_creation: { lt: cutoff },
       },
     });
 
@@ -236,6 +209,4 @@ ligneCommandeRouter.delete("/cleanup", async (req, res) => {
   }
 });
 
-function subHours(arg0: Date, arg1: number) {
-  throw new Error("Function not implemented.");
-}
+
