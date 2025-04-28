@@ -52,15 +52,22 @@ export const generateAvoirPDF = async (avoir: Avoir): Promise<string> => {
 
     // Articles
     doc.moveDown().text('Articles remboursés :');
-    avoir.articles.forEach((article, index) => {
-      doc.text(`${index + 1}. ${article.description} - ${article.quantite} x ${article.prixUnitaireHT}€ HT = ${article.montantHT}€`);
+    avoir.articles.forEach((art, i) => {
+      const prixInit   = art.prixUnitaireHT.toFixed(2);
+      const montantHT  = art.montantHT.toFixed(2);
+    
+      doc.text(`${i + 1}. ${art.description}`);
+      doc.text(`    Prix initial HT     : ${prixInit} €`);
+      doc.text(`    Quantité            : ${art.quantite}`);
+      doc.text(`    Montant remboursé HT: ${montantHT} €`);
     });
 
     // Totaux
     doc.moveDown();
-    doc.text(`Total HT : ${avoir.totalHT.toFixed(2)}€`);
-    doc.text(`TVA (${avoir.tva}%) : ${(avoir.totalHT * avoir.tva / 100).toFixed(2)}€`);
-    doc.text(`Total TTC : ${avoir.totalTTC.toFixed(2)}€`, { underline: true });
+    doc.text(`Total HT remboursé      : ${avoir.totalHT.toFixed(2)} €`);
+    doc.text(`TVA (${avoir.tva} %)    : ${(avoir.totalHT * avoir.tva / 100).toFixed(2)} €`);
+    doc.text(`Total TTC remboursé     : ${avoir.totalTTC.toFixed(2)} €`, { underline: true });
+    
 
     doc.end();
 

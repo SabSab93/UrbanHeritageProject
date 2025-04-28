@@ -21,46 +21,59 @@ interface LivraisonInput {
   date_livraison?: Date | string;
 }
 
+
+
 export const checkCommandeTransaction = async (
   id_client: number,
-  lignes: LigneCommandeInput[],
-  livraison: LivraisonInput
+  livraison: {
+    id_methode_livraison: number;
+    id_lieu_livraison:   number;
+    id_livreur:          number;
+    adresse_livraison?:  string;
+    code_postal_livraison?: string;
+    ville_livraison?:    string;
+    pays_livraison?:     string;
+    date_livraison?:     Date | string;
+  }
 ) => {
-  return await prisma.$transaction(async (tx) => {
-    // Vérification stock
-    for (const ligne of lignes) {
-      const mouvements = await tx.stockMaillot.findMany({
-        where: { id_stock: ligne.id_stock },
+  return prisma.$transaction(async (tx) => {
+    /* 1️⃣ récupérer les lignes du panier */
+    const lignesPanier = await tx.ligneCommande.findMany({
+      where: { id_client, id_commande: null },
+    });
+
+    if (lignesPanier.length === 0)
+      throw new Error("Panier vide : aucune ligne à commander.");
+
+    /* 2️⃣ vérification stock pour chacune */
+    for (const l of lignesPanier) {
+      const stock = await tx.stock.findFirst({
+        where: { id_maillot: l.id_maillot, taille_maillot: l.taille_maillot },
       });
+      if (!stock) throw new Error("Stock introuvable pour la ligne " + l.id_lignecommande);
 
-      const totalEntree = mouvements.filter(m => m.type_mouvement === "entree").reduce((acc, m) => acc + m.quantite_stock, 0);
-      const totalSortie = mouvements.filter(m => m.type_mouvement === "sortie").reduce((acc, m) => acc + m.quantite_stock, 0);
+      const mouvements = await tx.stockMaillot.findMany({ where: { id_stock: stock.id_stock } });
+      const dispo = mouvements
+        .filter(m => m.type_mouvement === "entree")
+        .reduce((a, m) => a + m.quantite_stock, 0)
+        - mouvements
+        .filter(m => m.type_mouvement === "sortie")
+        .reduce((a, m) => a + m.quantite_stock, 0);
 
-      const dispo = totalEntree - totalSortie;
-      if (ligne.quantite > dispo) {
-        throw new Error(`Stock insuffisant pour l'article (id_stock: ${ligne.id_stock})`);
-      }
+      if (l.quantite > dispo) throw new Error("Stock insuffisant pour la ligne " + l.id_lignecommande);
     }
 
-    // 💰 Calcul total HT
-    let totalHT = lignes.reduce((acc, l) => acc + l.quantite * l.prix_ht, 0);
+    /* 3️⃣ calculs totals */
+    const totalHT = lignesPanier.reduce((acc, l) => acc + l.quantite * Number(l.prix_ht), 0);
 
-    // 💸 Prix livraison (methode + lieu)
     const methode = await tx.methodeLivraison.findUnique({ where: { id_methode_livraison: livraison.id_methode_livraison } });
-    const lieu = await tx.lieuLivraison.findUnique({ where: { id_lieu_livraison: livraison.id_lieu_livraison } });
+    const lieu    = await tx.lieuLivraison.findUnique({ where: { id_lieu_livraison:   livraison.id_lieu_livraison   } });
+    const prixLiv = (methode?.prix_methode || 0) + (lieu?.prix_lieu || 0);
 
-    const prixLivraison = (methode?.prix_methode || 0) + (lieu?.prix_lieu || 0);
+    const tauxTVA = (await tx.tVA.findUnique({ where: { id_tva: 1 } }))?.taux_tva || 0;
+    const montant_total_ttc = Math.round((totalHT + prixLiv) * (1 + tauxTVA / 100));
 
-    // TVA par défaut (id_tva = 1)
-    const tva = await tx.tVA.findUnique({ where: { id_tva: 1 } });
-    const tauxTVA = tva?.taux_tva || 0;
-
-    // 🧾 Calcul montant total TTC
-    const montant_total_ttc = Math.round(
-      (totalHT + prixLivraison) * (1 + tauxTVA / 100)
-    );
-
-    // Création commande avec montant TTC
+    /* 4️⃣ création commande */
     const commande = await tx.commande.create({
       data: {
         id_client,
@@ -71,35 +84,21 @@ export const checkCommandeTransaction = async (
       },
     });
 
-    // Création livraison
+    /* 5️⃣ rattacher les lignes existantes */
+    await tx.ligneCommande.updateMany({
+      where: { id_client, id_commande: null },
+      data : { id_commande: commande.id_commande },
+    });
+
+    /* 6️⃣ créer livraison */
     await tx.livraison.create({
       data: {
         id_commande: commande.id_commande,
-        id_methode_livraison: livraison.id_methode_livraison,
-        id_lieu_livraison: livraison.id_lieu_livraison,
-        id_livreur: livraison.id_livreur,
+        ...livraison,
         date_livraison: livraison.date_livraison ? new Date(livraison.date_livraison) : null,
-        adresse_livraison: livraison.adresse_livraison || "",
-        code_postal_livraison: livraison.code_postal_livraison || null,
-        ville_livraison: livraison.ville_livraison || "",
-        pays_livraison: livraison.pays_livraison || "",
       },
     });
 
-    // Création lignes
-    for (const ligne of lignes) {
-      await tx.ligneCommande.create({
-        data: {
-          id_commande: commande.id_commande,
-          id_maillot: ligne.id_maillot,
-          id_client,
-          taille_maillot: ligne.taille_maillot,
-          quantite: ligne.quantite,
-          prix_ht: ligne.prix_ht,
-        },
-      });
-    }
-
     return commande;
-  });
+  }, { timeout: 15000 });
 };

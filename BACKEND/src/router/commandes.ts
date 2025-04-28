@@ -14,8 +14,8 @@ import { templateCommandeRetard } from "../templateMails/commande/commandeRetard
 export const commandeRouter = Router();
 const prisma = new PrismaClient();
 
-// ✅ POST - Créer une commande (authentifié)
-commandeRouter.post("/create", async (req: any, res) => {
+// ✅ POST - Créer une commande
+commandeRouter.post("/create", monMiddlewareBearer, async (req: any, res) => {
   try {
     const idClient = req.decoded.id_client;
 
@@ -38,12 +38,12 @@ commandeRouter.post("/create", async (req: any, res) => {
       },
     });
 
-    for (const ligne of lignes) {
-      await prisma.ligneCommande.update({
+    await Promise.all(lignes.map(ligne => 
+      prisma.ligneCommande.update({
         where: { id_lignecommande: ligne.id_lignecommande },
         data: { id_commande: nouvelleCommande.id_commande },
-      });
-    }
+      })
+    ));
 
     res.status(201).json({ message: "Commande créée", commande: nouvelleCommande });
   } catch (error) {
@@ -53,73 +53,88 @@ commandeRouter.post("/create", async (req: any, res) => {
 });
 
 // ✅ GET - Toutes les commandes du client
-commandeRouter.get("/", async (req: any, res) => {
-  const idClient = req.decoded.id_client;
+commandeRouter.get("/", monMiddlewareBearer, async (req: any, res) => {
+  try {
+    const idClient = req.decoded.id_client;
 
-  const commandes = await prisma.commande.findMany({
-    where: { id_client: idClient },
-    include: { LigneCommande: true }
-  });
+    const commandes = await prisma.commande.findMany({
+      where: { id_client: idClient },
+      include: { LigneCommande: true },
+    });
 
-  res.json(commandes);
+    res.json(commandes);
+  } catch (error) {
+    console.error("Erreur récupération commandes :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
 });
 
-// ✅ GET - Une commande par ID
-commandeRouter.get("/:id", async (req, res) => {
+// ✅ GET - Détails d'une commande
+commandeRouter.get("/:id", monMiddlewareBearer, async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
 
-  const commande = await prisma.commande.findUnique({
-    where: { id_commande: id },
-    include: { 
-      Client: true,
-      LigneCommande: { include: { Maillot: true } } // ⬅️ ajoute ça ici !!
-    },
-  });
-
-  if (!commande) return res.status(404).json({ message: "Commande non trouvée" });
-
-  res.json(commande);
-});
-
-
-// ✅ PUT - Modifier le statut d'une commande (ADMIN uniquement)
-commandeRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
-  const id = parseInt(req.params.id);
-  const { statut_commande } = req.body.data;
-
-  if (isNaN(id)) {
-    return res.status(400).json({ message: "ID de commande invalide." });
-  }
-
-  if (!statut_commande) {
-    return res.status(400).json({ message: "Nouveau statut de commande manquant." });
-  }
-
   try {
-    // Récupérer la commande avec son client
     const commande = await prisma.commande.findUnique({
       where: { id_commande: id },
       include: {
         Client: true,
         LigneCommande: {
-          include: { Maillot: true },
+          include: {
+            Maillot: true,
+            LigneCommandePersonnalisation: { include: { Personnalisation: true } },
+
+          },
+        },
+        CommandeReduction: {
+          include: {
+            Reduction: true,
+          },
+        },
+        Livraison: {
+          include: {
+            MethodeLivraison: true,
+            LieuLivraison: true,
+            Livreur: true,
+          },
         },
       },
     });
-    
 
-    if (!commande) {
-      return res.status(404).json({ message: "Commande non trouvée." });
-    }
+    if (!commande) return res.status(404).json({ message: "Commande non trouvée" });
 
-    // Mettre à jour le statut
+    res.json(commande);
+  } catch (error) {
+    console.error("Erreur récupération commande :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+// ✅ PUT - Modifier statut commande (admin)
+commandeRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
+  const id = parseInt(req.params.id);
+  const { statut_commande } = req.body.data;
+
+  if (isNaN(id) || !statut_commande) {
+    return res.status(400).json({ message: "ID ou statut manquant." });
+  }
+
+  try {
+    const commande = await prisma.commande.findUnique({
+      where: { id_commande: id },
+      include: {
+        Client: true,
+        LigneCommande: { include: { Maillot: true } },
+      },
+    });
+
+    if (!commande) return res.status(404).json({ message: "Commande non trouvée." });
+
     const updatedCommande = await prisma.commande.update({
       where: { id_commande: id },
       data: { statut_commande },
     });
 
-    // 💌 En fonction du statut, envoyer un email différent
     const client = commande.Client;
 
     if (client) {
@@ -131,7 +146,6 @@ commandeRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
             html: templateExpeditionCommande(client.prenom_client || client.nom_client, commande.id_commande.toString()),
           });
           break;
-        
         case "livre":
           await sendMail({
             to: client.adresse_mail_client,
@@ -139,25 +153,14 @@ commandeRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
             html: templateLivraisonConfirmee(client.prenom_client || client.nom_client, commande.id_commande.toString()),
           });
 
-          // ➡️ Ensuite envoyer la demande d'avis pour chaque maillot
-          commande.LigneCommande.forEach(async (ligne) => {
-            try {
-              await sendMail({
-                to: client.adresse_mail_client,
-                subject: "⭐ Donnez votre avis sur votre maillot UrbanHeritage",
-                html: templateDemandeAvis(
-                  client.prenom_client || client.nom_client,
-                  ligne.id_maillot,
-                  ligne.Maillot?.nom_maillot || "votre maillot"
-                ),
-              });
-              console.log(`Demande d'avis envoyée pour le maillot ID ${ligne.id_maillot}`);
-            } catch (error) {
-              console.error("Erreur envoi mail demande avis :", error);
-            }
-          });
+          await Promise.all(commande.LigneCommande.map(ligne =>
+            sendMail({
+              to: client.adresse_mail_client,
+              subject: "⭐ Donnez votre avis sur votre maillot UrbanHeritage",
+              html: templateDemandeAvis(client.prenom_client || client.nom_client, ligne.id_maillot, ligne.Maillot?.nom_maillot || "votre maillot"),
+            })
+          ));
           break;
-
         case "retard":
           await sendMail({
             to: client.adresse_mail_client,
@@ -165,15 +168,12 @@ commandeRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
             html: templateCommandeRetard(client.prenom_client || client.nom_client, commande.id_commande.toString()),
           });
           break;
-
         case "retour":
           await sendMail({
             to: client.adresse_mail_client,
             subject: "↩️ Retour de votre commande UrbanHeritage",
             html: templateCommandeRetour(client.prenom_client || client.nom_client, commande.id_commande.toString()),
           });
-          break;
-        default:
           break;
       }
     }
@@ -182,19 +182,14 @@ commandeRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
       message: `Statut de la commande mis à jour en "${statut_commande}" avec succès 🚚`,
       commande: updatedCommande,
     });
-
   } catch (error: any) {
     console.error("Erreur update statut commande :", error.message || error);
-    res.status(500).json({ 
-      message: "Erreur serveur.",
-      details: error.message || error
-    });
+    res.status(500).json({ message: "Erreur serveur", details: error.message || error });
   }
 });
 
-
-// ✅ DELETE - Supprimer une commande (admin uniquement ?)
-commandeRouter.delete("/:id", isAdmin, async (req, res) => {
+// ✅ DELETE - Supprimer une commande (admin)
+commandeRouter.delete("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
 
@@ -202,87 +197,76 @@ commandeRouter.delete("/:id", isAdmin, async (req, res) => {
     await prisma.commande.delete({ where: { id_commande: id } });
     res.json({ message: "Commande supprimée" });
   } catch (error) {
-    console.error("Erreur delete commande :", error);
+    console.error("Erreur suppression commande :", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
 
+// ✅ POST - Finaliser une commande
+commandeRouter.post(
+  "/finaliser",
+  monMiddlewareBearer,
+  async (req: any, res) => {
+    try {
+      const id_client  = req.decoded.id_client;
+      const livraison  = req.body.livraison;            // 👈 plus de "lignes" !
 
-commandeRouter.get("/:id/details", async (req, res) => {
-  const id = parseInt(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
+      if (!livraison) {
+        return res.status(400).json({ message: "Livraison manquante." });
+      }
 
-  try {
-    const commande = await prisma.commande.findUnique({
-      where: { id_commande: id },
-      include: {
-        Livraison: {
-          include: {
-            MethodeLivraison: true,
-            LieuLivraison: true,
-            Livreur: true,
-          },
-        },
-        LigneCommande: {
-          include: {
-            Maillot: true,
-          },
-        },
-      },
-    });
+      const commande = await checkCommandeTransaction(id_client, livraison);
 
-    if (!commande) return res.status(404).json({ message: "Commande introuvable" });
-
-    res.json(commande);
-  } catch (error) {
-    console.error("Erreur récupération commande :", error);
-    res.status(500).json({ message: "Erreur serveur" });
+      res.status(201).json({ message: "Commande finalisée 🚀", commande });
+    } catch (e: any) {
+      console.error("Erreur finalisation commande :", e);
+      res.status(500).json({ message: "Erreur serveur", details: e.message });
+    }
   }
-});
+);
 
-commandeRouter.post("/finaliser", monMiddlewareBearer, async (req: any, res) => {
+// ✅ POST - Ajouter une réduction à une commande
+commandeRouter.post("/:id_commande/reduction", monMiddlewareBearer, async (req, res) => {
+  const id_commande = parseInt(req.params.id_commande);
+  const { id_reduction } = req.body.data;
+
+  if (isNaN(id_commande) || isNaN(id_reduction)) {
+    return res.status(400).json({ message: "ID invalide." });
+  }
+
   try {
-    const id_client = req.decoded.id_client; // Le client connecté via le token
-    const { lignes, livraison } = req.body;
+    const commande = await prisma.commande.findUnique({ where: { id_commande } });
+    if (!commande) return res.status(404).json({ message: "Commande introuvable." });
 
-    if (!lignes || !livraison) {
-      return res.status(400).json({ message: "Champs manquants dans la requête." });
+    const reduction = await prisma.reduction.findUnique({ where: { id_reduction } });
+    if (!reduction) return res.status(404).json({ message: "Réduction introuvable." });
+
+    const existingLink = await prisma.commandeReduction.findUnique({ where: { id_commande } });
+    if (existingLink) {
+      return res.status(400).json({ message: "Réduction déjà appliquée à cette commande." });
     }
 
-    const commande = await checkCommandeTransaction(id_client, lignes, livraison);
+    const link = await prisma.commandeReduction.create({
+      data: { id_commande, id_reduction },
+    });
 
-    return res.status(201).json({
-      message: "Commande finalisée avec succès 🚀",
-      commande,
-    });
+    res.status(201).json({ message: "Réduction ajoutée 🎯", link });
   } catch (error: any) {
-    console.error("Erreur de commande :", error);
-    return res.status(500).json({
-      message: "Une erreur est survenue lors de la finalisation de la commande.",
-      details: error?.message || error,
-    });
+    console.error("Erreur ajout réduction :", error);
+    res.status(500).json({ message: "Erreur serveur", erreur: error.message });
   }
 });
 
-
-// ✅ POST /commande/valider-paiement/:id
-commandeRouter.post("/valider-paiement/:id", async (req, res) => {
+// ✅ POST - Valider paiement
+commandeRouter.post("/valider-paiement/:id", monMiddlewareBearer, async (req, res) => {
   const id_commande = parseInt(req.params.id);
-  if (isNaN(id_commande)) {
-    return res.status(400).json({ message: "ID de commande invalide" });
-  }
+  if (isNaN(id_commande)) return res.status(400).json({ message: "ID de commande invalide" });
+
   try {
-    const result = await validerPaiementTransaction(id_commande); 
-    return res.status(200).json({
-      message: "Commande payée, facture générée et email envoyé 🎉",
-      details: result,
-    });
+    const result = await validerPaiementTransaction(id_commande);
+    return res.status(200).json({ message: "Paiement validé 🎉", details: result });
   } catch (error: any) {
     console.error("Erreur validation paiement :", error);
-    return res.status(500).json({
-      message: "Erreur lors de la validation du paiement.",
-      erreur: error?.message || error,
-    });
+    return res.status(500).json({ message: "Erreur lors de la validation du paiement.", erreur: error.message });
   }
 });
-

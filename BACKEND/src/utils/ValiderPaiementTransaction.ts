@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { generateFacturePDF } from "./generateFacturePDF";
 import { sendMail, sendMailWithAttachment } from "./mailService";
-import path from "path";
 import { templateConfirmationCommande } from "../templateMails/commande/commandeConfirmation";
 import { templateFactureEnvoyee } from "../templateMails/commande/envoiFacture";
 
@@ -51,7 +50,7 @@ export const validerPaiementTransaction = async (id_commande: number) => {
       });
     }
 
-    // ✅ Ici, uniquement le statut paiement !
+    // Update statut
     await tx.commande.update({
       where: { id_commande },
       data: {
@@ -60,18 +59,26 @@ export const validerPaiementTransaction = async (id_commande: number) => {
       },
     });
 
-    // Génération facture
+    // 🔥 On recharge toute la commande avec Client, LigneCommande, Livraison, Réduction appliquée
     const commandeComplete = await prisma.commande.findUnique({
       where: { id_commande },
       include: {
         Client: true,
-        LigneCommande: { include: { Maillot: true } },
+        LigneCommande: {
+          include: {
+            Maillot: true,
+            LigneCommandePersonnalisation: { include: { Personnalisation: true } },
+          },
+        },
         Livraison: {
           include: {
             MethodeLivraison: true,
             LieuLivraison: true,
             Livreur: true,
           },
+        },
+        CommandeReduction: {
+          include: { Reduction: true },
         },
       },
     });
@@ -92,47 +99,84 @@ export const validerPaiementTransaction = async (id_commande: number) => {
       },
     });
 
-    const pdfData = {
-      numeroFacture: facture.numero_facture,
-      dateFacture: dateFacture.toLocaleDateString("fr-FR"),
-      client: {
-        nom: commandeComplete.Client.nom_client,
-        adresse: commandeComplete.Client.adresse_client,
-        email: commandeComplete.Client.adresse_mail_client,
-      },
-      articles: commandeComplete.LigneCommande.map((l) => ({
+    // Construction des articles
+    const articles = commandeComplete.LigneCommande.map((l) => {
+      const prixBase = l.prix_ht.toNumber();
+      const prixPersoTotal = l.LigneCommandePersonnalisation.reduce((acc, p) => acc + p.prix_personnalisation_ht.toNumber(), 0);
+      const prixFinal = prixBase + prixPersoTotal;
+      const montantHT = prixFinal * l.quantite;
+
+      return {
         description: l.Maillot.nom_maillot,
         quantite: l.quantite,
-        prixUnitaireHT: l.prix_ht.toNumber(),
-        montantHT: l.quantite * l.prix_ht.toNumber(),
-      })),
-      totalHT: commandeComplete.LigneCommande.reduce((acc, l) => acc + l.quantite * l.prix_ht.toNumber(), 0),
-      tva: facture.facture_hors_ue ? 0 : 20,
-      totalTTC: commandeComplete.montant_total_ttc?.toNumber() || 0,
-      livraison: {
-        methode: commandeComplete.Livraison[0]?.MethodeLivraison.nom_methode,
-        lieu: commandeComplete.Livraison[0]?.LieuLivraison.nom_lieu,
-        livreur: commandeComplete.Livraison[0]?.Livreur.nom_livreur,
-        prix:
-          (commandeComplete.Livraison[0]?.MethodeLivraison.prix_methode || 0) +
-          (commandeComplete.Livraison[0]?.LieuLivraison.prix_lieu || 0),
-      },
-    };
+        prixDeBase: prixBase,
+        totalPersonnalisations: prixPersoTotal,
+        prixUnitaireHT: prixFinal,
+        montantHT: montantHT,
+        personnalisations: l.LigneCommandePersonnalisation.map(p => ({
+          description: p.Personnalisation.type_personnalisation,
+          prix: p.prix_personnalisation_ht.toNumber(),
+        })),
+      };
+    });
+
+      // ----------------------- CALCULS TOTAUX -----------------------
+      const prixLivraison = (commandeComplete.Livraison[0]?.MethodeLivraison.prix_methode || 0)
+                          + (commandeComplete.Livraison[0]?.LieuLivraison.prix_lieu || 0);
+
+      const totalArticlesHT = articles.reduce((acc, a) => acc + a.montantHT, 0);
+
+      // réduction (si présente)
+      const reductionCommande = commandeComplete.CommandeReduction?.Reduction;
+      const valeurReductionCommande = reductionCommande ? reductionCommande.valeur_reduction.toNumber() : 0;
+
+      // totaux
+      const totalHTBrut      = totalArticlesHT + prixLivraison;
+      const totalHTApresRem  = totalHTBrut - valeurReductionCommande;
+      const tva              = facture.facture_hors_ue ? 0 : 20;
+      const totalTTC         = totalHTApresRem * (1 + tva / 100);
+
+      // ----------------------- PDF DATA -----------------------------
+      const pdfData = {
+        numeroFacture : facture.numero_facture,
+        dateFacture   : dateFacture.toLocaleDateString("fr-FR"),
+        client        : {
+          nom    : commandeComplete.Client.nom_client,
+          adresse: commandeComplete.Client.adresse_client,
+          email  : commandeComplete.Client.adresse_mail_client,
+        },
+        articles,
+        totalHTBrut            : totalHTBrut,
+        reductionCommande      : valeurReductionCommande,
+        totalHT                : totalHTApresRem,
+        tva,
+        totalTTC,
+        livraison: {
+          methode: commandeComplete.Livraison[0]?.MethodeLivraison.nom_methode,
+          lieu   : commandeComplete.Livraison[0]?.LieuLivraison.nom_lieu,
+          livreur: commandeComplete.Livraison[0]?.Livreur.nom_livreur,
+          prix   : prixLivraison,
+        },
+      };
+
+
     await sendMail({
       to: commandeComplete.Client.adresse_mail_client,
       subject: "🎉 Confirmation de votre commande UrbanHeritage",
       html: templateConfirmationCommande(commandeComplete.Client.prenom_client, commandeComplete.id_commande.toString()),
     });
-    
+
+    console.log("🛠️ Données PDF générées pour la facture :", JSON.stringify(pdfData, null, 2));
+
     const pdfPath = await generateFacturePDF(pdfData);
 
-    + await sendMailWithAttachment({
-         to: commandeComplete.Client.adresse_mail_client,
-         subject: "🧾 Votre facture UrbanHeritage",
-         html: templateFactureEnvoyee(commandeComplete.Client.prenom_client || commandeComplete.Client.nom_client),
-         attachmentPath: pdfPath,
-      });
+    await sendMailWithAttachment({
+      to: commandeComplete.Client.adresse_mail_client,
+      subject: "🧾 Votre facture UrbanHeritage",
+      html: templateFactureEnvoyee(commandeComplete.Client.prenom_client || commandeComplete.Client.nom_client),
+      attachmentPath: pdfPath,
+    });
 
     return { message: "Paiement validé, stock mis à jour, facture générée et email envoyé." };
-  });
+  }, { timeout: 15000 });
 };

@@ -13,6 +13,8 @@ interface Facture {
   articles: {
     description: string;
     quantite: number;
+    prixDeBase: number;
+    totalPersonnalisations: number;
     prixUnitaireHT: number;
     montantHT: number;
     personnalisations?: {
@@ -20,7 +22,11 @@ interface Facture {
       prix: number;
     }[];
   }[];
-  totalHT: number;
+  // ----- nouveaux champs -----
+  totalHTBrut: number;         // avant remise
+  reductionCommande?: number;  // remise globale éventuelle
+  // ---------------------------
+  totalHT: number;             // après remise
   tva: number;
   totalTTC: number;
   livraison: {
@@ -31,60 +37,76 @@ interface Facture {
   };
 }
 
-export const generateFacturePDF = async (facture: Facture): Promise<string> => {
-  return new Promise((resolve, reject) => {
+export const generateFacturePDF = async (facture: Facture): Promise<string> =>
+  new Promise((resolve, reject) => {
     const dir = path.join(__dirname, '../../Factures');
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
     const pdfPath = path.join(dir, `facture_${facture.numeroFacture}.pdf`);
-    const doc = new PDFDocument({ size: 'A4', margin: 50 });
-    const stream = fs.createWriteStream(pdfPath);
+    const doc     = new PDFDocument({ size: 'A4', margin: 50 });
+    const stream  = fs.createWriteStream(pdfPath);
 
     doc.pipe(stream);
 
-    // Titre
+    /* -------------------------------------------------- */
+    /*                     EN-TÊTE                        */
+    /* -------------------------------------------------- */
     doc.fontSize(20).text('Facture UrbanHeritage', { align: 'center' });
-
-    // Infos de base
     doc.moveDown();
-    doc.fontSize(12).text(`Facture numéro : ${facture.numeroFacture}`);
-    doc.text(`Date : ${facture.dateFacture}`);
+    doc.fontSize(12).text(`Facture n° : ${facture.numeroFacture}`);
+    doc.text(`Date       : ${facture.dateFacture}`);
 
-    // Infos client
+    /* -------------------------------------------------- */
+    /*                INFOS CLIENT                        */
+    /* -------------------------------------------------- */
     doc.moveDown();
-    doc.text(`Client : ${facture.client.nom}`);
+    doc.text(`Client  : ${facture.client.nom}`);
     doc.text(`Adresse : ${facture.client.adresse}`);
-    doc.text(`Email : ${facture.client.email}`);
+    doc.text(`Email   : ${facture.client.email}`);
 
-    // Articles
+    /* -------------------------------------------------- */
+    /*                    ARTICLES                        */
+    /* -------------------------------------------------- */
     doc.moveDown().text('Articles :');
-    facture.articles.forEach((article, index) => {
-      doc.text(`${index + 1}. ${article.description} - ${article.quantite} x ${article.prixUnitaireHT}€ HT = ${article.montantHT}€`);
-      if (article.personnalisations && article.personnalisations.length > 0) {
-        article.personnalisations.forEach(perso => {
-          doc.text(`    + Personnalisation : ${perso.description} (${perso.prix.toFixed(2)}€ HT)`);
-        });
-      }
+    facture.articles.forEach((art, i) => {
+      doc.moveDown(0.5);
+      doc.text(`${i + 1}. ${art.description}`);
+      doc.text(`    Prix de base          : ${art.prixDeBase.toFixed(2)} € HT`);
+      if (art.totalPersonnalisations > 0)
+        doc.text(`    Total personnalisations : ${art.totalPersonnalisations.toFixed(2)} € HT`);
+      doc.text(`    Prix unitaire final   : ${art.prixUnitaireHT.toFixed(2)} € HT`);
+      doc.text(`    Quantité              : ${art.quantite}`);
+      doc.text(`    Total HT ligne        : ${art.montantHT.toFixed(2)} €`);
+
+      art.personnalisations?.forEach(p =>
+        doc.text(`        + Perso : ${p.description} (${p.prix.toFixed(2)} € HT)`)
+      );
     });
 
-    // Livraison
+    /* -------------------------------------------------- */
+    /*                    LIVRAISON                       */
+    /* -------------------------------------------------- */
     doc.moveDown().text('Livraison :');
-    if (facture.livraison.methode) doc.text(`Méthode : ${facture.livraison.methode}`);
-    if (facture.livraison.lieu) doc.text(`Lieu : ${facture.livraison.lieu}`);
-    if (facture.livraison.livreur) doc.text(`Livreur : ${facture.livraison.livreur}`);
-    if (facture.livraison.prix != null) doc.text(`Frais livraison : ${facture.livraison.prix.toFixed(2)}€`);
+    if (facture.livraison.methode)  doc.text(`Méthode : ${facture.livraison.methode}`);
+    if (facture.livraison.lieu)     doc.text(`Lieu    : ${facture.livraison.lieu}`);
+    if (facture.livraison.livreur)  doc.text(`Livreur : ${facture.livraison.livreur}`);
+    if (facture.livraison.prix != null)
+      doc.text(`Frais   : ${facture.livraison.prix.toFixed(2)} €`);
 
-    // Totaux
-    doc.moveDown();
-    doc.text(`Total HT : ${facture.totalHT.toFixed(2)}€`);
-    doc.text(`TVA (${facture.tva}%) : ${(facture.totalHT * facture.tva / 100).toFixed(2)}€`);
-    doc.text(`Total TTC : ${facture.totalTTC.toFixed(2)}€`, { underline: true });
+    /* -------------------------------------------------- */
+    /*                      TOTAUX                        */
+    /* -------------------------------------------------- */
+    doc.moveDown().text('Totaux :');
+    doc.text(`Sous-total HT (avant remise) : ${facture.totalHTBrut.toFixed(2)} €`);
+
+    if (facture.reductionCommande && facture.reductionCommande > 0)
+      doc.text(`Remise globale              : -${facture.reductionCommande.toFixed(2)} €`);
+
+    doc.text(`Total HT (après remise)     : ${facture.totalHT.toFixed(2)} €`);
+    doc.text(`TVA (${facture.tva} %)                : ${(facture.totalHT * facture.tva / 100).toFixed(2)} €`);
+    doc.text(`Total TTC                   : ${facture.totalTTC.toFixed(2)} €`, { underline: true });
 
     doc.end();
-
     stream.on('finish', () => resolve(pdfPath));
-    stream.on('error', reject);
+    stream.on('error',   reject);
   });
-};

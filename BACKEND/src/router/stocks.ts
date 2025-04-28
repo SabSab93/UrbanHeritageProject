@@ -4,7 +4,7 @@ import { PrismaClient, taille_maillot_enum } from "@prisma/client";
 export const stockRouter = Router();
 const prisma = new PrismaClient();
 
-// ✅ Créer 1 stock pour 1 taille spécifique
+// ✅ Créer 1 stock pour 1 taille spécifique avec vérification
 stockRouter.post("/create", async (req, res) => {
   const { id_maillot, taille_maillot } = req.body.data;
 
@@ -13,6 +13,14 @@ stockRouter.post("/create", async (req, res) => {
   }
 
   try {
+    const maillot = await prisma.maillot.findUnique({
+      where: { id_maillot },
+    });
+
+    if (!maillot) {
+      return res.status(404).json({ message: "Maillot non trouvé. Veuillez créer le maillot d'abord." });
+    }
+
     const newStock = await prisma.stock.create({
       data: { id_maillot, taille_maillot },
     });
@@ -24,7 +32,7 @@ stockRouter.post("/create", async (req, res) => {
   }
 });
 
-// ✅ Créer 4 stocks d'un coup (S, M, L, XL) pour un maillot
+// ✅ Créer 4 stocks d'un coup (S, M, L, XL) pour un maillot avec vérification
 stockRouter.post("/create-multiple", async (req, res) => {
   const { id_maillot } = req.body.data;
 
@@ -32,9 +40,17 @@ stockRouter.post("/create-multiple", async (req, res) => {
     return res.status(400).json({ message: "ID maillot manquant." });
   }
 
-  const tailles = ["S", "M", "L", "XL"] as taille_maillot_enum[];
-
   try {
+    const maillot = await prisma.maillot.findUnique({
+      where: { id_maillot },
+    });
+
+    if (!maillot) {
+      return res.status(404).json({ message: "Maillot non trouvé. Veuillez créer le maillot d'abord." });
+    }
+
+    const tailles = ["S", "M", "L", "XL"] as taille_maillot_enum[];
+
     const creations = await Promise.all(
       tailles.map((taille) =>
         prisma.stock.create({
@@ -49,6 +65,7 @@ stockRouter.post("/create-multiple", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
 
 // ✅ Liste tous les stocks avec dispo dynamique
 stockRouter.get("/", async (req, res) => {

@@ -5,7 +5,7 @@ import express from "express";
 
 import { PrismaClient } from "@prisma/client";
 
-import { clientRouter } from "./router/clients";
+import { authRouter } from "./router/auth";
 import { maillotRouter } from "./router/maillots";
 import { artisteRouter } from "./router/artistes";
 import { associationRouter } from "./router/associations";
@@ -13,7 +13,6 @@ import { monMiddlewareBearer } from "../middleware/checkToken";
 import { avisRouter } from "./router/avis";
 import { ligneCommandeRouter } from "./router/lignecommandes";
 import { commandeRouter } from "./router/commandes";
-import { ligneCommandeReductionRouter } from "./router/lignecomandereduction";
 import { reductionRouter } from "./router/reductions";
 import { tvaRouter } from "./router/tva";
 import { roleRouter } from "./router/roles";
@@ -31,6 +30,7 @@ import { testMailRouter } from "./router/mails";
 import { retourRouter } from "./router/retours";
 import { isAdmin } from "../middleware/isAdmin";
 import { avoirRouter } from "./router/avoirs";
+import { clientRouter } from "./router/clients";
 
 testMailRouter
 
@@ -49,14 +49,14 @@ const apiRouter = express.Router();
 app.use("/api", apiRouter); 
 
 
-apiRouter.use("/auth", clientRouter)
+apiRouter.use("/auth", authRouter);
+apiRouter.use("/client", clientRouter);
 apiRouter.use("/maillot", maillotRouter);
 apiRouter.use("/artiste", artisteRouter);
 apiRouter.use("/association", associationRouter);
 apiRouter.use("/avis", avisRouter);
 apiRouter.use("/lignecommande", ligneCommandeRouter);
 apiRouter.use("/commande", monMiddlewareBearer, commandeRouter);
-apiRouter.use("/lignecommande-reduction", ligneCommandeReductionRouter);
 apiRouter.use("/reduction", reductionRouter);
 apiRouter.use("/tva", tvaRouter);
 apiRouter.use("/role", roleRouter);
