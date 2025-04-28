@@ -203,23 +203,27 @@ commandeRouter.delete("/:id", monMiddlewareBearer, isAdmin, async (req, res) => 
 });
 
 // ✅ POST - Finaliser une commande
-commandeRouter.post("/finaliser", monMiddlewareBearer, async (req: any, res) => {
-  try {
-    const id_client = req.decoded.id_client;
-    const { lignes, livraison } = req.body;
+commandeRouter.post(
+  "/finaliser",
+  monMiddlewareBearer,
+  async (req: any, res) => {
+    try {
+      const id_client  = req.decoded.id_client;
+      const livraison  = req.body.livraison;            // 👈 plus de "lignes" !
 
-    if (!lignes || !livraison) {
-      return res.status(400).json({ message: "Champs manquants." });
+      if (!livraison) {
+        return res.status(400).json({ message: "Livraison manquante." });
+      }
+
+      const commande = await checkCommandeTransaction(id_client, livraison);
+
+      res.status(201).json({ message: "Commande finalisée 🚀", commande });
+    } catch (e: any) {
+      console.error("Erreur finalisation commande :", e);
+      res.status(500).json({ message: "Erreur serveur", details: e.message });
     }
-
-    const commande = await checkCommandeTransaction(id_client, lignes, livraison);
-
-    return res.status(201).json({ message: "Commande finalisée 🚀", commande });
-  } catch (error: any) {
-    console.error("Erreur finalisation commande :", error);
-    return res.status(500).json({ message: "Erreur serveur", details: error.message });
   }
-});
+);
 
 // ✅ POST - Ajouter une réduction à une commande
 commandeRouter.post("/:id_commande/reduction", monMiddlewareBearer, async (req, res) => {
