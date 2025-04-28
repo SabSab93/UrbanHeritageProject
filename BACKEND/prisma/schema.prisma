@@ -91,6 +91,8 @@ model Client {
   id_client             Int           @id @default(autoincrement())
   id_role               Int?          
   Role                  Role?         @relation(fields: [id_role], references: [id_role])
+  deleted_at            DateTime?
+is_anonymised           Boolean       @default(false)
   nom_client            String        @db.VarChar(100)
   prenom_client         String?       @db.VarChar(100)
   civilite              civilite_enum @default(non_specifie)

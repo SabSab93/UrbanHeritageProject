@@ -9,6 +9,7 @@ import { templateActivationCompte } from "../templateMails/compte/activationComp
 import { isAdmin } from "../../middleware/isAdmin";
 import { templateBienvenueCompte } from "../templateMails/compte/bienvenueCompte";
 import { templateForgotPassword } from "../templateMails/compte/resetMotDePasse";
+import { anonymiseClient } from "../utils/anonymiseClient";
 
 export const clientRouter = Router();
 const prisma = new PrismaClient();
@@ -132,14 +133,23 @@ clientRouter.get("/:id/details",monMiddlewareBearer, async (req, res) => {
 });
 
 // ✅ DELETE - Supprimer un client
-clientRouter.delete("/:id",monMiddlewareBearer, async (req, res) => {
-  const clientId = parseInt(req.params.id);
-  if (isNaN(clientId)) return res.status(400).json({ message: "ID invalide" });
+clientRouter.delete("/:id", monMiddlewareBearer, async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
 
-  const client = await prisma.client.findUnique({ where: { id_client: clientId } });
-  if (!client) return res.status(404).json({ message: "Client non trouvé" });
+  // ⚠️ Seul le client lui-même OU un admin peut déclencher la suppression
+  const isSelf  = req.decoded?.id_client === id;
+  const isAdmin = req.decoded?.id_role   === 1;
+  if (!isSelf && !isAdmin)
+    return res.status(403).json({ message: "Accès interdit" });
 
-  await prisma.client.delete({ where: { id_client: clientId } });
-
-  res.json({ message: "Client supprimé" });
+  try {
+    const clientAnonymise = await anonymiseClient(id);
+    return res
+      .status(200)
+      .json({ message: "Compte anonymisé conformément au RGPD ✅", client: clientAnonymise });
+  } catch (e: any) {
+    console.error("Erreur anonymisation client :", e);
+    return res.status(500).json({ message: "Erreur serveur", details: e.message });
+  }
 });
