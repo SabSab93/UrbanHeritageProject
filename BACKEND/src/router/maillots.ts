@@ -43,7 +43,6 @@ maillotRouter.post("/create", async (req: Request, res: Response) => {
   }
 });
 
-
 /***Routes spécifiques : coup‑de‑cœur & nouveautés***/
 
 maillotRouter.get("/coup-de-coeur", async (req, res) => {
@@ -95,7 +94,6 @@ maillotRouter.get("/:id", async (req, res) => {
     res.status(msg === "ID invalide" ? 400 : 500).json({ message: msg });
   }
 });
-
 
 /***Mise à jour & Suppression***/
 
