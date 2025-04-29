@@ -1,95 +1,48 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
 import { isAdmin } from "../../middleware/isAdmin";
 import { anonymiseClient } from "../utils/anonymiseClient";
 
-
 export const clientRouter = Router();
 const prisma = new PrismaClient();
 
-// ✅ GET - Tous les clients
-clientRouter.get("/", monMiddlewareBearer,isAdmin, async (req, res) => {
-  const clients = await prisma.client.findMany({
-    include: { Role: true },
-  });
+/*** Utils *******************************************************************/
+const parseId = (raw: any): number => {
+  const parsed = parseInt(raw as string, 10);
+  if (Number.isNaN(parsed) || parsed <= 0) throw new Error("ID invalide");
+  return parsed;
+};
+
+/*** 1. Lecture : liste & détail **********************************************/
+// Tous les clients (admin only)
+clientRouter.get("/", monMiddlewareBearer, isAdmin, async (_req, res) => {
+  const clients = await prisma.client.findMany({ include: { Role: true } });
   res.json(clients);
 });
 
-// ✅ GET - Client par ID
+// Client par ID (authentifié)
 clientRouter.get("/:id", monMiddlewareBearer, async (req, res) => {
-  const clientId = parseInt(req.params.id);
-  if (isNaN(clientId)) return res.status(400).json({ message: "ID invalide" });
-
-  const client = await prisma.client.findUnique({
-    where: { id_client: clientId },
-    include: { Role: true },
-  });
-
-  if (!client) return res.status(404).json({ message: "Client non trouvé" });
-  res.json(client);
-});
-
-
-
-// ✅ PUT - Modifier un client
-clientRouter.put("/:id", monMiddlewareBearer, async (req, res) => {
-  const clientId = parseInt(req.params.id);
-  if (isNaN(clientId)) return res.status(400).json({ message: "ID invalide" });
-
-  const existing = await prisma.client.findUnique({ where: { id_client: clientId } });
-  if (!existing) return res.status(404).json({ message: "Client non trouvé" });
-
-  const data = req.body.data;
-  let hashedPassword = existing.mot_de_passe;
-
-  if (data.mot_de_passe) {
-    hashedPassword = await bcrypt.hash(data.mot_de_passe, 10);
-  }
-
-  if (data.id_role && req.decoded?.id_role !== 2) {
-    return res.status(403).json({ message: "Seul un administrateur peut changer un rôle." });
-  }
-
-  let dateNaissance: Date | undefined = undefined;
-  if (data.date_naissance_client) {
-    const [jour, mois, annee] = data.date_naissance_client.split("/");
-    const parsedDate = new Date(`${annee}-${mois}-${jour}`);
-    if (!isNaN(parsedDate.getTime())) {
-      dateNaissance = parsedDate;
-    } else {
-      return res.status(400).json({ message: "Format de date invalide. Utilisez JJ/MM/AAAA." });
-    }
-  }
-
-  const updatedClient = await prisma.client.update({
-    where: { id_client: clientId },
-    data: {
-      nom_client: data.nom_client ?? undefined,
-      prenom_client: data.prenom_client ?? undefined,
-      civilite: data.civilite ?? undefined,
-      date_naissance_client: dateNaissance ?? undefined,
-      adresse_client: data.adresse_client ?? undefined,
-      code_postal_client: data.code_postal_client ?? undefined,
-      ville_client: data.ville_client ?? undefined,
-      pays_client: data.pays_client ?? undefined,
-      mot_de_passe: hashedPassword,
-      id_role: data.id_role ?? undefined,
-    },
-  });
-
-  res.json({ message: "Client mis à jour", client: updatedClient });
-});
-
-
-// ✅ GET - Détail complet client
-clientRouter.get("/:id/details",monMiddlewareBearer, async (req, res) => {
-  const id = parseInt(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ message: "ID client invalide" });
-
   try {
+    const id = parseId(req.params.id);
     const client = await prisma.client.findUnique({
+      where: { id_client: id },
+      include: { Role: true },
+    });
+    if (!client) return res.status(404).json({ message: "Client non trouvé" });
+    res.json(client);
+  } catch (error: any) {
+    const status = error.message === "ID invalide" ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
+  }
+});
+
+// Détail complet d’un client (commandes, livraisons, etc.)
+clientRouter.get("/:id/details", monMiddlewareBearer, async (req, res) => {
+  try {
+    const id = parseId(req.params.id);
+    const clientDetails = await prisma.client.findUnique({
       where: { id_client: id },
       include: {
         Commande: {
@@ -98,53 +51,88 @@ clientRouter.get("/:id/details",monMiddlewareBearer, async (req, res) => {
               include: {
                 Maillot: true,
                 TVA: true,
-                LigneCommandePersonnalisation: {
-                  include: {
-                    Personnalisation: true,
-                  },
-                },
+                LigneCommandePersonnalisation: { include: { Personnalisation: true } },
               },
             },
-            Livraison: {
-              include: {
-                MethodeLivraison: true,
-                LieuLivraison: true,
-                Livreur: true,
-              },
-            },
+            Livraison: { include: { MethodeLivraison: true, LieuLivraison: true, Livreur: true } },
           },
         },
         Role: true,
       },
     });
-
-    if (!client) return res.status(404).json({ message: "Client non trouvé" });
-
-    res.json(client);
-  } catch (error) {
-    console.error("Erreur récupération détails client :", error);
-    res.status(500).json({ message: "Erreur serveur" });
+    if (!clientDetails)
+      return res.status(404).json({ message: "Client non trouvé" });
+    res.json(clientDetails);
+  } catch (error: any) {
+    const status = error.message === "ID invalide" ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
 
-// ✅ DELETE - Supprimer un client
-clientRouter.delete("/:id", monMiddlewareBearer, async (req, res) => {
-  const id = Number(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
-
-  // ⚠️ Seul le client lui-même OU un admin peut déclencher la suppression
-  const isSelf  = req.decoded?.id_client === id;
-  const isAdmin = req.decoded?.id_role   === 1;
-  if (!isSelf && !isAdmin)
-    return res.status(403).json({ message: "Accès interdit" });
-
+/*** 2. Mise à jour d’un client **********************************************/
+clientRouter.put("/:id", monMiddlewareBearer, async (req: any, res) => {
   try {
-    const clientAnonymise = await anonymiseClient(id);
-    return res
-      .status(200)
-      .json({ message: "Compte anonymisé conformément au RGPD ✅", client: clientAnonymise });
-  } catch (e: any) {
-    console.error("Erreur anonymisation client :", e);
-    return res.status(500).json({ message: "Erreur serveur", details: e.message });
+    const id = parseId(req.params.id);
+    const existingClient = await prisma.client.findUnique({ where: { id_client: id } });
+    if (!existingClient)
+      return res.status(404).json({ message: "Client non trouvé" });
+
+    const updateData = req.body.data;
+    let hashedPassword = existingClient.mot_de_passe;
+
+    if (updateData.mot_de_passe)
+      hashedPassword = await bcrypt.hash(updateData.mot_de_passe, 10);
+
+    if (updateData.id_role && req.decoded?.id_role !== 1)
+      return res.status(403).json({ message: "Seul un administrateur peut changer un rôle." });
+
+    let parsedBirthDate: Date | undefined;
+    if (updateData.date_naissance_client) {
+      const [jour, mois, annee] = updateData.date_naissance_client.split("/");
+      const birth = new Date(`${annee}-${mois}-${jour}`);
+      if (Number.isNaN(birth.getTime()))
+        return res.status(400).json({ message: "Format de date invalide. JJ/MM/AAAA" });
+      parsedBirthDate = birth;
+    }
+
+    const updatedClient = await prisma.client.update({
+      where: { id_client: id },
+      data: {
+        nom_client: updateData.nom_client ?? undefined,
+        prenom_client: updateData.prenom_client ?? undefined,
+        civilite: updateData.civilite ?? undefined,
+        date_naissance_client: parsedBirthDate ?? undefined,
+        adresse_client: updateData.adresse_client ?? undefined,
+        code_postal_client: updateData.code_postal_client ?? undefined,
+        ville_client: updateData.ville_client ?? undefined,
+        pays_client: updateData.pays_client ?? undefined,
+        mot_de_passe: hashedPassword,
+        id_role: updateData.id_role ?? undefined,
+      },
+    });
+
+    res.json({ message: "Client mis à jour", client: updatedClient });
+  } catch (error: any) {
+    const status = error.message === "ID invalide" ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
+  }
+});
+
+/*** 3. Suppression (anonymisation RGPD) *************************************/
+clientRouter.delete("/:id", monMiddlewareBearer, async (req: any, res) => {
+  try {
+    const id = parseId(req.params.id);
+
+    // Seul le propriétaire du compte ou un admin peut anonymiser
+    const isSelf = req.decoded?.id_client === id;
+    const isAdminRole = req.decoded?.id_role === 1;
+    if (!isSelf && !isAdminRole)
+      return res.status(403).json({ message: "Accès interdit" });
+
+    const anonymised = await anonymiseClient(id);
+    res.json({ message: "Compte anonymisé conformément au RGPD ✅", client: anonymised });
+  } catch (error: any) {
+    const status = error.message === "ID invalide" ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
