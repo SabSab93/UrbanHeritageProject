@@ -1,36 +1,44 @@
-import { Router } from "express"; 
+import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { isAdmin } from "../../middleware/isAdmin";
 import { creerAvoirDepuisRetour } from "../utils/creerAvoirDepuisRetour";
+import { monMiddlewareBearer } from "../../middleware/checkToken";
 
 export const avoirRouter = Router();
 const prisma = new PrismaClient();
 
+/*** Utils *******************************************************************/
+const assertPositiveInt = (value: any, fieldName = "ID") => {
+  const parsed = parseInt(value as string, 10);
+  if (Number.isNaN(parsed) || parsed <= 0)
+    throw new Error(`${fieldName} invalide`);
+  return parsed;
+};
 
-avoirRouter.post("/create", isAdmin, async (req, res) => {
-  const { id_commande_retour } = req.body.data;
-
-  if (!id_commande_retour) return res.status(400).json({ message: "ID commande retour requis." });
+/*** 1. Création d’un avoir (Admin) *******************************************/
+avoirRouter.post("/create",monMiddlewareBearer, isAdmin, async (req: Request, res: Response) => {
+  const { id_commande_retour } = req.body?.data || {};
+  if (!id_commande_retour)
+    return res.status(400).json({ message: "id_commande_retour requis" });
 
   try {
-    const avoir = await creerAvoirDepuisRetour(id_commande_retour);
-
-    res.status(201).json({ message: "Avoir créé et email envoyé 🎁", avoir });
+    const idRetour = assertPositiveInt(id_commande_retour, "id_commande_retour");
+    const newAvoir = await creerAvoirDepuisRetour(idRetour);
+    res.status(201).json({ message: "Avoir créé et e‑mail envoyé", avoir: newAvoir });
   } catch (error: any) {
-    console.error("Erreur création avoir :", error);
-    res.status(500).json({ message: "Erreur serveur", details: error.message || error });
+    const status = error.message?.includes("invalide") ? 400 : 500;
+    console.error("POST /avoirs/create", error);
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
-// ✅ GET - Liste de tous les avoirs
-avoirRouter.get("/", isAdmin, async (req, res) => {
-  try {
-    const avoirs = await prisma.avoir.findMany({
-      orderBy: { date_avoir: "desc" },
-    });
 
-    res.json(avoirs);
+/*** 2. Liste des avoirs (Admin) **********************************************/
+avoirRouter.get("/",monMiddlewareBearer, isAdmin, async (_req, res) => {
+  try {
+    const allAvoirs = await prisma.avoir.findMany({ orderBy: { date_avoir: "desc" } });
+    res.json(allAvoirs);
   } catch (error) {
-    console.error("Erreur récupération avoirs :", error);
+    console.error("GET /avoirs", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
