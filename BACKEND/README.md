@@ -22,3 +22,31 @@ Projet en Express.js avec l'ORM Prisma
 12. `git push -u origin main`
 
 
+## Utilisation du Backend 
+### API UrbanHeritage - Routes Backend 
+
+
+### 👕 Maillots
+
+| Méthode | URL              | Description              |
+|--------:|------------------|--------------------------|
+| GET     | /maillots        | Récupérer tous les maillots |
+| GET     | /maillots/:id    | Récupérer un maillot par ID |
+| POST    | /maillots        | Créer un nouveau maillot |
+| PUT     | /maillots/:id    | Modifier un maillot       |
+| DELETE  | /maillots/:id    | Supprimer un maillot      |
+
+### 🎨 Artistes
+
+| Méthode | URL              | Description              |
+|--------:|------------------|--------------------------|
+| GET     | /artistes        | Liste des artistes       |
+| GET     | /artistes/:id    | Détails d’un artiste     |
+| POST    | /artistes        | Créer un artiste         |
+| PUT     | /artistes/:id    | Modifier un artiste      |
+| DELETE  | /artistes/:id    | Supprimer un artiste     |
+
+...
+
+### 📦 Commandes / Paiement / Livraison
+(À compléter selon ta structure actuelle)
