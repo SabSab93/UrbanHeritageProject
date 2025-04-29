@@ -1,15 +1,10 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
-import { sendMail } from "../utils/mailService"; 
-import crypto from "crypto"; 
-import { templateActivationCompte } from "../templateMails/compte/activationCompte";
 import { isAdmin } from "../../middleware/isAdmin";
-import { templateBienvenueCompte } from "../templateMails/compte/bienvenueCompte";
-import { templateForgotPassword } from "../templateMails/compte/resetMotDePasse";
 import { anonymiseClient } from "../utils/anonymiseClient";
+
 
 export const clientRouter = Router();
 const prisma = new PrismaClient();
