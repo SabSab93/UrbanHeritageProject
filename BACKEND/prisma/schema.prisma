@@ -211,12 +211,12 @@ model Maillot {
   tracabilite             String                    @default("")
   entretien               String                    @default("")
   prix_ht_maillot         Int                       @default(0)
+  created_at              DateTime                  @default(now())  
   Avis                    Avis[]
   LigneCommande           LigneCommande[]
   Artiste                 Artiste                   @relation(fields: [id_artiste], references: [id_artiste])
   Association             Association               @relation(fields: [id_association], references: [id_association])
-
-  Stock Stock[]
+  Stock                    Stock[]
 }
 
 model LigneCommandePersonnalisation {
