@@ -81,7 +81,7 @@ export const creerAvoirDepuisRetour = async (id_commande_retour: number) => {
       numero_avoir       : numeroAvoir,
       date_avoir         : new Date(),
       avoir_hors_ue      : horsUE,
-      id_commande_retour : id_commande_retour,   //  ✅ champ obligatoire
+      id_commande_retour : id_commande_retour,  
     },
   });
 

@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import path from 'path';
 
-// ✅ Création du transporteur ici directement
+// Création du transporteur ici directement
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// ✅ Fonction d'envoi de mail classique (texte ou HTML)
+// Fonction d'envoi de mail classique (texte ou HTML)
 export const sendMail = async (options: {
   to: string;
   subject: string;
@@ -24,7 +24,7 @@ export const sendMail = async (options: {
   });
 };
 
-// ✅ Interface pour l'envoi avec pièce jointe
+// Interface pour l'envoi avec pièce jointe
 interface SendMailWithAttachmentOptions {
   to: string;
   subject: string;
@@ -33,7 +33,7 @@ interface SendMailWithAttachmentOptions {
   attachmentPath: string;
 }
 
-// ✅ Fonction d'envoi d'un mail avec pièce jointe
+// Fonction d'envoi d'un mail avec pièce jointe
 export const sendMailWithAttachment = async (options: SendMailWithAttachmentOptions) => {
   return await transporter.sendMail({
     from: `"UrbanHeritage" <${process.env.SMTP_USER}>`,
