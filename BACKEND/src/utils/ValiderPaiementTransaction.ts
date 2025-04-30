@@ -19,7 +19,6 @@ export const validerPaiementTransaction = async (id_commande: number) => {
       throw new Error("Commande introuvable");
     }
 
-    // Vérification du stock
     for (const ligne of commande.LigneCommande) {
       const stock = await tx.stock.findFirst({
         where: {
@@ -41,6 +40,7 @@ export const validerPaiementTransaction = async (id_commande: number) => {
         throw new Error(`Stock insuffisant pour le maillot ${ligne.id_maillot} (${ligne.taille_maillot})`);
       }
 
+      // Déduire du stock
       await tx.stockMaillot.create({
         data: {
           id_stock: stock.id_stock,
@@ -48,9 +48,17 @@ export const validerPaiementTransaction = async (id_commande: number) => {
           quantite_stock: ligne.quantite,
         },
       });
+
+      // Incrémenter le nombre de maillots vendus
+      await tx.maillot.update({
+        where: { id_maillot: ligne.id_maillot },
+        data: {
+          quantite_vendue: { increment: ligne.quantite },
+        },
+      });
     }
 
-    // Update statut
+    // Mise à jour du statut de la commande
     await tx.commande.update({
       where: { id_commande },
       data: {
@@ -118,53 +126,48 @@ export const validerPaiementTransaction = async (id_commande: number) => {
       };
     });
 
-      // ----------------------- CALCULS TOTAUX -----------------------
-      const prixLivraison = (commandeComplete.Livraison[0]?.MethodeLivraison.prix_methode || 0)
-                          + (commandeComplete.Livraison[0]?.LieuLivraison.prix_lieu || 0);
+    const prixLivraison = (commandeComplete.Livraison[0]?.MethodeLivraison.prix_methode || 0)
+                        + (commandeComplete.Livraison[0]?.LieuLivraison.prix_lieu || 0);
+    const totalArticlesHT = articles.reduce((acc, a) => acc + a.montantHT, 0);
+    const reductionCommande = commandeComplete.CommandeReduction?.Reduction;
+    const valeurReductionCommande = reductionCommande ? reductionCommande.valeur_reduction.toNumber() : 0;
+    const totalHTBrut = totalArticlesHT + prixLivraison;
+    const totalHTApresRem = totalHTBrut - valeurReductionCommande;
+    const tva = facture.facture_hors_ue ? 0 : 20;
+    const totalTTC = totalHTApresRem * (1 + tva / 100);
 
-      const totalArticlesHT = articles.reduce((acc, a) => acc + a.montantHT, 0);
-
-      // réduction (si présente)
-      const reductionCommande = commandeComplete.CommandeReduction?.Reduction;
-      const valeurReductionCommande = reductionCommande ? reductionCommande.valeur_reduction.toNumber() : 0;
-
-      // totaux
-      const totalHTBrut      = totalArticlesHT + prixLivraison;
-      const totalHTApresRem  = totalHTBrut - valeurReductionCommande;
-      const tva              = facture.facture_hors_ue ? 0 : 20;
-      const totalTTC         = totalHTApresRem * (1 + tva / 100);
-
-      // ----------------------- PDF DATA -----------------------------
-      const pdfData = {
-        numeroFacture : facture.numero_facture,
-        dateFacture   : dateFacture.toLocaleDateString("fr-FR"),
-        client        : {
-          nom    : commandeComplete.Client.nom_client,
-          adresse: commandeComplete.Client.adresse_client,
-          email  : commandeComplete.Client.adresse_mail_client,
-        },
-        articles,
-        totalHTBrut            : totalHTBrut,
-        reductionCommande      : valeurReductionCommande,
-        totalHT                : totalHTApresRem,
-        tva,
-        totalTTC,
-        livraison: {
-          methode: commandeComplete.Livraison[0]?.MethodeLivraison.nom_methode,
-          lieu   : commandeComplete.Livraison[0]?.LieuLivraison.nom_lieu,
-          livreur: commandeComplete.Livraison[0]?.Livreur.nom_livreur,
-          prix   : prixLivraison,
-        },
-      };
+    const pdfData = {
+      numeroFacture : facture.numero_facture,
+      dateFacture   : dateFacture.toLocaleDateString("fr-FR"),
+      client        : {
+        nom    : commandeComplete.Client.nom_client,
+        adresse: commandeComplete.Client.adresse_client,
+        email  : commandeComplete.Client.adresse_mail_client,
+      },
+      articles,
+      totalHTBrut,
+      reductionCommande: valeurReductionCommande,
+      totalHT: totalHTApresRem,
+      tva,
+      totalTTC,
+      livraison: {
+        methode: commandeComplete.Livraison[0]?.MethodeLivraison.nom_methode,
+        lieu   : commandeComplete.Livraison[0]?.LieuLivraison.nom_lieu,
+        livreur: commandeComplete.Livraison[0]?.Livreur.nom_livreur,
+        prix   : prixLivraison,
+      },
+    };
 
     const pdfPath = await generateFacturePDF(pdfData);
+
     await sendMail({
       to: commandeComplete.Client.adresse_mail_client,
       subject: "🎉 Confirmation de votre commande UrbanHeritage",
-      html: templateConfirmationCommande(commandeComplete.Client.prenom_client, commandeComplete.id_commande.toString()),
+      html: templateConfirmationCommande(
+        commandeComplete.Client.prenom_client,
+        commandeComplete.id_commande.toString()
+      ),
     });
-
-    console.log("🛠️ Données PDF générées pour la facture :", JSON.stringify(pdfData, null, 2));
 
     await sendMailWithAttachment({
       to: commandeComplete.Client.adresse_mail_client,
@@ -172,12 +175,11 @@ export const validerPaiementTransaction = async (id_commande: number) => {
       html: templateFactureEnvoyee(
         commandeComplete.Client.prenom_client || commandeComplete.Client.nom_client
       ),
-      attachmentPath: pdfPath,     
+      attachmentPath: pdfPath,
     });
 
     return {
-      message:
-        "Paiement validé, stock mis à jour, facture générée et email envoyé.",
+      message: "Paiement validé, stock mis à jour, facture générée et email envoyé.",
     };
   }, { timeout: 15000 });
 };

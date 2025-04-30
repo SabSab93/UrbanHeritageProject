@@ -4,7 +4,7 @@ import { generateFacturePDF } from "../utils/generateFacturePDF";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
 import { isAdmin } from "../../middleware/isAdmin";
 import { downloadFacture } from "../utils/downloadFacture"; 
-
+import { regenerateFacturePDF } from "../utils/regenerateFacturePDF";
 
 export const factureRouter = Router();
 const prisma = new PrismaClient();
@@ -182,34 +182,16 @@ factureRouter.get(
   downloadFacture       
 );
 /*** Régénération PDF (admin only)********************************************/
-factureRouter.get("/regenerate-pdf/:numero_facture",monMiddlewareBearer, isAdmin, async (req, res) => {
+factureRouter.get("/regenerate-pdf/:numero_facture",monMiddlewareBearer,isAdmin, async (req, res) => {
   try {
-    const num = req.params.numero_facture;
-    const invoice = await prisma.facture.findUnique({ where: { numero_facture: num } });
-    if (!invoice) return res.status(404).json({ message: "Facture introuvable" });
-
-    const order = await prisma.commande.findUnique({
-      where: { id_commande: invoice.id_commande },
-      include: {
-        Client: true,
-        LigneCommande: {
-          include: {
-            Maillot: true,
-            LigneCommandePersonnalisation: { include: { Personnalisation: true } },
-          },
-        },
-        Livraison: { include: { MethodeLivraison: true, LieuLivraison: true, Livreur: true } },
-      },
-    });
-    if (!order) return res.status(404).json({ message: "Commande introuvable" });
-
-    const pdfPath = await generateFacturePDF(
-      buildPdfData(order, invoice.numero_facture, invoice.date_facture || new Date(), !!invoice.facture_hors_ue)
-    );
-    res.json({ message: "PDF régénéré", path: pdfPath });
-  } catch {
-    res.status(500).json({ message: "Erreur serveur" });
+    const pathPdf = await regenerateFacturePDF(req.params.numero_facture);
+    res.json({ message: "PDF régénéré avec succès 🚀", fichier: pathPdf });
+  } catch (err: any) {
+    if (err.message === "404") {
+      res.status(404).json({ message: "Facture introuvable" });
+    } else {
+      console.error(err);
+      res.status(500).json({ message: "Erreur serveur" });
+    }
   }
 });
-
-

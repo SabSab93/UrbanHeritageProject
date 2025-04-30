@@ -212,6 +212,7 @@ model Maillot {
   entretien               String                    @default("")
   prix_ht_maillot         Int                       @default(0)
   created_at              DateTime                  @default(now())  
+  quantite_vendue         Int                       @default(0)
   Avis                    Avis[]
   LigneCommande           LigneCommande[]
   Artiste                 Artiste                   @relation(fields: [id_artiste], references: [id_artiste])
