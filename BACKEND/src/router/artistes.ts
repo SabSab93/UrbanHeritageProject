@@ -7,6 +7,7 @@ export const artisteRouter = Router();
 const prisma = new PrismaClient();
 
 /*** Utils *******************************************************************/
+/** Convertit un paramètre d’URL en entier positif. */
 const parseId = (raw: any): number => {
   const parsed = parseInt(raw as string, 10);
   if (Number.isNaN(parsed) || parsed <= 0) throw new Error("ID invalide");

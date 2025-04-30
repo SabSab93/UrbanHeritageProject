@@ -8,6 +8,7 @@ export const avoirRouter = Router();
 const prisma = new PrismaClient();
 
 /*** Utils *******************************************************************/
+/** Vérifie qu’un identifiant est bien un entier positif. */
 const assertPositiveInt = (value: any, fieldName = "ID") => {
   const parsed = parseInt(value as string, 10);
   if (Number.isNaN(parsed) || parsed <= 0)
