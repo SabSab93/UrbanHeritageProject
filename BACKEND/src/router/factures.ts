@@ -154,7 +154,7 @@ factureRouter.get("/download/:numero_facture",monMiddlewareBearer, async (req, r
   });
 });
 
-/*** 4. Régénération PDF (admin only)********************************************/
+/*** Régénération PDF (admin only)********************************************/
 factureRouter.get("/regenerate-pdf/:numero_facture",monMiddlewareBearer, isAdmin, async (req, res) => {
   try {
     const num = req.params.numero_facture;
