@@ -9,7 +9,9 @@ import { gererReceptionRetour } from "../utils/gererReceptionRetour";
 export const retourRouter = Router();
 const prisma = new PrismaClient();
 
-// ✅ POST - Demander un retour
+/*** Création ***************************************************************/
+
+// Création : demande de retour
 retourRouter.post("/demander", monMiddlewareBearer, async (req: any, res) => {
   const { id_commande, motif_retour, lignes_retour } = req.body.data;
   const idClient = req.decoded.id_client;
@@ -32,7 +34,6 @@ retourRouter.post("/demander", monMiddlewareBearer, async (req: any, res) => {
     if (!commande) return res.status(404).json({ message: "Commande introuvable." });
     if (commande.id_client !== idClient) return res.status(403).json({ message: "Accès interdit." });
 
-    // 🔥 Vérifie qu'il n'y a pas déjà un retour
     const lignesDejaRetournees = await prisma.retourLigneCommande.findMany({
       where: { id_lignecommande: { in: lignes_retour } },
     });
@@ -44,7 +45,6 @@ retourRouter.post("/demander", monMiddlewareBearer, async (req: any, res) => {
       });
     }
 
-    // 🔥 Vérifie pas d'articles personnalisés
     const lignesAvecPerso = commande.LigneCommande.filter(lc =>
       lignes_retour.includes(lc.id_lignecommande) && lc.LigneCommandePersonnalisation.length > 0
     );
@@ -53,7 +53,6 @@ retourRouter.post("/demander", monMiddlewareBearer, async (req: any, res) => {
       return res.status(400).json({ message: "Retour interdit sur articles personnalisés." });
     }
 
-    // ✅ Créer retour + lignes de retour
     const retour = await prisma.retour.create({
       data: {
         id_commande_retour: id_commande,
@@ -67,7 +66,6 @@ retourRouter.post("/demander", monMiddlewareBearer, async (req: any, res) => {
       },
     });
 
-    // 📧 Envoi du mail bon de retour
     await sendMail({
       to: commande.Client.adresse_mail_client,
       subject: "📦 Bon de retour UrbanHeritage",
@@ -81,8 +79,9 @@ retourRouter.post("/demander", monMiddlewareBearer, async (req: any, res) => {
   }
 });
 
+/*** Mise à jour *************************************************************/
 
-// ✅ PUT - Confirmer réception du retour + stock + création avoir
+// Mise à jour : réception du retour (admin only)
 retourRouter.put("/:id/reception", monMiddlewareBearer, isAdmin, async (req, res) => {
   const id_commande_retour = parseInt(req.params.id);
 
@@ -91,27 +90,17 @@ retourRouter.put("/:id/reception", monMiddlewareBearer, isAdmin, async (req, res
   }
 
   try {
-    // ➡️ Vérifier d'abord que le retour n'est pas déjà réceptionné
-    const retour = await prisma.retour.findUnique({
-      where: { id_commande_retour },
-    });
-
-    if (!retour) {
-      return res.status(404).json({ message: "Retour introuvable." });
-    }
-
-    if (retour.reception_retour) {
+    const retour = await prisma.retour.findUnique({ where: { id_commande_retour } });
+    if (!retour) return res.status(404).json({ message: "Retour introuvable." });
+    if (retour.reception_retour)
       return res.status(400).json({ message: "Retour déjà réceptionné. Opération annulée." });
-    }
 
-    // ➡️ Appelle gererReceptionRetour (stock + avoir intégré)
     const retourReceptionne = await gererReceptionRetour(id_commande_retour);
 
     res.status(200).json({ 
       message: "Retour réceptionné, stock mis à jour et avoir généré 🎉", 
       retour: retourReceptionne 
     });
-
   } catch (error: any) {
     console.error("Erreur réception retour :", error.message || error);
     res.status(500).json({ message: "Erreur serveur", details: error.message || error });
