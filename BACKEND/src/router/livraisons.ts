@@ -1,50 +1,45 @@
-// Livraison.ts
-
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
 
 export const livraisonRouter = Router();
 const prisma = new PrismaClient();
 
-// ✅ GET - livraison liée à une commande
-livraisonRouter.get("/commande/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ message: "ID commande invalide" });
+/*** Utils *******************************************************************/
+/** Convertit un paramètre en entier positif. */
+const parseId = (raw: any, label = "ID") => {
+  const id = parseInt(raw as string, 10);
+  if (Number.isNaN(id) || id <= 0) throw new Error(`${label} invalide`);
+  return id;
+};
 
+/*** Lecture *****************************************************************/
+// Lecture : livraison liée à une commande
+livraisonRouter.get("/commande/:id_commande",monMiddlewareBearer, async (req, res) => {
   try {
+    const idCommande = parseId(req.params.id_commande, "id_commande");
     const livraison = await prisma.livraison.findFirst({
-      where: { id_commande: id },
-      include: {
-        MethodeLivraison: true,
-        LieuLivraison: true,
-        Livreur: true,
-      },
+      where: { id_commande: idCommande },
+      include: { MethodeLivraison: true, LieuLivraison: true, Livreur: true },
     });
-
     if (!livraison) return res.status(404).json({ message: "Livraison non trouvée" });
     res.json(livraison);
-  } catch (error) {
-    console.error("Erreur récupération livraison :", error);
-    res.status(500).json({ message: "Erreur serveur" });
+  } catch (error: any) {
+    const status = error.message === "id_commande invalide" ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
 
-// ✅ POST - création d’une livraison liée à une commande
-livraisonRouter.post("/create", monMiddlewareBearer, async (req, res) => {
-  const data = req.body.data;
+/*** Création (auth) *********************************************************/
+
+livraisonRouter.post("/create", monMiddlewareBearer, async (req: Request, res: Response) => {
+  const data = req.body?.data;
+  if (!data) return res.status(400).json({ message: "Corps de requête manquant" });
 
   try {
-    // 🔍 Vérification que la commande existe
-    const commandeExist = await prisma.commande.findUnique({
-      where: { id_commande: data.id_commande },
-    });
+    const commande = await prisma.commande.findUnique({ where: { id_commande: data.id_commande } });
+    if (!commande) return res.status(404).json({ message: "Commande introuvable" });
 
-    if (!commandeExist) {
-      return res.status(404).json({ message: "Commande introuvable" });
-    }
-
-    // Création de la livraison
     const newLivraison = await prisma.livraison.create({
       data: {
         id_commande: data.id_commande,
@@ -58,22 +53,21 @@ livraisonRouter.post("/create", monMiddlewareBearer, async (req, res) => {
         pays_livraison: data.pays_livraison,
       },
     });
-
     res.status(201).json(newLivraison);
-  } catch (error) {
-    console.error("Erreur création livraison :", error);
+  } catch {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
 
+/*** Mise à jour (auth) ******************************************************/
 
-// ✅ PUT - modifier une livraison
-livraisonRouter.put("/:id", monMiddlewareBearer, async (req, res) => {
-  const id = parseInt(req.params.id);
-  const data = req.body.data;
-
+livraisonRouter.put("/:id_livraison", monMiddlewareBearer, async (req, res) => {
   try {
-    const updatedLivraison = await prisma.livraison.update({
+    const id = parseId(req.params.id_livraison, "id_livraison");
+    const data = req.body?.data;
+    if (!data) return res.status(400).json({ message: "Corps de requête manquant" });
+
+    const updated = await prisma.livraison.update({
       where: { id_livraison: id },
       data: {
         id_methode_livraison: data.id_methode_livraison,
@@ -86,23 +80,22 @@ livraisonRouter.put("/:id", monMiddlewareBearer, async (req, res) => {
         pays_livraison: data.pays_livraison,
       },
     });
-
-    res.json(updatedLivraison);
-  } catch (error) {
-    console.error("Erreur modification livraison :", error);
-    res.status(500).json({ message: "Erreur serveur" });
+    res.json(updated);
+  } catch (error: any) {
+    const status = error.message.includes("invalide") ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
 
-// ✅ DELETE - supprimer une livraison
-livraisonRouter.delete("/:id", monMiddlewareBearer, async (req, res) => {
-  const id = parseInt(req.params.id);
+/*** Suppression (auth) ******************************************************/
 
+livraisonRouter.delete("/:id_livraison", monMiddlewareBearer, async (req, res) => {
   try {
+    const id = parseId(req.params.id_livraison, "id_livraison");
     await prisma.livraison.delete({ where: { id_livraison: id } });
     res.json({ message: "Livraison supprimée" });
-  } catch (error) {
-    console.error("Erreur suppression livraison :", error);
-    res.status(500).json({ message: "Erreur serveur" });
+  } catch (error: any) {
+    const status = error.message.includes("invalide") ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
