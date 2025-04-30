@@ -82,24 +82,12 @@ maillotRouter.post(
 maillotRouter.get("/coup-de-coeur", async (req, res) => {
   const limit = parseLimit(req.query.limit);
   try {
-    const bestSellers = await prisma.ligneCommande.groupBy({
-      by: ["id_maillot"],
-      where: { Commande: { statut_paiement: "paye" } },
-      _sum: { quantite: true },
-      orderBy: { _sum: { quantite: "desc" } },
+    const bestSellers = await prisma.maillot.findMany({
+      orderBy: { quantite_vendue: "desc" },
       take: limit,
     });
 
-    const bestSellerIds = bestSellers.map((row) => row.id_maillot);
-    const maillotRecords = await prisma.maillot.findMany({
-      where: { id_maillot: { in: bestSellerIds } },
-    });
-
-    const ordered = bestSellerIds.map((id) =>
-      maillotRecords.find((m) => m!.id_maillot === id)
-    );
-
-    res.json(ordered);
+    res.json(bestSellers);
   } catch (error) {
     console.error("GET /maillot/coup-de-coeur", error);
     res.status(500).json({ message: "Erreur serveur" });

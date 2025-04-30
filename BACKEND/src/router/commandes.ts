@@ -10,6 +10,7 @@ import { templateCommandeRetour }       from "../templateMails/commande/commande
 import { templateDemandeAvis }          from "../templateMails/commande/commandeDemandeAvis";
 import { templateLivraisonConfirmee }   from "../templateMails/commande/commandeLivree";
 import { templateCommandeRetard }       from "../templateMails/commande/commandeRetard";
+import { templatePreparationCommande } from "../templateMails/commande/CommandePreparation";
 
 
 export const commandeRouter = Router();
@@ -127,6 +128,16 @@ commandeRouter.put("/:id", isAdmin, async (req, res) => {
     const client = order.Client;
     if (client) {
       switch (statut_commande) {
+        case "en_cours_de_preparation":   // 🆕
+          await sendMail({
+            to: client.adresse_mail_client,
+            subject: "🧵 Votre commande est en cours de préparation",
+            html: templatePreparationCommande(
+              client.prenom_client || client.nom_client,
+              `${id}`
+            ),
+          });
+          break;
         case "livraison":
           await sendMail({
             to: client.adresse_mail_client,
