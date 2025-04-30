@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
+import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { isAdmin } from "../../middleware/isAdmin";
 
 export const reductionRouter = Router();
 const prisma = new PrismaClient();
@@ -39,7 +41,7 @@ reductionRouter.get("/:id", async (req, res) => {
 
 /*** Création ***************************************************************/
 
-reductionRouter.post("/create", async (req, res) => {
+reductionRouter.post("/create",monMiddlewareBearer,isAdmin, async (req, res) => {
   const data = req.body?.data;
   try {
     const newReduction = await prisma.reduction.create({
@@ -61,7 +63,7 @@ reductionRouter.post("/create", async (req, res) => {
 
 /*** Mise à jour *************************************************************/
 
-reductionRouter.put("/:id", async (req, res) => {
+reductionRouter.put("/:id",monMiddlewareBearer,isAdmin, async (req, res) => {
   const data = req.body?.data;
   try {
     const id = parseId(req.params.id, "id_reduction");
@@ -75,7 +77,7 @@ reductionRouter.put("/:id", async (req, res) => {
 
 /*** Suppression *************************************************************/
 
-reductionRouter.delete("/:id", async (req, res) => {
+reductionRouter.delete("/:id",monMiddlewareBearer,isAdmin, async (req, res) => {
   try {
     const id = parseId(req.params.id, "id_reduction");
     await prisma.reduction.delete({ where: { id_reduction: id } });
