@@ -51,8 +51,8 @@ Sur la base route API:  `http://localhost:1992/api/`
 
 - `GET /client/` – Liste de tous les clients **ok**
 
-- `GET /avis/` – Tous les avis 
-- `GET /avis/:id` – Avis par ID 
+- `GET /avis/` – Tous les avis **ok**
+- `GET /avis/:id` – Avis par ID **ok**
 
 - `POST /avoir/create` – Generation avoir 
 - `GET /avoir/` – Liste des avoirs 
@@ -63,7 +63,7 @@ Sur la base route API:  `http://localhost:1992/api/`
 - `DELETE /commande/:id` – Supprimer une commande **pas utilisée** A voir si je supp il redevient null et conserve ligne commande
 
 - `GET /facture/all` – Toutes les factures 
-- `GET /facture/regenerate-pdf/:numero_facture` – Régénérer une facture PDF 
+- `GET /facture/regenerate-pdf/:numero_facture` – Régénérer une facture PDF **ok**
 
 - `POST /tva/create` – Créer une TVA **ok**
 - `PUT /tva/:id` – Modifier une TVA **ok**
@@ -145,16 +145,16 @@ Sur la base route API:  `http://localhost:1992/api/`
 - `POST /avis/create` – Créer un avis  
 - `DELETE /avis/:id` – Supprimer un avis  
 
-- `POST /facture/create/:id_commande` – Creation facture  **pas utilisée**
+- `POST /facture/create/:id_commande` – Creation facture  **ok**
 - `GET /facture` – Toutes les factures du client connecté **ok**
-- `GET /facture/download/:numero_facture` – Télécharger une facture 
+- `GET /facture/download/:numero_facture` – Télécharger une facture **ok**
 - `GET /facture/:numero_facture` – Récupérer une facture par son numéro au client connecté **ok**
 
 - `POST /stockmaillot/create` – Generation de mouvement de stock  **ok**
 
 - `GET /stock/public/disponibilite/:id_maillot` – Stock public par maillot 
 
-- `POST /stripe/create-checkout-session/:id_commande` – Créer une session Stripe (paiement)
+- `POST /stripe/create-checkout-session/:id_commande` – Créer une session Stripe (paiement) **pas utilisée**
 
 
 ### 🌍 Routes Publiques
@@ -208,4 +208,4 @@ Sur la base route API:  `http://localhost:1992/api/`
 - `POST /auth/activate/{token_activation}` – Activation compte Client **ok**
 - `POST /auth/forgot-password` - Mot de passe oublié **ok**
 
-- `GET stock/public/disponibilite/:id_maillot` – Disponibilité d’un maillot par taille (quantité + statut)
+- `GET stock/public/disponibilite/:id_maillot` – Disponibilité d’un maillot par taille (quantité + statut) **ok**
