@@ -99,7 +99,7 @@ Sur la base route API:  `http://localhost:1992/api/`
 - `PUT /livreur/:id` – Modifier un livreur **ok**
 - `DELETE /livreur/:id` – Supprimer un livreur **ok**
 
-- `PUT /retour/:id/reception` – Réceptionner un retour (génère avoir) 
+- `PUT /retour/:id/reception` – Réceptionner un retour (génère avoir) **ok**
 
 - `GET /stock` – Tous les stocks **ok**
 - `GET /stock/:id` – Stock par ID **ok**
@@ -139,11 +139,11 @@ Sur la base route API:  `http://localhost:1992/api/`
 - `PUT /livraison/:id` – Modifier une livraison **ok**
 - `DELETE /livraison/:id` – Supprimer une livraison **pas utilisée**
 
-- `POST /retour/demander` – Demander un retour 
-- `POST /retourlignecommande/create` – Ajouter une ligne au retour  --> a chercher cette route si utile
+- `POST /retour/demander` – Demander un retour  **ok**
 
-- `POST /avis/create` – Créer un avis  
-- `DELETE /avis/:id` – Supprimer un avis  
+
+- `POST /avis/create` – Créer un avis  **ok**
+- `DELETE /avis/:id` – Supprimer un avis  **ok**
 
 - `POST /facture/create/:id_commande` – Creation facture  **ok**
 - `GET /facture` – Toutes les factures du client connecté **ok**
@@ -152,7 +152,7 @@ Sur la base route API:  `http://localhost:1992/api/`
 
 - `POST /stockmaillot/create` – Generation de mouvement de stock  **ok**
 
-- `GET /stock/public/disponibilite/:id_maillot` – Stock public par maillot 
+- `GET /stock/public/disponibilite/:id_maillot` – Stock public par maillot **ok**
 
 - `POST /stripe/create-checkout-session/:id_commande` – Créer une session Stripe (paiement) **pas utilisée**
 
@@ -161,7 +161,7 @@ Sur la base route API:  `http://localhost:1992/api/`
 
 - `GET /maillot` – Tous les maillots **ok**
 - `GET /maillot/:id` – Maillot par ID **ok**
-- `GET /maillot/coup-de-coeur` – Les maillots les plus vendus ///////A tester a la fin
+- `GET /maillot/coup-de-coeur` – Les maillots les plus vendus **ok**
 - `GET /maillot/nouveautes` - La liste des nouvels arrivages **ok**
 
 - `GET /artiste` – Tous les artistes **ok**
@@ -170,8 +170,8 @@ Sur la base route API:  `http://localhost:1992/api/`
 - `GET /association` – Toutes les associations **ok**
 - `GET /association/:id` – Association par ID **ok**
 
-- `GET /avis/maillot/:id"` – Tous les avis d’un maillot 
-- `GET /avis/maillot/:id/stats"` Statistiques d’avis pour un maillot 
+- `GET /avis/maillot/:id"` – Tous les avis d’un maillot **ok**
+- `GET /avis/maillot/:id/stats"` Statistiques d’avis pour un maillot **ok**
 - 
 - `GET /personnalisation` – Toutes les personnalisations **ok**
 - `GET /personnalisation/:id` – Personnalisation par ID **ok**
