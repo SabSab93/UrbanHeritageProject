@@ -3,7 +3,7 @@ import { generateFacturePDF } from '../utils/generateFacturePDF';
 
 export const createFacturePDF = async (req: Request, res: Response) => {
   try {
-    const factureData = req.body; // récupère les données envoyées en POST
+    const factureData = req.body; 
 
     const pdfPath = await generateFacturePDF(factureData);
 

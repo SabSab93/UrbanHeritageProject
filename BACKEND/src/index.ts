@@ -26,13 +26,12 @@ import { stockRouter } from "./router/stocks";
 import { stockmaillotRouter } from "./router/stockMaillots";
 import { stripeRouter } from "./router/stripe";
 import { factureRouter } from "./router/factures";
-import { testMailRouter } from "./router/mails";
 import { retourRouter } from "./router/retours";
 import { isAdmin } from "../middleware/isAdmin";
 import { avoirRouter } from "./router/avoirs";
 import { clientRouter } from "./router/clients";
 
-testMailRouter
+
 
 export const prisma = new PrismaClient();
 
@@ -70,7 +69,6 @@ apiRouter.use('/stock', stockRouter);
 apiRouter.use("/stockmaillot", stockmaillotRouter);
 apiRouter.use("/stripe", stripeRouter);
 apiRouter.use("/facture", factureRouter);
-apiRouter.use("/mail", testMailRouter);
 
 apiRouter.use("/retour", retourRouter);
 apiRouter.use("/avoir", monMiddlewareBearer, isAdmin, avoirRouter);
