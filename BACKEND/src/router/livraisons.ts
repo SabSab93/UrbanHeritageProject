@@ -15,7 +15,7 @@ const parseId = (raw: any, label = "ID") => {
 
 /*** Lecture *****************************************************************/
 // Lecture : livraison liée à une commande
-livraisonRouter.get("/commande/:id_commande",monMiddlewareBearer, async (req, res) => {
+livraisonRouter.get("/commande/:id_commande", async (req, res) => {
   try {
     const idCommande = parseId(req.params.id_commande, "id_commande");
     const livraison = await prisma.livraison.findFirst({
@@ -32,7 +32,7 @@ livraisonRouter.get("/commande/:id_commande",monMiddlewareBearer, async (req, re
 
 /*** Création (auth) *********************************************************/
 
-livraisonRouter.post("/create", monMiddlewareBearer, async (req: Request, res: Response) => {
+livraisonRouter.post("/create", async (req: Request, res: Response) => {
   const data = req.body?.data;
   if (!data) return res.status(400).json({ message: "Corps de requête manquant" });
 
@@ -61,7 +61,7 @@ livraisonRouter.post("/create", monMiddlewareBearer, async (req: Request, res: R
 
 /*** Mise à jour (auth) ******************************************************/
 
-livraisonRouter.put("/:id_livraison", monMiddlewareBearer, async (req, res) => {
+livraisonRouter.put("/:id_livraison", async (req, res) => {
   try {
     const id = parseId(req.params.id_livraison, "id_livraison");
     const data = req.body?.data;
@@ -89,7 +89,7 @@ livraisonRouter.put("/:id_livraison", monMiddlewareBearer, async (req, res) => {
 
 /*** Suppression (auth) ******************************************************/
 
-livraisonRouter.delete("/:id_livraison", monMiddlewareBearer, async (req, res) => {
+livraisonRouter.delete("/:id_livraison", async (req, res) => {
   try {
     const id = parseId(req.params.id_livraison, "id_livraison");
     await prisma.livraison.delete({ where: { id_livraison: id } });

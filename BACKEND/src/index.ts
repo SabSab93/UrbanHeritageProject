@@ -62,7 +62,7 @@ apiRouter.use("/tva", tvaRouter);
 apiRouter.use("/role", roleRouter);
 apiRouter.use("/personnalisation", personnalisationRouter);
 apiRouter.use("/lignecommande-personnalisation", ligneCommandePersonnalisationRouter);
-apiRouter.use("/livraison", livraisonRouter);
+apiRouter.use("/livraison",monMiddlewareBearer, livraisonRouter);
 apiRouter.use("/livreur", livreurRouter);
 apiRouter.use("/lieu-livraison", lieuLivraisonRouter);
 apiRouter.use("/methode-livraison", methodeLivraisonRouter);
