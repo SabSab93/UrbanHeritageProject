@@ -136,6 +136,35 @@ factureRouter.get("/", monMiddlewareBearer, async (req: any, res) => {
   }
 });
 
+// Lecture : une facture spécifique (client connecté uniquement) 
+factureRouter.get("/:numero_facture", monMiddlewareBearer, async (req: any, res: Response) => {
+  try {
+    const numero_facture = req.params.numero_facture;
+    const idClient = req.decoded.id_client;
+
+    const facture = await prisma.facture.findUnique({
+      where: { numero_facture },
+      include: {
+        Commande: {
+          include: {
+            Client: true,
+          },
+        },
+      },
+    });
+
+    if (!facture) return res.status(404).json({ message: "Facture introuvable" });
+    if (facture.Commande.id_client !== idClient)
+      return res.status(403).json({ message: "Accès non autorisé à cette facture" });
+
+    res.json(facture);
+  } catch (error: any) {
+    const status = error.message?.includes("invalide") ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
+  }
+});
+
+
 // Liste **complète** (admin only)
 factureRouter.get("/all", monMiddlewareBearer, isAdmin, async (_req, res) => {
   try {
@@ -148,7 +177,7 @@ factureRouter.get("/all", monMiddlewareBearer, isAdmin, async (_req, res) => {
 /*** Téléchargement PDF *******************************************************/
 factureRouter.get("/download/:numero_facture",monMiddlewareBearer, async (req, res) => {
   const num = req.params.numero_facture;
-  const filePath = path.join(__dirname, `../../factures/facture_${num}.pdf`);
+  const filePath = path.join(__dirname, `../../Factures/facture_${num}.pdf`);
   res.download(filePath, (err) => {
     if (err) res.status(404).json({ message: "PDF introuvable", erreur: err.message });
   });
@@ -184,3 +213,5 @@ factureRouter.get("/regenerate-pdf/:numero_facture",monMiddlewareBearer, isAdmin
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
+

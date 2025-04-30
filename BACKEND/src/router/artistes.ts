@@ -54,7 +54,7 @@ artisteRouter.post(
 
       res.status(201).json(newArtiste);
     } catch (error) {
-      console.error("POST /artistes/create", error);
+      console.error("POST /artiste/create", error);
       res.status(500).json({ message: "Erreur serveur" });
     }
   }

@@ -58,7 +58,7 @@ apiRouter.use("/lignecommande", ligneCommandeRouter);
 apiRouter.use("/commande", monMiddlewareBearer, commandeRouter);
 apiRouter.use("/reduction", reductionRouter);
 apiRouter.use("/tva", tvaRouter);
-apiRouter.use("/role", roleRouter);
+apiRouter.use("/role",monMiddlewareBearer,isAdmin, roleRouter);
 apiRouter.use("/personnalisation", personnalisationRouter);
 apiRouter.use("/lignecommande-personnalisation", ligneCommandePersonnalisationRouter);
 apiRouter.use("/livraison",monMiddlewareBearer, livraisonRouter);

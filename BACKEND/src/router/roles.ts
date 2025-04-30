@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
+import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { isAdmin } from "../../middleware/isAdmin";
 
 export const roleRouter = Router();
 const prisma = new PrismaClient();

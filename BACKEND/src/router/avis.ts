@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { isAdmin } from "../../middleware/isAdmin";
 
 export const avisRouter = Router();
 const prisma = new PrismaClient();
@@ -15,13 +16,13 @@ const parseId = (raw: any): number => {
 
 /*** Lecture standard *********************************************************/
 // Tous les avis
-avisRouter.get("/", async (_req, res) => {
+avisRouter.get("/",monMiddlewareBearer,isAdmin, async (_req, res) => {
   const allReviews = await prisma.avis.findMany();
   res.json(allReviews);
 });
 
 // Avis par ID
-avisRouter.get("/:id", async (req, res) => {
+avisRouter.get("/:id",monMiddlewareBearer,isAdmin, async (req, res) => {
   try {
     const id = parseId(req.params.id);
     const review = await prisma.avis.findUnique({ where: { id_avis: id } });

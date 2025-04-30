@@ -91,7 +91,7 @@ stockmaillotRouter.get("/stock/:id_stock", monMiddlewareBearer,isAdmin,  async (
 /*** Création ***************************************************************/
 
 // Création : ajouter un mouvement (entrée ou sortie)
-stockmaillotRouter.post("/create", async (req, res) => {
+stockmaillotRouter.post("/create",monMiddlewareBearer, async (req, res) => {
   const data = req.body.data;
 
   if (!data || !data.id_stock || !data.quantite_stock || !data.type_mouvement) {
@@ -143,7 +143,7 @@ stockmaillotRouter.post("/create", async (req, res) => {
 /*** Suppression ***********************************************************/
 
 // Suppression : supprimer un mouvement (sans mise à jour des champs obsolètes)
-stockmaillotRouter.delete("/:id", async (req, res) => {
+stockmaillotRouter.delete("/:id",monMiddlewareBearer,isAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
 

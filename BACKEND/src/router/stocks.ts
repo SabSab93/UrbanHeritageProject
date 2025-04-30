@@ -184,6 +184,42 @@ stockRouter.get("/detail/:id_maillot",monMiddlewareBearer,isAdmin, async (req, r
   }
 });
 
+// Lecture : stock public par maillot (affichage front - tailles et quantités restantes)
+stockRouter.get("/public/disponibilite/:id_maillot", async (req, res) => {
+  const id_maillot = parseInt(req.params.id_maillot);
+  if (isNaN(id_maillot)) return res.status(400).json({ message: "ID maillot invalide" });
+
+  try {
+    const stocks = await prisma.stock.findMany({
+      where: { id_maillot },
+      include: { StockMaillot: true },
+    });
+
+    const result = stocks.map((stock) => {
+      const entrees = stock.StockMaillot.filter(m => m.type_mouvement === "entree")
+        .reduce((acc, curr) => acc + curr.quantite_stock, 0);
+
+      const sorties = stock.StockMaillot.filter(m => m.type_mouvement === "sortie")
+        .reduce((acc, curr) => acc + curr.quantite_stock, 0);
+
+      const disponible = entrees - sorties;
+
+      return {
+        taille_maillot: stock.taille_maillot,
+        id_stock: stock.id_stock,
+        quantite_disponible: disponible,
+        statut: disponible === 0 ? "Rupture de stock" : disponible < 10 ? `Plus que ${disponible} en stock` : "Disponible"
+      };
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error("Erreur récupération stock public :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+
 /*** Suppression ***********************************************************/
 
 // Suppression : supprimer un stock

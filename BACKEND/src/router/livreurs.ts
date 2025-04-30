@@ -52,7 +52,7 @@ livreurRouter.post("/create",monMiddlewareBearer, isAdmin, async (req: Request, 
 
 /*** Mise à jour *************************************************************/
 
-livreurRouter.put("/:id_livreur", async (req, res) => {
+livreurRouter.put("/:id_livreur",monMiddlewareBearer, isAdmin, async (req, res) => {
   try {
     const id = parseId(req.params.id_livreur, "id_livreur");
     const { nom_livreur } = req.body?.data || {};

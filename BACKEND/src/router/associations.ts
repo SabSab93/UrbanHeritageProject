@@ -58,7 +58,7 @@ associationRouter.post(
 
       res.status(201).json(newAssociation);
     } catch (error) {
-      console.error("POST /associations/create", error);
+      console.error("POST /association/create", error);
       res.status(500).json({ message: "Erreur serveur" });
     }
   }

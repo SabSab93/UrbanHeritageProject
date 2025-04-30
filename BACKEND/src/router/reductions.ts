@@ -17,7 +17,7 @@ const parseId = (raw: any, label = "ID") => {
 /*** Lecture *****************************************************************/
 
 // Lecture : toutes les réductions
-reductionRouter.get("/", async (_req, res) => {
+reductionRouter.get("/",monMiddlewareBearer,isAdmin, async (_req, res) => {
   try {
     const reductions = await prisma.reduction.findMany();
     res.json(reductions);
@@ -27,7 +27,7 @@ reductionRouter.get("/", async (_req, res) => {
 });
 
 // Lecture : réduction par ID
-reductionRouter.get("/:id", async (req, res) => {
+reductionRouter.get("/:id",monMiddlewareBearer,isAdmin, async (req, res) => {
   try {
     const id = parseId(req.params.id, "id_reduction");
     const reduction = await prisma.reduction.findUnique({ where: { id_reduction: id } });
@@ -36,6 +36,25 @@ reductionRouter.get("/:id", async (req, res) => {
   } catch (error: any) {
     const status = error.message.includes("invalide") ? 400 : 500;
     res.status(status).json({ message: error.message ?? "Erreur serveur" });
+  }
+});
+
+// Lecture : réductions actives pour le front
+reductionRouter.get("/public/actives", async (_req, res) => {
+  const now = new Date();
+  try {
+    const activeReductions = await prisma.reduction.findMany({
+      where: {
+        statut_reduction: "active",
+        date_debut_reduction: { lte: now },
+        date_fin_reduction: { gte: now },
+      },
+      orderBy: { date_debut_reduction: "asc" },
+    });
+    res.json(activeReductions);
+  } catch (error) {
+    console.error("Erreur récupération réductions actives :", error);
+    res.status(500).json({ message: "Erreur serveur" });
   }
 });
 

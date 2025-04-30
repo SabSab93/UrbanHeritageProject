@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { isAdmin } from "../../middleware/isAdmin";
 
 export const ligneCommandeRouter = Router();
 const prisma = new PrismaClient();
@@ -13,7 +14,7 @@ const parseId = (raw: any, label = "ID") => {
 };
 
 /*** Lecture générale  ********************************************************/
-ligneCommandeRouter.get("/", async (_req, res) => {
+ligneCommandeRouter.get("/",monMiddlewareBearer,isAdmin, async (_req, res) => {
   const lignes = await prisma.ligneCommande.findMany();
   res.json(lignes);
 });
@@ -154,6 +155,30 @@ ligneCommandeRouter.get("/client/:id_client/lignes",monMiddlewareBearer, async (
 });
 
 
+/*** Modification par le client ************************************************/
+ligneCommandeRouter.put("/:id_ligne", async (req: any, res) => {
+  try {
+    const id = parseId(req.params.id_ligne, "id_lignecommande");
+    const idClient = req.decoded.id_client;
+    const data = req.body?.data;
+
+    const ligne = await prisma.ligneCommande.findUnique({ where: { id_lignecommande: id } });
+    if (!ligne) return res.status(404).json({ message: "Ligne non trouvée" });
+    if (ligne.id_client !== idClient) return res.status(403).json({ message: "Accès interdit" });
+    if (ligne.id_commande !== null) return res.status(400).json({ message: "Commande déjà validée" });
+
+    const updated = await prisma.ligneCommande.update({
+      where: { id_lignecommande: id },
+      data,
+    });
+
+    res.json(updated);
+  } catch (error: any) {
+    const status = error.message?.includes("invalide") ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
+  }
+});
+
 /*** Nettoyage des paniers invités  ***********************************/
 // Suppression : paniers invités expirés 
 ligneCommandeRouter.delete("/cleanup", async (_req, res) => {
@@ -164,5 +189,24 @@ ligneCommandeRouter.delete("/cleanup", async (_req, res) => {
     res.json({ message: `${deleted.count} lignes supprimées` });
   } catch {
     res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+/*** Suppression d'une ligne du panier par le client ***************************/
+ligneCommandeRouter.delete("/:id_ligne/client", async (req: any, res) => {
+  try {
+    const id = parseId(req.params.id_ligne, "id_lignecommande");
+    const idClient = req.decoded.id_client;
+
+    const ligne = await prisma.ligneCommande.findUnique({ where: { id_lignecommande: id } });
+    if (!ligne) return res.status(404).json({ message: "Ligne non trouvée" });
+    if (ligne.id_client !== idClient) return res.status(403).json({ message: "Accès interdit" });
+    if (ligne.id_commande !== null) return res.status(400).json({ message: "Commande déjà validée" });
+
+    await prisma.ligneCommande.delete({ where: { id_lignecommande: id } });
+    res.json({ message: "Ligne supprimée du panier" });
+  } catch (error: any) {
+    const status = error.message?.includes("invalide") ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });

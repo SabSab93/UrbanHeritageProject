@@ -53,7 +53,7 @@ commandeRouter.post("/create", async (req: any, res) => {
 
     res.status(201).json({ message: "Commande créée", commande: newOrder });
   } catch (error) {
-    console.error("POST /commandes/create", error);
+    console.error("POST /commande/create", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
@@ -68,7 +68,7 @@ commandeRouter.get("/", async (req: any, res) => {
     });
     res.json(orders);
   } catch (error) {
-    console.error("GET /commandes", error);
+    console.error("GET /commande", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });

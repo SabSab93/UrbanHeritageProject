@@ -101,7 +101,7 @@ maillotRouter.get("/coup-de-coeur", async (req, res) => {
 
     res.json(ordered);
   } catch (error) {
-    console.error("GET /maillots/coup-de-coeur", error);
+    console.error("GET /maillot/coup-de-coeur", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
@@ -115,7 +115,7 @@ maillotRouter.get("/nouveautes", async (req, res) => {
     });
     res.json(latestMaillots);
   } catch (error) {
-    console.error("GET /maillots/nouveautes", error);
+    console.error("GET /maillot/nouveautes", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });

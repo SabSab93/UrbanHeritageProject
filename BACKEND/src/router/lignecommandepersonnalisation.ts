@@ -60,25 +60,29 @@ ligneCommandePersonnalisationRouter.post("/create", async (req: Request, res: Re
 });
 
 /*** Mise à jour d’une personnalisation *************************************/
-ligneCommandePersonnalisationRouter.put("/:id_lignecommande", async (req, res) => {
+ligneCommandePersonnalisationRouter.put("/:id_lignecommande/:id_personnalisation", async (req, res) => {
   try {
-    const idLigne = parseId(req.params.id_lignecommande, "id_lignecommande");
-    const { id_personnalisation, prix_personnalisation_ht } = req.body?.data || {};
-    if (!id_personnalisation)
-      return res.status(400).json({ message: "id_personnalisation requis" });
+    const id_lignecommande = parseInt(req.params.id_lignecommande);
+    const id_personnalisation = parseInt(req.params.id_personnalisation);
+    const { prix_personnalisation_ht } = req.body?.data || {};
+
+    if (isNaN(id_lignecommande) || isNaN(id_personnalisation)) {
+      return res.status(400).json({ message: "Paramètres invalides" });
+    }
 
     const updated = await prisma.ligneCommandePersonnalisation.update({
       where: {
         id_lignecommande_id_personnalisation: {
-          id_lignecommande: idLigne,
+          id_lignecommande,
           id_personnalisation,
         },
       },
       data: { prix_personnalisation_ht },
     });
+
     res.json(updated);
   } catch (error: any) {
-    const status = error.message.includes("invalide") ? 400 : 500;
+    const status = error.message?.includes("invalide") ? 400 : 500;
     res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
