@@ -1,11 +1,15 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
+import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { isAdmin } from "../../middleware/isAdmin";
 
 export const stockmaillotRouter = Router();
 const prisma = new PrismaClient();
 
-// ✅ GET - tous les mouvements de stock
-stockmaillotRouter.get("/", async (req, res) => {
+/*** Lecture ***************************************************************/
+
+// Lecture : tous les mouvements de stock
+stockmaillotRouter.get("/",monMiddlewareBearer,isAdmin, async (req, res) => {
   try {
     const mouvements = await prisma.stockMaillot.findMany({
       include: {
@@ -25,8 +29,8 @@ stockmaillotRouter.get("/", async (req, res) => {
   }
 });
 
-// ✅ GET - un mouvement par ID
-stockmaillotRouter.get("/:id", async (req, res) => {
+// Lecture : un mouvement par ID
+stockmaillotRouter.get("/:id",monMiddlewareBearer,isAdmin,  async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
 
@@ -55,8 +59,39 @@ stockmaillotRouter.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ POST - ajouter un mouvement (entrée ou sortie)
-stockmaillotRouter.post("/create", async (req, res) => {
+// Lecture : tous les mouvements d'un stock précis
+stockmaillotRouter.get("/stock/:id_stock", monMiddlewareBearer,isAdmin,  async (req, res) => {
+  const id_stock = parseInt(req.params.id_stock);
+
+  if (isNaN(id_stock)) {
+    return res.status(400).json({ message: "ID stock invalide" });
+  }
+
+  try {
+    const mouvements = await prisma.stockMaillot.findMany({
+      where: { id_stock },
+      orderBy: { date_mouvement: "desc" },
+      include: {
+        Stock: {
+          select: {
+            id_maillot: true,
+            taille_maillot: true,
+          },
+        },
+      },
+    });
+
+    res.json(mouvements);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des mouvements par stock :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+/*** Création ***************************************************************/
+
+// Création : ajouter un mouvement (entrée ou sortie)
+stockmaillotRouter.post("/create",monMiddlewareBearer, async (req, res) => {
   const data = req.body.data;
 
   if (!data || !data.id_stock || !data.quantite_stock || !data.type_mouvement) {
@@ -76,30 +111,20 @@ stockmaillotRouter.post("/create", async (req, res) => {
       return res.status(404).json({ message: "Stock introuvable" });
     }
 
-    // Vérification pour les sorties
     if (data.type_mouvement === "sortie") {
       const mouvements = await prisma.stockMaillot.findMany({
         where: { id_stock: data.id_stock },
       });
 
-      const totalEntree = mouvements
-        .filter((m) => m.type_mouvement === "entree")
-        .reduce((acc, m) => acc + m.quantite_stock, 0);
-
-      const totalSortie = mouvements
-        .filter((m) => m.type_mouvement === "sortie")
-        .reduce((acc, m) => acc + m.quantite_stock, 0);
-
+      const totalEntree = mouvements.filter((m) => m.type_mouvement === "entree").reduce((acc, m) => acc + m.quantite_stock, 0);
+      const totalSortie = mouvements.filter((m) => m.type_mouvement === "sortie").reduce((acc, m) => acc + m.quantite_stock, 0);
       const quantiteDisponible = totalEntree - totalSortie;
 
       if (data.quantite_stock > quantiteDisponible) {
-        return res.status(400).json({
-          message: `Stock insuffisant. Il reste ${quantiteDisponible} unités disponibles.`,
-        });
+        return res.status(400).json({ message: `Stock insuffisant. Il reste ${quantiteDisponible} unités disponibles.` });
       }
     }
 
-    // Création du mouvement
     const mouvement = await prisma.stockMaillot.create({
       data: {
         id_stock: data.id_stock,
@@ -115,39 +140,10 @@ stockmaillotRouter.post("/create", async (req, res) => {
   }
 });
 
+/*** Suppression ***********************************************************/
 
-// ✅ GET - Tous les mouvements d'un stock précis
-stockmaillotRouter.get("/stock/:id_stock", async (req, res) => {
-  const id_stock = parseInt(req.params.id_stock);
-
-  if (isNaN(id_stock)) {
-    return res.status(400).json({ message: "ID stock invalide" });
-  }
-
-  try {
-    const mouvements = await prisma.stockMaillot.findMany({
-      where: { id_stock },
-      orderBy: { date_mouvement: "desc" }, // dernier mouvement en premier
-      include: {
-        Stock: {
-          select: {
-            id_maillot: true,
-            taille_maillot: true,
-          },
-        },
-      },
-    });
-
-    res.json(mouvements);
-  } catch (error) {
-    console.error("Erreur lors de la récupération des mouvements par stock :", error);
-    res.status(500).json({ message: "Erreur serveur" });
-  }
-});
-
-
-// ✅ DELETE - supprimer un mouvement (sans mise à jour des champs obsolètes)
-stockmaillotRouter.delete("/:id", async (req, res) => {
+// Suppression : supprimer un mouvement (sans mise à jour des champs obsolètes)
+stockmaillotRouter.delete("/:id",monMiddlewareBearer,isAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
 

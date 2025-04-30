@@ -5,7 +5,9 @@ import { monMiddlewareBearer } from "../../middleware/checkToken";
 export const retourLigneCommandeRouter = Router();
 const prisma = new PrismaClient();
 
-// ✅ POST - Ajouter une ligne de commande au retour
+/*** Création ***************************************************************/
+
+// Création : ajouter une ligne de commande à un retour
 retourLigneCommandeRouter.post("/create", monMiddlewareBearer, async (req: any, res) => {
   const { id_retour, id_lignecommande } = req.body.data;
   const idClient = req.decoded.id_client;
@@ -15,13 +17,15 @@ retourLigneCommandeRouter.post("/create", monMiddlewareBearer, async (req: any, 
   }
 
   try {
-    // Vérifier que la ligne de commande appartient bien au client
+    // Vérification que la ligne de commande appartient bien au client
     const ligne = await prisma.ligneCommande.findUnique({
       where: { id_lignecommande },
     });
 
-    if (!ligne) return res.status(404).json({ message: "Ligne de commande introuvable." });
-    if (ligne.id_client !== idClient) return res.status(403).json({ message: "Accès interdit à cette ligne de commande." });
+    if (!ligne)
+      return res.status(404).json({ message: "Ligne de commande introuvable." });
+    if (ligne.id_client !== idClient)
+      return res.status(403).json({ message: "Accès interdit à cette ligne de commande." });
 
     const retourLigne = await prisma.retourLigneCommande.create({
       data: {

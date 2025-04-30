@@ -48,13 +48,13 @@ export const gererReceptionRetour = async (id_commande_retour: number) => {
     });
   }
 
-  // ➡️ Met à jour reception_retour
+  // Met à jour reception_retour
   const retourReceptionne = await prisma.retour.update({
     where: { id_commande_retour },
     data: { reception_retour: true },
   });
 
-  // ➡️ Génère automatiquement l'avoir
+  // Génère automatiquement l'avoir
   await creerAvoirDepuisRetour(id_commande_retour);
 
   return retourReceptionne;

@@ -6,7 +6,9 @@ import { monMiddlewareBearer } from "../../middleware/checkToken";
 export const tvaRouter = Router();
 const prisma = new PrismaClient();
 
-// ✅ GET - toutes les TVA
+/*** Lecture ***************************************************************/
+
+// Lecture : toutes les TVA
 tvaRouter.get("/", async (req, res) => {
   try {
     const allTva = await prisma.tVA.findMany();
@@ -17,7 +19,7 @@ tvaRouter.get("/", async (req, res) => {
   }
 });
 
-// ✅ GET - TVA par ID
+// Lecture : TVA par ID
 tvaRouter.get("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
@@ -33,8 +35,10 @@ tvaRouter.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ POST - création (admin only)
-tvaRouter.post("/create",monMiddlewareBearer, isAdmin, async (req, res) => {
+/*** Création ***************************************************************/
+
+// Création : ajout d'une TVA (admin only)
+tvaRouter.post("/create", monMiddlewareBearer, isAdmin, async (req, res) => {
   const data = req.body.data;
 
   try {
@@ -52,8 +56,10 @@ tvaRouter.post("/create",monMiddlewareBearer, isAdmin, async (req, res) => {
   }
 });
 
-// ✅ PUT - modification (admin only)
-tvaRouter.put("/:id",monMiddlewareBearer, isAdmin, async (req, res) => {
+/*** Mise à jour ***********************************************************/
+
+// Mise à jour : modification d'une TVA (admin only)
+tvaRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   const data = req.body.data;
 
@@ -72,8 +78,10 @@ tvaRouter.put("/:id",monMiddlewareBearer, isAdmin, async (req, res) => {
   }
 });
 
-// ✅ DELETE - suppression (admin only)
-tvaRouter.delete("/:id",monMiddlewareBearer, isAdmin, async (req, res) => {
+/*** Suppression ***********************************************************/
+
+// Suppression : suppression d'une TVA (admin only)
+tvaRouter.delete("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
 

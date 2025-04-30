@@ -1,10 +1,14 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
+import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { isAdmin } from "../../middleware/isAdmin";
 
 export const roleRouter = Router();
 const prisma = new PrismaClient();
 
-// ✅ GET - tous les rôles
+/*** Lecture ***************************************************************/
+
+// Lecture : tous les rôles
 roleRouter.get("/", async (req, res) => {
   try {
     const roles = await prisma.role.findMany();
@@ -15,7 +19,7 @@ roleRouter.get("/", async (req, res) => {
   }
 });
 
-// ✅ GET - rôle par ID
+// Lecture : rôle par ID
 roleRouter.get("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
@@ -34,7 +38,9 @@ roleRouter.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ POST - création d’un rôle
+/*** Création ***************************************************************/
+
+// Création : nouveau rôle
 roleRouter.post("/create", async (req, res) => {
   const data = req.body.data;
 
@@ -53,7 +59,9 @@ roleRouter.post("/create", async (req, res) => {
   }
 });
 
-// ✅ PUT - mise à jour d’un rôle
+/*** Mise à jour ***********************************************************/
+
+// Mise à jour : modifier un rôle
 roleRouter.put("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   const data = req.body.data;
@@ -76,7 +84,9 @@ roleRouter.put("/:id", async (req, res) => {
   }
 });
 
-// ✅ DELETE - suppression
+/*** Suppression ***********************************************************/
+
+// Suppression : supprimer un rôle
 roleRouter.delete("/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });

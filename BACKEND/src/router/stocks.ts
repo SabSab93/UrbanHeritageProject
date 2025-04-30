@@ -1,11 +1,15 @@
 import { Router } from "express";
 import { PrismaClient, taille_maillot_enum } from "@prisma/client";
+import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { isAdmin } from "../../middleware/isAdmin";
 
 export const stockRouter = Router();
 const prisma = new PrismaClient();
 
-// ✅ Créer 1 stock pour 1 taille spécifique avec vérification
-stockRouter.post("/create", async (req, res) => {
+/*** Création ***************************************************************/
+
+// Création : un stock pour une taille spécifique avec vérification
+stockRouter.post("/create",monMiddlewareBearer,isAdmin, async (req, res) => {
   const { id_maillot, taille_maillot } = req.body.data;
 
   if (!id_maillot || !taille_maillot) {
@@ -32,8 +36,8 @@ stockRouter.post("/create", async (req, res) => {
   }
 });
 
-// ✅ Créer 4 stocks d'un coup (S, M, L, XL) pour un maillot avec vérification
-stockRouter.post("/create-multiple", async (req, res) => {
+// Création : 4 stocks (S, M, L, XL) pour un maillot avec vérification
+stockRouter.post("/create-multiple",monMiddlewareBearer,isAdmin, async (req, res) => {
   const { id_maillot } = req.body.data;
 
   if (!id_maillot) {
@@ -66,9 +70,10 @@ stockRouter.post("/create-multiple", async (req, res) => {
   }
 });
 
+/*** Lecture ***************************************************************/
 
-// ✅ Liste tous les stocks avec dispo dynamique
-stockRouter.get("/", async (req, res) => {
+// Lecture : liste tous les stocks avec dispo dynamique
+stockRouter.get("/",monMiddlewareBearer,isAdmin, async (req, res) => {
   try {
     const stocks = await prisma.stock.findMany({ include: { StockMaillot: true } });
 
@@ -94,8 +99,8 @@ stockRouter.get("/", async (req, res) => {
   }
 });
 
-// ✅ Récupérer un stock avec calcul dynamique
-stockRouter.get("/:id", async (req, res) => {
+// Lecture : un stock avec calcul dynamique
+stockRouter.get("/:id",monMiddlewareBearer,isAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
 
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
@@ -128,29 +133,8 @@ stockRouter.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ Supprimer un stock
-stockRouter.delete("/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-
-  if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
-
-  try {
-    const stock = await prisma.stock.findUnique({
-      where: { id_stock: id },
-    });
-
-    if (!stock) return res.status(404).json({ message: "Stock introuvable" });
-
-    await prisma.stock.delete({ where: { id_stock: id } });
-    res.json({ message: "Stock supprimé avec succès" });
-  } catch (error) {
-    console.error("Erreur suppression stock :", error);
-    res.status(500).json({ message: "Erreur serveur" });
-  }
-});
-
-// ✅ Détail par tailles d'un maillot (S, M, L, XL)
-stockRouter.get("/detail/:id_maillot", async (req, res) => {
+// Lecture : détail par tailles d'un maillot (S, M, L, XL)
+stockRouter.get("/detail/:id_maillot",monMiddlewareBearer,isAdmin, async (req, res) => {
   const id_maillot = parseInt(req.params.id_maillot);
 
   if (isNaN(id_maillot)) {
@@ -196,6 +180,63 @@ stockRouter.get("/detail/:id_maillot", async (req, res) => {
     res.json(stockDetailParTaille);
   } catch (error) {
     console.error("Erreur lors de la récupération du stock détaillé :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+// Lecture : stock public par maillot (affichage front - tailles et quantités restantes)
+stockRouter.get("/public/disponibilite/:id_maillot", async (req, res) => {
+  const id_maillot = parseInt(req.params.id_maillot);
+  if (isNaN(id_maillot)) return res.status(400).json({ message: "ID maillot invalide" });
+
+  try {
+    const stocks = await prisma.stock.findMany({
+      where: { id_maillot },
+      include: { StockMaillot: true },
+    });
+
+    const result = stocks.map((stock) => {
+      const entrees = stock.StockMaillot.filter(m => m.type_mouvement === "entree")
+        .reduce((acc, curr) => acc + curr.quantite_stock, 0);
+
+      const sorties = stock.StockMaillot.filter(m => m.type_mouvement === "sortie")
+        .reduce((acc, curr) => acc + curr.quantite_stock, 0);
+
+      const disponible = entrees - sorties;
+
+      return {
+        taille_maillot: stock.taille_maillot,
+        id_stock: stock.id_stock,
+        quantite_disponible: disponible,
+        statut: disponible === 0 ? "Rupture de stock" : disponible < 10 ? `Plus que ${disponible} en stock` : "Disponible"
+      };
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error("Erreur récupération stock public :", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+
+/*** Suppression ***********************************************************/
+
+// Suppression : supprimer un stock
+stockRouter.delete("/:id",monMiddlewareBearer,isAdmin, async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
+
+  try {
+    const stock = await prisma.stock.findUnique({ where: { id_stock: id } });
+
+    if (!stock) return res.status(404).json({ message: "Stock introuvable" });
+
+    await prisma.stock.delete({ where: { id_stock: id } });
+    res.json({ message: "Stock supprimé avec succès" });
+  } catch (error) {
+    console.error("Erreur suppression stock :", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });

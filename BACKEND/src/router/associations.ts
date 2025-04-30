@@ -1,90 +1,122 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { isAdmin } from "../../middleware/isAdmin";
 
 export const associationRouter = Router();
 const prisma = new PrismaClient();
 
-// ✅ GET toutes les associations
-associationRouter.get("/", async (req, res) => {
+/*** Utils *******************************************************************/
+/** Convertit un paramètre d’URL en entier positif. */
+const parseId = (raw: any): number => {
+  const parsed = parseInt(raw as string, 10);
+  if (Number.isNaN(parsed) || parsed <= 0) throw new Error("ID invalide");
+  return parsed;
+};
+
+/*** Création (Admin) *********************************************************/
+associationRouter.post(
+  "/create",
+  monMiddlewareBearer,
+  isAdmin,
+  async (req: Request, res: Response) => {
+    try {
+      const associationData = req.body?.data;
+      if (!associationData)
+        return res.status(400).json({ message: "Corps de requête manquant" });
+
+      const requiredFields = [
+        "nom_association",
+        "numero_identification_association",
+        "pays_association",
+      ];
+      const missingFields = requiredFields.filter(
+        (field) => !associationData[field]
+      );
+      if (missingFields.length)
+        return res.status(400).json({
+          message: `Champs manquants : ${missingFields.join(", ")}`,
+        });
+
+      const newAssociation = await prisma.association.create({
+        data: {
+          nom_association: associationData.nom_association,
+          numero_identification_association:
+            associationData.numero_identification_association,
+          adresse_siege_social_association:
+            associationData.adresse_siege_social_association,
+          pays_association: associationData.pays_association,
+          site_web_association: associationData.site_web_association,
+          url_image_association_1: associationData.url_image_association_1,
+          url_image_association_2: associationData.url_image_association_2,
+          url_image_association_3: associationData.url_image_association_3,
+          description_association_1: associationData.description_association_1,
+          description_association_2: associationData.description_association_2,
+          description_association_3: associationData.description_association_3,
+        },
+      });
+
+      res.status(201).json(newAssociation);
+    } catch (error) {
+      console.error("POST /association/create", error);
+      res.status(500).json({ message: "Erreur serveur" });
+    }
+  }
+);
+
+/*** Lecture standard *********************************************************/
+associationRouter.get("/", async (_req, res) => {
   const associations = await prisma.association.findMany();
   res.json(associations);
 });
 
-// ✅ GET association par ID
 associationRouter.get("/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
-
-  const association = await prisma.association.findUnique({
-    where: { id_association: id }, // <<--- changé ici
-  });
-
-  if (!association) return res.status(404).json({ message: "Association non trouvée" });
-  res.json(association);
-});
-
-// ✅ POST création
-associationRouter.post("/create", async (req, res) => {
   try {
-    const data = req.body.data;
-
-    const newAssociation = await prisma.association.create({
-      data: {
-        nom_association: data.nom_association,
-        numero_identification_association: data.numero_identification_association,
-        adresse_siege_social_association: data.adresse_siege_social_association,
-        pays_association: data.pays_association,
-        site_web_association: data.site_web_association,
-        url_image_association_1: data.url_image_association_1,
-        url_image_association_2: data.url_image_association_2,
-        url_image_association_3: data.url_image_association_3,
-        description_association_1: data.description_association_1,
-        description_association_2: data.description_association_2,
-        description_association_3: data.description_association_3,
-        // pas besoin d'id_association : il est auto-généré
-      },
+    const id = parseId(req.params.id);
+    const association = await prisma.association.findUnique({
+      where: { id_association: id },
     });
-
-    res.status(201).json(newAssociation);
-  } catch (error) {
-    console.error("Erreur création association :", error);
-    res.status(500).json({ message: "Erreur serveur" });
+    if (!association)
+      return res.status(404).json({ message: "Association non trouvée" });
+    res.json(association);
+  } catch (error: any) {
+    const status = error.message === "ID invalide" ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
 
-// ✅ PUT modification
-associationRouter.put("/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  const data = req.body.data;
-
-  if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
-
-  try {
-    const updatedAssociation = await prisma.association.update({
-      where: { id_association: id }, // <<--- changé ici
-      data: {
-        ...data
-      },
-    });
-
-    res.json(updatedAssociation);
-  } catch (error) {
-    console.error("Erreur update association :", error);
-    res.status(500).json({ message: "Erreur serveur" });
+/*** Mise à jour & Suppression (Admin) ***************************************/
+associationRouter.put(
+  "/:id",
+  monMiddlewareBearer,
+  isAdmin,
+  async (req, res) => {
+    try {
+      const id = parseId(req.params.id);
+      const updatedAssociation = await prisma.association.update({
+        where: { id_association: id },
+        data: req.body.data,
+      });
+      res.json(updatedAssociation);
+    } catch (error: any) {
+      const status = error.message === "ID invalide" ? 400 : 500;
+      res.status(status).json({ message: error.message ?? "Erreur serveur" });
+    }
   }
-});
+);
 
-// ✅ DELETE
-associationRouter.delete("/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
-
-  try {
-    await prisma.association.delete({ where: { id_association: id } }); // <<--- changé ici
-    res.json({ message: "Association supprimée" });
-  } catch (error) {
-    console.error("Erreur delete association :", error);
-    res.status(500).json({ message: "Erreur serveur" });
+associationRouter.delete(
+  "/:id",
+  monMiddlewareBearer,
+  isAdmin,
+  async (req, res) => {
+    try {
+      const id = parseId(req.params.id);
+      await prisma.association.delete({ where: { id_association: id } });
+      res.json({ message: "Association supprimée" });
+    } catch (error: any) {
+      const status = error.message === "ID invalide" ? 400 : 500;
+      res.status(status).json({ message: error.message ?? "Erreur serveur" });
+    }
   }
-});
+);

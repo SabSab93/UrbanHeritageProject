@@ -59,7 +59,6 @@ export const validerPaiementTransaction = async (id_commande: number) => {
       },
     });
 
-    // 🔥 On recharge toute la commande avec Client, LigneCommande, Livraison, Réduction appliquée
     const commandeComplete = await prisma.commande.findUnique({
       where: { id_commande },
       include: {
@@ -99,7 +98,6 @@ export const validerPaiementTransaction = async (id_commande: number) => {
       },
     });
 
-    // Construction des articles
     const articles = commandeComplete.LigneCommande.map((l) => {
       const prixBase = l.prix_ht.toNumber();
       const prixPersoTotal = l.LigneCommandePersonnalisation.reduce((acc, p) => acc + p.prix_personnalisation_ht.toNumber(), 0);

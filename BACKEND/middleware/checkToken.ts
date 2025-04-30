@@ -13,7 +13,7 @@ export const monMiddlewareBearer = async (req: any, res: any, next: any) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
 
     req.token = token;
-    req.decoded = decoded; // 👈 on stocke le `decoded` ici pour toutes les routes
+    req.decoded = decoded; 
     next();
 
   } catch (error) {

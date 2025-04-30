@@ -2,6 +2,7 @@ import { Router } from "express";
 import Stripe from "stripe";
 import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
+import { monMiddlewareBearer } from "../../middleware/checkToken";
 
 dotenv.config();
 export const stripeRouter = Router();
@@ -11,8 +12,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-03-31.basil",
 });
 
-stripeRouter.post("/create-checkout-session/:id_commande", async (req, res) => {
+/*** Paiement ***************************************************************/
+
+// Paiement : création d'une session Stripe Checkout
+stripeRouter.post("/create-checkout-session/:id_commande", monMiddlewareBearer, async (req: any, res) => {
   const id_commande = parseInt(req.params.id_commande);
+  const id_client = req.decoded.id_client;
+
   if (isNaN(id_commande)) {
     return res.status(400).json({ message: "ID de commande invalide" });
   }
@@ -42,6 +48,10 @@ stripeRouter.post("/create-checkout-session/:id_commande", async (req, res) => {
       return res.status(404).json({ message: "Commande introuvable" });
     }
 
+    if (commande.id_client !== id_client) {
+      return res.status(403).json({ message: "Accès interdit à cette commande" });
+    }
+
     const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
     let montant_total_ttc = 0;
 
@@ -50,7 +60,6 @@ stripeRouter.post("/create-checkout-session/:id_commande", async (req, res) => {
       const total_ligne = prix_ht_maillot * ligne.quantite;
       montant_total_ttc += total_ligne;
 
-      // Article principal
       line_items.push({
         price_data: {
           currency: "eur",
@@ -62,7 +71,6 @@ stripeRouter.post("/create-checkout-session/:id_commande", async (req, res) => {
         quantity: ligne.quantite,
       });
 
-      // Personnalisations
       for (const perso of ligne.LigneCommandePersonnalisation) {
         const prix_perso = Number(perso.prix_personnalisation_ht);
         montant_total_ttc += prix_perso;
@@ -80,7 +88,6 @@ stripeRouter.post("/create-checkout-session/:id_commande", async (req, res) => {
       }
     }
 
-    // Livraison
     const livraison = commande.Livraison[0];
     if (livraison) {
       const prixLivraison =
@@ -100,7 +107,6 @@ stripeRouter.post("/create-checkout-session/:id_commande", async (req, res) => {
       });
     }
 
-    // Stockage du montant total TTC
     await prisma.commande.update({
       where: { id_commande },
       data: {
@@ -108,7 +114,6 @@ stripeRouter.post("/create-checkout-session/:id_commande", async (req, res) => {
       },
     });
 
-    // Création session Stripe
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",

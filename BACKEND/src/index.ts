@@ -26,13 +26,12 @@ import { stockRouter } from "./router/stocks";
 import { stockmaillotRouter } from "./router/stockMaillots";
 import { stripeRouter } from "./router/stripe";
 import { factureRouter } from "./router/factures";
-import { testMailRouter } from "./router/mails";
 import { retourRouter } from "./router/retours";
 import { isAdmin } from "../middleware/isAdmin";
 import { avoirRouter } from "./router/avoirs";
 import { clientRouter } from "./router/clients";
 
-testMailRouter
+
 
 export const prisma = new PrismaClient();
 
@@ -59,10 +58,10 @@ apiRouter.use("/lignecommande", ligneCommandeRouter);
 apiRouter.use("/commande", monMiddlewareBearer, commandeRouter);
 apiRouter.use("/reduction", reductionRouter);
 apiRouter.use("/tva", tvaRouter);
-apiRouter.use("/role", roleRouter);
+apiRouter.use("/role",monMiddlewareBearer,isAdmin, roleRouter);
 apiRouter.use("/personnalisation", personnalisationRouter);
 apiRouter.use("/lignecommande-personnalisation", ligneCommandePersonnalisationRouter);
-apiRouter.use("/livraison", livraisonRouter);
+apiRouter.use("/livraison",monMiddlewareBearer, livraisonRouter);
 apiRouter.use("/livreur", livreurRouter);
 apiRouter.use("/lieu-livraison", lieuLivraisonRouter);
 apiRouter.use("/methode-livraison", methodeLivraisonRouter);
@@ -70,7 +69,6 @@ apiRouter.use('/stock', stockRouter);
 apiRouter.use("/stockmaillot", stockmaillotRouter);
 apiRouter.use("/stripe", stripeRouter);
 apiRouter.use("/facture", factureRouter);
-apiRouter.use("/mail", testMailRouter);
 
 apiRouter.use("/retour", retourRouter);
 apiRouter.use("/avoir", monMiddlewareBearer, isAdmin, avoirRouter);

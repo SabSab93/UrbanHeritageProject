@@ -1,232 +1,217 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import { generateFacturePDF } from "../utils/generateFacturePDF";
 import path from "path";
+import { generateFacturePDF } from "../utils/generateFacturePDF";
+import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { isAdmin } from "../../middleware/isAdmin";
 
-const prisma = new PrismaClient();
 export const factureRouter = Router();
+const prisma = new PrismaClient();
 
-// ✅ POST - Générer une facture avec PDF
-factureRouter.post("/create/:id_commande", async (req, res) => {
-  const id_commande = parseInt(req.params.id_commande);
-  const dateFacture = req.body.date_facture ? new Date(req.body.date_facture) : new Date();
+/*** Utils *******************************************************************/
+const parseId = (raw: any, label = "ID") => {
+  const parsed = parseInt(raw as string, 10);
+  if (Number.isNaN(parsed) || parsed <= 0) throw new Error(`${label} invalide`);
+  return parsed;
+};
 
-  if (isNaN(id_commande)) {
-    return res.status(400).json({ message: "ID de commande invalide" });
-  }
+/** Construit l'objet attendu par generateFacturePDF. */
+const buildPdfData = (
+  order: any,
+  invoiceNumber: string,
+  dateFacture: Date,
+  horsUe: boolean
+) => {
+  // Total HT sans personnalisations (pour totalHTBrut)
+  const totalHTBrut = order.LigneCommande.reduce(
+    (sum: number, lc: any) => sum + lc.prix_ht.toNumber() * lc.quantite,
+    0
+  );
 
+  // Total HT avec personnalisations (totalHT)
+  const totalHT = order.LigneCommande.reduce((sum: number, lc: any) => {
+    const base = lc.prix_ht.toNumber() * lc.quantite;
+    const pers = lc.LigneCommandePersonnalisation.reduce(
+      (acc: number, p: any) => acc + p.prix_personnalisation_ht.toNumber(),
+      0
+    );
+    return sum + base + pers;
+  }, 0);
+
+  return {
+    numeroFacture: invoiceNumber,
+    dateFacture: dateFacture.toLocaleDateString("fr-FR"),
+    client: {
+      nom: order.Client.nom_client,
+      adresse: order.Client.adresse_client,
+      email: order.Client.adresse_mail_client,
+    },
+    articles: order.LigneCommande.map((lc: any) => ({
+      description: lc.Maillot.nom_maillot,
+      quantite: lc.quantite,
+      prixUnitaireHT: lc.prix_ht.toNumber(),
+      montantHT: lc.quantite * lc.prix_ht.toNumber(),
+      personnalisations: lc.LigneCommandePersonnalisation.map((p: any) => ({
+        description: p.Personnalisation.description,
+        prix: p.prix_personnalisation_ht.toNumber(),
+      })),
+    })),
+    totalHTBrut,
+    totalHT,
+    tva: horsUe ? 0 : 20,
+    totalTTC: order.montant_total_ttc?.toNumber() || 0,
+    livraison: {
+      methode: order.Livraison[0]?.MethodeLivraison.nom_methode,
+      lieu: order.Livraison[0]?.LieuLivraison.nom_lieu,
+      livreur: order.Livraison[0]?.Livreur.nom_livreur,
+      prix:
+        (order.Livraison[0]?.MethodeLivraison.prix_methode || 0) +
+        (order.Livraison[0]?.LieuLivraison.prix_lieu || 0),
+    },
+  };
+};
+
+/*** Création + PDF ***********************************************************/
+factureRouter.post("/create/:id_commande",monMiddlewareBearer, async (req: Request, res: Response) => {
   try {
-    const commande = await prisma.commande.findUnique({
-      where: { id_commande },
+    const idCommande = parseId(req.params.id_commande, "id_commande");
+    const dateFacture = req.body.date_facture ? new Date(req.body.date_facture) : new Date();
+
+    const order = await prisma.commande.findUnique({
+      where: { id_commande: idCommande },
       include: {
         Client: true,
         LigneCommande: {
           include: {
             Maillot: true,
-            LigneCommandePersonnalisation: {
-              include: { Personnalisation: true },
-            },
+            LigneCommandePersonnalisation: { include: { Personnalisation: true } },
           },
         },
-        Livraison: {
-          include: {
-            MethodeLivraison: true,
-            LieuLivraison: true,
-            Livreur: true,
-          },
-        },
+        Livraison: { include: { MethodeLivraison: true, LieuLivraison: true, Livreur: true } },
       },
     });
+    if (!order) return res.status(404).json({ message: "Commande introuvable" });
+    if (order.statut_paiement !== "paye")
+      return res.status(400).json({ message: "Commande non payée" });
 
-    if (!commande) return res.status(404).json({ message: "Commande introuvable." });
-    if (commande.statut_paiement !== "paye") {
-      return res.status(400).json({ message: "Commande non payée." });
-    }
+    if (await prisma.facture.findFirst({ where: { id_commande: idCommande } }))
+      return res.status(400).json({ message: "Facture déjà existante" });
 
-    const factureExistante = await prisma.facture.findFirst({ where: { id_commande } });
-    if (factureExistante) {
-      return res.status(400).json({ message: "Facture déjà existante pour cette commande." });
-    }
-
-    const numero_facture = `FCT-${id_commande}-${Date.now()}`;
-    const paysClient = commande.Client.pays_client.toLowerCase();
-    const facture_hors_ue = paysClient === "suisse";
+    const invoiceNumber = `FCT-${idCommande}-${Date.now()}`;
+    const horsUe = order.Client.pays_client.toLowerCase() === "suisse";
 
     const facture = await prisma.facture.create({
       data: {
-        numero_facture,
-        id_commande,
-        facture_hors_ue,
+        numero_facture: invoiceNumber,
+        id_commande: idCommande,
+        facture_hors_ue: horsUe,
         date_facture: dateFacture,
       },
     });
 
-    const facturePDFData = {
-      numeroFacture: numero_facture,
-      dateFacture: dateFacture.toLocaleDateString("fr-FR"),
-      client: {
-        nom: commande.Client.nom_client,
-        adresse: commande.Client.adresse_client,
-        email: commande.Client.adresse_mail_client,
-      },
-      articles: commande.LigneCommande.map((ligne) => ({
-        description: ligne.Maillot.nom_maillot,
-        quantite: ligne.quantite,
-        prixUnitaireHT: ligne.prix_ht.toNumber(),
-        montantHT: ligne.quantite * ligne.prix_ht.toNumber(),
-        personnalisations: ligne.LigneCommandePersonnalisation.map((p) => ({
-          description: p.Personnalisation.description,
-          prix: p.prix_personnalisation_ht.toNumber(),
-        })),
-      })),
-      totalHT: commande.LigneCommande.reduce((total, ligne) => {
-        const base = ligne.prix_ht.toNumber() * ligne.quantite;
-        const perso = ligne.LigneCommandePersonnalisation.reduce(
-          (acc, p) => acc + p.prix_personnalisation_ht.toNumber(),
-          0
-        );
-        return total + base + perso;
-      }, 0),
-      tva: facture_hors_ue ? 0 : 20,
-      totalTTC: commande.montant_total_ttc?.toNumber() || 0,
-      livraison: {
-        methode: commande.Livraison[0]?.MethodeLivraison.nom_methode,
-        lieu: commande.Livraison[0]?.LieuLivraison.nom_lieu,
-        livreur: commande.Livraison[0]?.Livreur.nom_livreur,
-        prix:
-          (commande.Livraison[0]?.MethodeLivraison.prix_methode || 0) +
-          (commande.Livraison[0]?.LieuLivraison.prix_lieu || 0),
-      },
-    };
+    const pdfPath = await generateFacturePDF(
+      buildPdfData(order, invoiceNumber, dateFacture, horsUe)
+    );
 
-    const pdfPath = await generateFacturePDF(facturePDFData);
-    res.status(201).json({ message: "Facture créée avec succès.", facture, pdfPath });
+    res.status(201).json({ message: "Facture créée", facture, pdfPath });
   } catch (error: any) {
-    res.status(500).json({ message: "Erreur serveur lors de la création de la facture.", erreur: error.message });
+    const status = error.message?.includes("invalide") ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
 
-// ✅ GET - Récupérer toutes les factures
-factureRouter.get("/", async (req, res) => {
+/*** Lecture **************************************************************/
+
+// Liste des factures du **client connecté** (auth requise)
+factureRouter.get("/", monMiddlewareBearer, async (req: any, res) => {
   try {
-    const factures = await prisma.facture.findMany({
+    const clientId = req.decoded.id_client;
+    const invoices = await prisma.facture.findMany({
+      where: { Commande: { id_client: clientId } },
       orderBy: { date_facture: "desc" },
     });
-    res.status(200).json(factures);
-  } catch (error: any) {
-    res.status(500).json({ message: "Erreur serveur.", erreur: error.message });
+    res.json(invoices);
+  } catch {
+    res.status(500).json({ message: "Erreur serveur" });
   }
 });
 
-// ✅ GET - Récupérer une facture par numéro
-factureRouter.get("/:numero_facture", async (req, res) => {
+// Lecture : une facture spécifique (client connecté uniquement) 
+factureRouter.get("/:numero_facture", monMiddlewareBearer, async (req: any, res: Response) => {
   try {
+    const numero_facture = req.params.numero_facture;
+    const idClient = req.decoded.id_client;
+
     const facture = await prisma.facture.findUnique({
-      where: { numero_facture: req.params.numero_facture },
+      where: { numero_facture },
+      include: {
+        Commande: {
+          include: {
+            Client: true,
+          },
+        },
+      },
     });
 
-    if (!facture) {
-      return res.status(404).json({ message: "Facture introuvable." });
-    }
+    if (!facture) return res.status(404).json({ message: "Facture introuvable" });
+    if (facture.Commande.id_client !== idClient)
+      return res.status(403).json({ message: "Accès non autorisé à cette facture" });
 
-    res.status(200).json(facture);
+    res.json(facture);
   } catch (error: any) {
-    res.status(500).json({ message: "Erreur serveur.", erreur: error.message });
+    const status = error.message?.includes("invalide") ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
 
-// ✅ GET - Télécharger le PDF d'une facture
-factureRouter.get("/download/:numero_facture", async (req, res) => {
-  const numero_facture = req.params.numero_facture;
-  const pdfPath = path.join(__dirname, `../../factures/facture_${numero_facture}.pdf`);
 
-  res.download(pdfPath, (err) => {
-    if (err) {
-      res.status(404).json({ message: "PDF introuvable.", erreur: err.message });
-    }
+// Liste **complète** (admin only)
+factureRouter.get("/all", monMiddlewareBearer, isAdmin, async (_req, res) => {
+  try {
+    const invoices = await prisma.facture.findMany({ orderBy: { date_facture: "desc" } });
+    res.json(invoices);
+  } catch {
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+/*** Téléchargement PDF *******************************************************/
+factureRouter.get("/download/:numero_facture",monMiddlewareBearer, async (req, res) => {
+  const num = req.params.numero_facture;
+  const filePath = path.join(__dirname, `../../Factures/facture_${num}.pdf`);
+  res.download(filePath, (err) => {
+    if (err) res.status(404).json({ message: "PDF introuvable", erreur: err.message });
   });
 });
 
-// ✅ GET - Régénérer un PDF existant
-factureRouter.get('/regenerate-pdf/:numero_facture', async (req, res) => {
-  const { numero_facture } = req.params;
-
+/*** Régénération PDF (admin only)********************************************/
+factureRouter.get("/regenerate-pdf/:numero_facture",monMiddlewareBearer, isAdmin, async (req, res) => {
   try {
-    const facture = await prisma.facture.findUnique({
-      where: { numero_facture },
-    });
+    const num = req.params.numero_facture;
+    const invoice = await prisma.facture.findUnique({ where: { numero_facture: num } });
+    if (!invoice) return res.status(404).json({ message: "Facture introuvable" });
 
-    if (!facture) {
-      return res.status(404).json({ message: "Facture introuvable." });
-    }
-
-    const commande = await prisma.commande.findUnique({
-      where: { id_commande: facture.id_commande },
+    const order = await prisma.commande.findUnique({
+      where: { id_commande: invoice.id_commande },
       include: {
         Client: true,
         LigneCommande: {
           include: {
             Maillot: true,
-            LigneCommandePersonnalisation: {
-              include: { Personnalisation: true },
-            },
+            LigneCommandePersonnalisation: { include: { Personnalisation: true } },
           },
         },
-        Livraison: {
-          include: {
-            MethodeLivraison: true,
-            LieuLivraison: true,
-            Livreur: true,
-          },
-        },
+        Livraison: { include: { MethodeLivraison: true, LieuLivraison: true, Livreur: true } },
       },
     });
+    if (!order) return res.status(404).json({ message: "Commande introuvable" });
 
-    if (!commande) {
-      return res.status(404).json({ message: "Commande liée à la facture introuvable." });
-    }
-
-    const pdfData = {
-      numeroFacture: facture.numero_facture,
-      dateFacture: facture.date_facture?.toLocaleDateString("fr-FR") || "",
-      client: {
-        nom: commande.Client.nom_client,
-        adresse: commande.Client.adresse_client,
-        email: commande.Client.adresse_mail_client,
-      },
-      articles: commande.LigneCommande.map((ligne) => ({
-        description: ligne.Maillot.nom_maillot,
-        quantite: ligne.quantite,
-        prixUnitaireHT: ligne.prix_ht.toNumber(),
-        montantHT: ligne.quantite * ligne.prix_ht.toNumber(),
-        personnalisations: ligne.LigneCommandePersonnalisation.map((p) => ({
-          description: p.Personnalisation.description,
-          prix: p.prix_personnalisation_ht.toNumber(),
-        })),
-      })),
-      totalHT: commande.LigneCommande.reduce((total, ligne) => {
-        const base = ligne.prix_ht.toNumber() * ligne.quantite;
-        const perso = ligne.LigneCommandePersonnalisation.reduce(
-          (acc, p) => acc + p.prix_personnalisation_ht.toNumber(),
-          0
-        );
-        return total + base + perso;
-      }, 0),
-      tva: facture.facture_hors_ue ? 0 : 20,
-      totalTTC: commande.montant_total_ttc?.toNumber() || 0,
-      livraison: {
-        methode: commande.Livraison[0]?.MethodeLivraison.nom_methode,
-        lieu: commande.Livraison[0]?.LieuLivraison.nom_lieu,
-        livreur: commande.Livraison[0]?.Livreur.nom_livreur,
-        prix:
-          (commande.Livraison[0]?.MethodeLivraison.prix_methode || 0) +
-          (commande.Livraison[0]?.LieuLivraison.prix_lieu || 0),
-      },
-    };
-
-    const pathPDF = await generateFacturePDF(pdfData);
-    res.status(200).json({ message: "PDF régénéré avec succès", path: pathPDF });
-  } catch (error: any) {
-    res.status(500).json({ message: "Erreur serveur", erreur: error.message });
+    const pdfPath = await generateFacturePDF(
+      buildPdfData(order, invoice.numero_facture, invoice.date_facture || new Date(), !!invoice.facture_hors_ue)
+    );
+    res.json({ message: "PDF régénéré", path: pdfPath });
+  } catch {
+    res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
+

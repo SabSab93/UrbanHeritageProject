@@ -1,36 +1,40 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { monMiddlewareBearer } from "../../middleware/checkToken";
 import { isAdmin } from "../../middleware/isAdmin";
 import { validerPaiementTransaction } from "../utils/ValiderPaiementTransaction";
 import { checkCommandeTransaction } from "../utils/CheckCommandeTransaction";
-import { monMiddlewareBearer } from "../../middleware/checkToken";
 import { sendMail } from "../utils/mailService";
-import { templateExpeditionCommande } from "../templateMails/commande/commandeExpedition";
-import { templateCommandeRetour } from "../templateMails/commande/commandeRetour";
-import { templateDemandeAvis } from "../templateMails/commande/commandeDemandeAvis";
-import { templateLivraisonConfirmee } from "../templateMails/commande/commandeLivree";
-import { templateCommandeRetard } from "../templateMails/commande/commandeRetard";
+import { templateExpeditionCommande }   from "../templateMails/commande/commandeExpedition";
+import { templateCommandeRetour }       from "../templateMails/commande/commandeRetour";
+import { templateDemandeAvis }          from "../templateMails/commande/commandeDemandeAvis";
+import { templateLivraisonConfirmee }   from "../templateMails/commande/commandeLivree";
+import { templateCommandeRetard }       from "../templateMails/commande/commandeRetard";
+
 
 export const commandeRouter = Router();
 const prisma = new PrismaClient();
 
-// ✅ POST - Créer une commande
-commandeRouter.post("/create", monMiddlewareBearer, async (req: any, res) => {
+/*** Utils *******************************************************************/
+/** Convertit un paramètre d’URL en entier positif. */
+const parseId = (raw: any, label = "ID") => {
+  const parsed = parseInt(raw as string, 10);
+  if (Number.isNaN(parsed) || parsed <= 0) throw new Error(`${label} invalide`);
+  return parsed;
+};
+
+/*** 1. Création d’une commande **********************************************/
+commandeRouter.post("/create", async (req: any, res) => {
   try {
     const idClient = req.decoded.id_client;
 
-    const lignes = await prisma.ligneCommande.findMany({
-      where: {
-        id_client: idClient,
-        id_commande: null,
-      },
+    const pendingLines = await prisma.ligneCommande.findMany({
+      where: { id_client: idClient, id_commande: null },
     });
+    if (pendingLines.length === 0)
+      return res.status(400).json({ message: "Panier vide." });
 
-    if (lignes.length === 0) {
-      return res.status(400).json({ message: "Panier vide. Aucune ligne à commander." });
-    }
-
-    const nouvelleCommande = await prisma.commande.create({
+    const newOrder = await prisma.commande.create({
       data: {
         id_client: idClient,
         date_commande: new Date(),
@@ -38,44 +42,42 @@ commandeRouter.post("/create", monMiddlewareBearer, async (req: any, res) => {
       },
     });
 
-    await Promise.all(lignes.map(ligne => 
-      prisma.ligneCommande.update({
-        where: { id_lignecommande: ligne.id_lignecommande },
-        data: { id_commande: nouvelleCommande.id_commande },
-      })
-    ));
+    await Promise.all(
+      pendingLines.map((l) =>
+        prisma.ligneCommande.update({
+          where: { id_lignecommande: l.id_lignecommande },
+          data: { id_commande: newOrder.id_commande },
+        })
+      )
+    );
 
-    res.status(201).json({ message: "Commande créée", commande: nouvelleCommande });
+    res.status(201).json({ message: "Commande créée", commande: newOrder });
   } catch (error) {
-    console.error("Erreur création commande :", error);
+    console.error("POST /commande/create", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
 
-// ✅ GET - Toutes les commandes du client
-commandeRouter.get("/", monMiddlewareBearer, async (req: any, res) => {
+/*** 2. Lecture : liste & détail *********************************************/
+// Toutes les commandes du client
+commandeRouter.get("/", async (req: any, res) => {
   try {
-    const idClient = req.decoded.id_client;
-
-    const commandes = await prisma.commande.findMany({
-      where: { id_client: idClient },
+    const orders = await prisma.commande.findMany({
+      where: { id_client: req.decoded.id_client },
       include: { LigneCommande: true },
     });
-
-    res.json(commandes);
+    res.json(orders);
   } catch (error) {
-    console.error("Erreur récupération commandes :", error);
+    console.error("GET /commande", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
 
-// ✅ GET - Détails d'une commande
-commandeRouter.get("/:id", monMiddlewareBearer, async (req, res) => {
-  const id = parseInt(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
-
+// Détail d’une commande
+commandeRouter.get("/:id", async (req, res) => {
   try {
-    const commande = await prisma.commande.findUnique({
+    const id = parseId(req.params.id);
+    const order = await prisma.commande.findUnique({
       where: { id_commande: id },
       include: {
         Client: true,
@@ -83,14 +85,9 @@ commandeRouter.get("/:id", monMiddlewareBearer, async (req, res) => {
           include: {
             Maillot: true,
             LigneCommandePersonnalisation: { include: { Personnalisation: true } },
-
           },
         },
-        CommandeReduction: {
-          include: {
-            Reduction: true,
-          },
-        },
+        CommandeReduction: { include: { Reduction: true } },
         Livraison: {
           include: {
             MethodeLivraison: true,
@@ -100,173 +97,147 @@ commandeRouter.get("/:id", monMiddlewareBearer, async (req, res) => {
         },
       },
     });
-
-    if (!commande) return res.status(404).json({ message: "Commande non trouvée" });
-
-    res.json(commande);
-  } catch (error) {
-    console.error("Erreur récupération commande :", error);
-    res.status(500).json({ message: "Erreur serveur" });
+    if (!order) return res.status(404).json({ message: "Commande non trouvée" });
+    res.json(order);
+  } catch (error: any) {
+    const status = error.message.includes("ID") ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
 
-// ✅ PUT - Modifier statut commande (admin)
-commandeRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
-  const id = parseInt(req.params.id);
-  const { statut_commande } = req.body.data;
-
-  if (isNaN(id) || !statut_commande) {
-    return res.status(400).json({ message: "ID ou statut manquant." });
-  }
-
+/*** 3. Mise à jour du statut (Admin) ****************************************/
+commandeRouter.put("/:id", isAdmin, async (req, res) => {
   try {
-    const commande = await prisma.commande.findUnique({
+    const id = parseId(req.params.id);
+    const { statut_commande } = req.body.data;
+    if (!statut_commande)
+      return res.status(400).json({ message: "statut_commande manquant" });
+
+    const order = await prisma.commande.findUnique({
       where: { id_commande: id },
-      include: {
-        Client: true,
-        LigneCommande: { include: { Maillot: true } },
-      },
+      include: { Client: true, LigneCommande: { include: { Maillot: true } } },
     });
+    if (!order) return res.status(404).json({ message: "Commande non trouvée" });
 
-    if (!commande) return res.status(404).json({ message: "Commande non trouvée." });
-
-    const updatedCommande = await prisma.commande.update({
+    const updated = await prisma.commande.update({
       where: { id_commande: id },
       data: { statut_commande },
     });
 
-    const client = commande.Client;
-
+    const client = order.Client;
     if (client) {
       switch (statut_commande) {
         case "livraison":
           await sendMail({
             to: client.adresse_mail_client,
             subject: "📦 Votre commande est expédiée !",
-            html: templateExpeditionCommande(client.prenom_client || client.nom_client, commande.id_commande.toString()),
+            html: templateExpeditionCommande(client.prenom_client || client.nom_client, `${id}`),
           });
           break;
         case "livre":
           await sendMail({
             to: client.adresse_mail_client,
             subject: "✅ Votre commande a été livrée !",
-            html: templateLivraisonConfirmee(client.prenom_client || client.nom_client, commande.id_commande.toString()),
+            html: templateLivraisonConfirmee(client.prenom_client || client.nom_client, `${id}`),
           });
-
-          await Promise.all(commande.LigneCommande.map(ligne =>
-            sendMail({
-              to: client.adresse_mail_client,
-              subject: "⭐ Donnez votre avis sur votre maillot UrbanHeritage",
-              html: templateDemandeAvis(client.prenom_client || client.nom_client, ligne.id_maillot, ligne.Maillot?.nom_maillot || "votre maillot"),
-            })
-          ));
+          await Promise.all(
+            order.LigneCommande.map((l) =>
+              sendMail({
+                to: client.adresse_mail_client,
+                subject: "⭐ Donnez votre avis sur votre maillot UrbanHeritage",
+                html: templateDemandeAvis(client.prenom_client || client.nom_client, l.id_maillot, l.Maillot?.nom_maillot || "votre maillot"),
+              })
+            )
+          );
           break;
         case "retard":
           await sendMail({
             to: client.adresse_mail_client,
             subject: "⏳ Votre commande rencontre un retard",
-            html: templateCommandeRetard(client.prenom_client || client.nom_client, commande.id_commande.toString()),
+            html: templateCommandeRetard(client.prenom_client || client.nom_client, `${id}`),
           });
           break;
         case "retour":
           await sendMail({
             to: client.adresse_mail_client,
             subject: "↩️ Retour de votre commande UrbanHeritage",
-            html: templateCommandeRetour(client.prenom_client || client.nom_client, commande.id_commande.toString()),
+            html: templateCommandeRetour(client.prenom_client || client.nom_client, `${id}`),
           });
           break;
       }
     }
 
-    res.status(200).json({
-      message: `Statut de la commande mis à jour en "${statut_commande}" avec succès 🚚`,
-      commande: updatedCommande,
-    });
+    res.json({ message: `Statut mis à jour → ${statut_commande}`, commande: updated });
   } catch (error: any) {
-    console.error("Erreur update statut commande :", error.message || error);
-    res.status(500).json({ message: "Erreur serveur", details: error.message || error });
+    const status = error.message.includes("ID") ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
 
-// ✅ DELETE - Supprimer une commande (admin)
-commandeRouter.delete("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
-  const id = parseInt(req.params.id);
-  if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
-
+/*** 4. Suppression d’une commande (Admin) ***********************************/
+commandeRouter.delete("/:id", isAdmin, async (req, res) => {
   try {
+    const id = parseId(req.params.id);
     await prisma.commande.delete({ where: { id_commande: id } });
     res.json({ message: "Commande supprimée" });
-  } catch (error) {
-    console.error("Erreur suppression commande :", error);
-    res.status(500).json({ message: "Erreur serveur" });
+  } catch (error: any) {
+    const status = error.message.includes("ID") ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
 
-// ✅ POST - Finaliser une commande
+/*** 5. Finaliser une commande (client) **************************************/
+commandeRouter.post("/finaliser", async (req: any, res) => {
+  try {
+    const idClient = req.decoded.id_client;
+    const livraisonData = req.body.livraison;
+    if (!livraisonData)
+      return res.status(400).json({ message: "Livraison manquante" });
+
+    const order = await checkCommandeTransaction(idClient, livraisonData);
+    res.status(201).json({ message: "Commande finalisée 🚀", commande: order });
+  } catch (error: any) {
+    console.error("/finaliser", error);
+    res.status(500).json({ message: "Erreur serveur", details: error.message });
+  }
+});
+
+/*** 6. Ajouter une réduction à une commande *********************************/
 commandeRouter.post(
-  "/finaliser",
-  monMiddlewareBearer,
-  async (req: any, res) => {
+  "/:id_commande/reduction",
+  async (req, res) => {
     try {
-      const id_client  = req.decoded.id_client;
-      const livraison  = req.body.livraison;            // 👈 plus de "lignes" !
+      const idCommande = parseId(req.params.id_commande, "id_commande");
+      const { id_reduction } = req.body.data;
+      const idReduction = parseId(id_reduction, "id_reduction");
 
-      if (!livraison) {
-        return res.status(400).json({ message: "Livraison manquante." });
-      }
+      const order = await prisma.commande.findUnique({ where: { id_commande: idCommande } });
+      if (!order) return res.status(404).json({ message: "Commande introuvable" });
 
-      const commande = await checkCommandeTransaction(id_client, livraison);
+      const reduction = await prisma.reduction.findUnique({ where: { id_reduction: idReduction } });
+      if (!reduction) return res.status(404).json({ message: "Réduction introuvable" });
 
-      res.status(201).json({ message: "Commande finalisée 🚀", commande });
-    } catch (e: any) {
-      console.error("Erreur finalisation commande :", e);
-      res.status(500).json({ message: "Erreur serveur", details: e.message });
+      const existingLink = await prisma.commandeReduction.findUnique({ where: { id_commande: idCommande } });
+      if (existingLink)
+        return res.status(400).json({ message: "Réduction déjà appliquée" });
+
+      const link = await prisma.commandeReduction.create({ data: { id_commande: idCommande, id_reduction: idReduction } });
+      res.status(201).json({ message: "Réduction ajoutée 🎯", link });
+    } catch (error: any) {
+      const status = error.message.includes("ID") ? 400 : 500;
+      res.status(status).json({ message: error.message ?? "Erreur serveur" });
     }
   }
 );
 
-// ✅ POST - Ajouter une réduction à une commande
-commandeRouter.post("/:id_commande/reduction", monMiddlewareBearer, async (req, res) => {
-  const id_commande = parseInt(req.params.id_commande);
-  const { id_reduction } = req.body.data;
-
-  if (isNaN(id_commande) || isNaN(id_reduction)) {
-    return res.status(400).json({ message: "ID invalide." });
-  }
-
+/*** 7. Valider paiement ******************************************************/
+commandeRouter.post("/valider-paiement/:id", async (req, res) => {
   try {
-    const commande = await prisma.commande.findUnique({ where: { id_commande } });
-    if (!commande) return res.status(404).json({ message: "Commande introuvable." });
-
-    const reduction = await prisma.reduction.findUnique({ where: { id_reduction } });
-    if (!reduction) return res.status(404).json({ message: "Réduction introuvable." });
-
-    const existingLink = await prisma.commandeReduction.findUnique({ where: { id_commande } });
-    if (existingLink) {
-      return res.status(400).json({ message: "Réduction déjà appliquée à cette commande." });
-    }
-
-    const link = await prisma.commandeReduction.create({
-      data: { id_commande, id_reduction },
-    });
-
-    res.status(201).json({ message: "Réduction ajoutée 🎯", link });
+    const idCommande = parseId(req.params.id);
+    const result = await validerPaiementTransaction(idCommande);
+    res.json({ message: "Paiement validé 🎉", details: result });
   } catch (error: any) {
-    console.error("Erreur ajout réduction :", error);
-    res.status(500).json({ message: "Erreur serveur", erreur: error.message });
-  }
-});
-
-// ✅ POST - Valider paiement
-commandeRouter.post("/valider-paiement/:id", monMiddlewareBearer, async (req, res) => {
-  const id_commande = parseInt(req.params.id);
-  if (isNaN(id_commande)) return res.status(400).json({ message: "ID de commande invalide" });
-
-  try {
-    const result = await validerPaiementTransaction(id_commande);
-    return res.status(200).json({ message: "Paiement validé 🎉", details: result });
-  } catch (error: any) {
-    console.error("Erreur validation paiement :", error);
-    return res.status(500).json({ message: "Erreur lors de la validation du paiement.", erreur: error.message });
+    const status = error.message.includes("ID") ? 400 : 500;
+    res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
