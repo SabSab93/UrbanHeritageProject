@@ -1,9 +1,10 @@
 import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import path from "path";
 import { generateFacturePDF } from "../utils/generateFacturePDF";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
 import { isAdmin } from "../../middleware/isAdmin";
+import { downloadFacture } from "../utils/downloadFacture"; 
+
 
 export const factureRouter = Router();
 const prisma = new PrismaClient();
@@ -175,14 +176,11 @@ factureRouter.get("/all", monMiddlewareBearer, isAdmin, async (_req, res) => {
   }
 });
 /*** Téléchargement PDF *******************************************************/
-factureRouter.get("/download/:numero_facture",monMiddlewareBearer, async (req, res) => {
-  const num = req.params.numero_facture;
-  const filePath = path.join(__dirname, `../../Factures/facture_${num}.pdf`);
-  res.download(filePath, (err) => {
-    if (err) res.status(404).json({ message: "PDF introuvable", erreur: err.message });
-  });
-});
-
+factureRouter.get(
+  "/download/:numero_facture",
+  monMiddlewareBearer,
+  downloadFacture       
+);
 /*** Régénération PDF (admin only)********************************************/
 factureRouter.get("/regenerate-pdf/:numero_facture",monMiddlewareBearer, isAdmin, async (req, res) => {
   try {

@@ -157,7 +157,7 @@ export const validerPaiementTransaction = async (id_commande: number) => {
         },
       };
 
-
+    const pdfPath = await generateFacturePDF(pdfData);
     await sendMail({
       to: commandeComplete.Client.adresse_mail_client,
       subject: "🎉 Confirmation de votre commande UrbanHeritage",
@@ -166,15 +166,18 @@ export const validerPaiementTransaction = async (id_commande: number) => {
 
     console.log("🛠️ Données PDF générées pour la facture :", JSON.stringify(pdfData, null, 2));
 
-    const pdfPath = await generateFacturePDF(pdfData);
-
     await sendMailWithAttachment({
       to: commandeComplete.Client.adresse_mail_client,
       subject: "🧾 Votre facture UrbanHeritage",
-      html: templateFactureEnvoyee(commandeComplete.Client.prenom_client || commandeComplete.Client.nom_client),
-      attachmentPath: pdfPath,
+      html: templateFactureEnvoyee(
+        commandeComplete.Client.prenom_client || commandeComplete.Client.nom_client
+      ),
+      attachmentPath: pdfPath,     
     });
 
-    return { message: "Paiement validé, stock mis à jour, facture générée et email envoyé." };
+    return {
+      message:
+        "Paiement validé, stock mis à jour, facture générée et email envoyé.",
+    };
   }, { timeout: 15000 });
 };

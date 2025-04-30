@@ -41,8 +41,9 @@ lieuLivraisonRouter.post("/create", monMiddlewareBearer, isAdmin, async (req: Re
   try {
     const created = await prisma.lieuLivraison.create({ data: { nom_lieu: data.nom_lieu, prix_lieu: data.prix_lieu } });
     res.status(201).json(created);
-  } catch {
-    res.status(500).json({ message: "Erreur serveur" });
+  } catch (error) {
+    console.error("/lieu-livraison/create", error);
+    res.status(500).json({ message: "Erreur serveur", error });
   }
 });
 

@@ -1,49 +1,57 @@
-import nodemailer from 'nodemailer';
-import path from 'path';
+import nodemailer from "nodemailer";
+import fs from "fs";                // ← ajout
+import path from "path";
 
-// Création du transporteur ici directement
+// Transporteur SMTP (Gmail)
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
 });
 
-// Fonction d'envoi de mail classique (texte ou HTML)
+/* ---------- envoi simple (texte ou HTML) -------------------- */
 export const sendMail = async (options: {
   to: string;
   subject: string;
   text?: string;
   html?: string;
   attachments?: any[];
-}) => {
-  return await transporter.sendMail({
+}) =>
+  transporter.sendMail({
     from: `"UrbanHeritage" <${process.env.SMTP_USER}>`,
     ...options,
   });
-};
 
-// Interface pour l'envoi avec pièce jointe
+/* ---------- envoi avec pièce jointe (PDF, image, …) --------- */
 interface SendMailWithAttachmentOptions {
   to: string;
   subject: string;
   text?: string;
   html?: string;
-  attachmentPath: string;
+  attachmentPath: string;           
 }
 
-// Fonction d'envoi d'un mail avec pièce jointe
-export const sendMailWithAttachment = async (options: SendMailWithAttachmentOptions) => {
-  return await transporter.sendMail({
+export const sendMailWithAttachment = async (
+  options: SendMailWithAttachmentOptions
+) => {
+  /* charge le fichier en mémoire et fixe le type MIME */
+  const fileBuffer = fs.readFileSync(options.attachmentPath);
+
+  return transporter.sendMail({
     from: `"UrbanHeritage" <${process.env.SMTP_USER}>`,
     to: options.to,
     subject: options.subject,
     text: options.text,
+    html: options.html,
     attachments: [
       {
         filename: path.basename(options.attachmentPath),
-        path: options.attachmentPath,
+        content: fileBuffer,            // ← buffer binaire
+        contentType: "application/pdf", // ← type explicite
       },
     ],
   });

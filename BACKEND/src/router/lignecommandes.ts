@@ -20,7 +20,7 @@ ligneCommandeRouter.get("/",monMiddlewareBearer,isAdmin, async (_req, res) => {
 });
 
 
-ligneCommandeRouter.get("/:id_ligne", async (req, res) => {
+ligneCommandeRouter.get("/:id_ligne",monMiddlewareBearer,isAdmin, async (req, res) => {
   try {
     const id = parseId(req.params.id_ligne, "id_lignecommande");
     const ligne = await prisma.ligneCommande.findUnique({ where: { id_lignecommande: id } });
@@ -91,19 +91,29 @@ ligneCommandeRouter.put("/:id_ligne", async (req, res) => {
 
 /*** Lecture côté client *****************************************************/
 //Lecture : lignes d’un client
-ligneCommandeRouter.get("/client/:id_client",monMiddlewareBearer, async (req, res) => {
-  try {
-    const id = parseId(req.params.id_client, "id_client");
-    const lignes = await prisma.ligneCommande.findMany({
-      where: { id_client: id },
-      include: { Maillot: true, TVA: true },
-    });
-    res.json(lignes);
-  } catch (error: any) {
-    const status = error.message.includes("invalide") ? 400 : 500;
-    res.status(status).json({ message: error.message ?? "Erreur serveur" });
+ligneCommandeRouter.get(
+  "/client/:id_client/details",
+  monMiddlewareBearer,
+  async (req, res) => {
+    try {
+      const id = parseId(req.params.id_client, "id_client");
+      const lignes = await prisma.ligneCommande.findMany({
+        where: { id_client: id },
+        include: {
+          Maillot: true,
+          TVA: true,
+          LigneCommandePersonnalisation: {
+            include: { Personnalisation: true },
+          },
+        },
+      });
+      res.json(lignes);
+    } catch (error: any) {
+      const status = error.message.includes("invalide") ? 400 : 500;
+      res.status(status).json({ message: error.message ?? "Erreur serveur" });
+    }
   }
-});
+);
 
 // Lecture : total panier client
 ligneCommandeRouter.get("/client/:id_client/total",monMiddlewareBearer, async (req, res) => {
