@@ -1,24 +1,38 @@
-<div class="auth-sidebar">
-    <button class="close-button" (click)="authService.toggleSidebar()">×</button>
+<div class="auth-sidebar" [class.open]="authService.isSidebarOpen$ | async">
+
+    <button class="close-btn" (click)="toggleSidebar()">×</button>
   
     <div class="auth-content">
-      <h2>Connexion</h2>
   
-      <!-- Connexion Google -->
-      <button class="auth-button google">Se connecter avec Google</button>
+      <!-- Image fun (optionnelle) -->
+      <img src="assets/images/logo/logo.png" alt="logo UrbanHeritage" style="width: 120px; margin: 0 auto;" />
   
-      <div class="divider">ou</div>
+      <h2>Connecte-toi ou crée ton compte</h2>
+  
+      <!-- Connexion via Google -->
+      <button class="google-btn">
+        <img src="assets/icons/google.svg" alt="Google" />
+        Continuer avec Google
+      </button>
+  
+      <!-- Séparateur -->
+      <div class="divider"><span>ou</span></div>
   
       <!-- Connexion classique -->
       <form>
-        <input type="email" placeholder="Email" />
+        <input type="email" placeholder="E-mail" />
         <input type="password" placeholder="Mot de passe" />
-        <a href="#" class="forgot-password">Mot de passe oublié ?</a>
-        <button type="submit" class="auth-button primary">Se connecter</button>
+  
+        <div class="options">
+          <a href="#">Mot de passe oublié ?</a>
+        </div>
+  
+        <button type="submit" class="submit-btn">Se connecter</button>
       </form>
   
-      <div class="signup">
-        <p>Pas encore de compte ? <a href="#">Inscription</a></p>
+      <!-- Lien vers inscription -->
+      <div class="signup-text">
+        Tu n’as pas de compte ? <a href="#">Inscris-toi</a>
       </div>
     </div>
   </div>

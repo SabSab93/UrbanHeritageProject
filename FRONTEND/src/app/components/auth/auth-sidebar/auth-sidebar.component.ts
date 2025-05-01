@@ -11,5 +11,11 @@ import { AuthService } from '../../../services/auth-sidebar.service';
   styleUrls: ['./auth-sidebar.component.scss']
 })
 export class AuthSidebarComponent {
-  constructor(public authService: AuthService) {}
-}
+    constructor(public authService: AuthService) {}
+  
+    toggleSidebar(): void {
+      this.authService.toggleSidebar();
+    }
+  }
+
+  
