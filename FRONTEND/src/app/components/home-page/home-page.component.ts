@@ -6,11 +6,15 @@ import { SectionIntroductionComponent } from './sections/section-introduction/se
 import { SectionAProposComponent } from './sections/section-a-propos/section-a-propos.component';
 import { HeaderComponent } from './shared/header/header.component';
 import { FooterComponent } from './shared/footer/footer.component';
+import { AuthSidebarComponent } from '../auth/auth-sidebar/auth-sidebar.component';
+import { AuthService } from '../../services/auth-sidebar.service';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, SectionEngagementsComponent,SectionIntroductionComponent,SectionAProposComponent, FooterComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, SectionEngagementsComponent,SectionIntroductionComponent,SectionAProposComponent, FooterComponent, AuthSidebarComponent],
   templateUrl: './home-page.component.html'
 })
-export class HomePageComponent {}
+export class HomePageComponent {
+  constructor(public authService: AuthService) {}
+}

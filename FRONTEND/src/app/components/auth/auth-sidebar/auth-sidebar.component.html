@@ -1,0 +1,25 @@
+<div class="auth-sidebar">
+    <button class="close-button" (click)="authService.toggleSidebar()">×</button>
+  
+    <div class="auth-content">
+      <h2>Connexion</h2>
+  
+      <!-- Connexion Google -->
+      <button class="auth-button google">Se connecter avec Google</button>
+  
+      <div class="divider">ou</div>
+  
+      <!-- Connexion classique -->
+      <form>
+        <input type="email" placeholder="Email" />
+        <input type="password" placeholder="Mot de passe" />
+        <a href="#" class="forgot-password">Mot de passe oublié ?</a>
+        <button type="submit" class="auth-button primary">Se connecter</button>
+      </form>
+  
+      <div class="signup">
+        <p>Pas encore de compte ? <a href="#">Inscription</a></p>
+      </div>
+    </div>
+  </div>
+  
