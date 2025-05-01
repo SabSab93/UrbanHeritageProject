@@ -1,0 +1,63 @@
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+<header style="position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 0.25rem 1.5rem; background-color: white; border-bottom: 1px solid black; font-family: 'Montserrat', sans-serif; height: 40px;">
+
+  <!-- Bloc gauche avec logo + menu -->
+  <div style="display: flex; align-items: center; gap: 2rem; height: 100%;">
+    <!-- Logo -->
+    <div style="font-weight: bold; font-size: 1.5rem; letter-spacing: 1px;">
+      UrbanHeritage
+    </div>
+
+    <!-- Menu navigation horizontal -->
+    <nav style="display: flex; gap: 1.5rem; font-size: 0.85rem; font-family: 'Montserrat', sans-serif; height: 100%;">
+      <a href="#" class="nav-link" [class.active]="activeLink === 'accueil'" (click)="setActive('accueil')">Accueil</a>
+      <a href="#" class="nav-link" [class.active]="activeLink === 'maillots'" (click)="setActive('maillots')">Maillots</a>
+      <a href="#" class="nav-link" [class.active]="activeLink === 'engagements'" (click)="setActive('engagements')">Nos engagements</a>
+      <a href="#" class="nav-link" [class.active]="activeLink === 'artistes'" (click)="setActive('artistes')">Artistes</a>
+      <a href="#" class="nav-link" [class.active]="activeLink === 'associations'" (click)="setActive('associations')">Associations</a>
+    </nav>
+  </div>
+
+  <!-- Connexion & Panier -->
+  <div style="display: flex; align-items: center; gap: 1.5rem;">
+    <a href="#" class="static-link">
+        <img src="assets/icons/user.svg" alt="Se connecter" style="width: 16px; height: 16px; margin-right: 4px;" />
+        Se connecter
+    </a>
+    <a href="#" class="static-link">
+        <img src="assets/icons/shopping-bag.svg" alt="Panier" style="width: 16px; height: 16px; margin-right: 4px;"/>
+        Panier
+    </a>
+  </div>
+</header>
+
+<style>
+.nav-link {
+  position: relative;
+  text-decoration: none;
+  color: black;
+  font-weight: normal;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-bottom: 4px;
+  opacity: 0.6;
+}
+
+.nav-link.active {
+  color: black;
+  font-weight: bold;
+  opacity: 1;
+}
+
+.static-link {
+  text-decoration: none;
+  color: black;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+</style>
