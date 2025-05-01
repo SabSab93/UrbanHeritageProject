@@ -259,3 +259,21 @@ authRouter.post("/register-admin", monMiddlewareBearer, isAdmin, async (req, res
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
+/*** Récupération du client connecté ****************************************/
+authRouter.get("/me", monMiddlewareBearer, async (req, res) => {
+  const id_client = req.decoded?.id_client;
+  if (!id_client) return res.status(401).json({ message: "Non autorisé" });
+
+  try {
+    const client = await prisma.client.findUnique({
+      where: { id_client },
+    });
+    if (!client) return res.status(404).json({ message: "Client non trouvé" });
+
+    res.json(client);
+  } catch (error) {
+    console.error("/me", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});

@@ -3,21 +3,20 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Client } from '../../models/client.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://localhost:1992/api/auth/login';
+  private apiUrl = 'http://localhost:1992/api/auth';
   private tokenKey = 'auth_token';
 
   private clientSubject = new BehaviorSubject<Client | null>(null);
   public client$ = this.clientSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.restoreSession(); // 🔁 Restauration au chargement
+  }
 
-  /** Authentification avec email + mot de passe */
   login(email: string, password: string): Observable<{ token: string; client: Client }> {
-    return this.http.post<{ token: string; client: Client }>(this.apiUrl, {
+    return this.http.post<{ token: string; client: Client }>(`${this.apiUrl}/login`, {
       email,
       mot_de_passe: password
     }).pipe(
@@ -28,12 +27,23 @@ export class AuthService {
     );
   }
 
-  /** Récupération du token JWT */
+  /** 🔁 Restaurer la session si un token est présent */
+  private restoreSession(): void {
+    const token = this.getToken();
+    if (token) {
+      this.http.get<Client>(`${this.apiUrl}/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).subscribe({
+        next: (client) => this.clientSubject.next(client),
+        error: () => this.logout() // Token invalide
+      });
+    }
+  }
+
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
 
-  /** Déconnexion */
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     this.clientSubject.next(null);
