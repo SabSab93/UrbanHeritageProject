@@ -7,7 +7,7 @@ import { SectionAProposComponent } from './sections/section-a-propos/section-a-p
 import { HeaderComponent } from './shared/header/header.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { AuthSidebarComponent } from '../auth/auth-sidebar/auth-sidebar.component';
-import { AuthService } from '../../services/auth-sidebar.service';
+import { AuthUiService } from '../../services/auth/auth-sidebar.service';
 
 @Component({
   selector: 'app-home-page',
@@ -16,5 +16,5 @@ import { AuthService } from '../../services/auth-sidebar.service';
   templateUrl: './home-page.component.html'
 })
 export class HomePageComponent {
-  constructor(public authService: AuthService) {}
+  constructor(public AuthUiService: AuthUiService) {}
 }

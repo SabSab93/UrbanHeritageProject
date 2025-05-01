@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../../services/auth-sidebar.service';
+import { AuthUiService } from '../../../../services/auth/auth-sidebar.service';
+import { Client } from '../../../../models/client.model';
+import { Observable } from 'rxjs';
+import { AuthService } from '../../../../services/auth/auth-service';
 
 
 @Component({
@@ -12,14 +15,21 @@ import { AuthService } from '../../../../services/auth-sidebar.service';
 })
 export class HeaderComponent {
   activeLink = 'accueil';
+  client$: Observable<Client | null>;
 
-  constructor(public authService: AuthService) {}  // ✅ placé à l'intérieur
+  constructor(
+    public authUiService: AuthUiService,
+    public authService: AuthService
+  ) {
+    this.client$ = this.authService.client$;
+  }
+
 
   setActive(link: string) {
     this.activeLink = link;
   }
 
   toggleAuth() {
-    this.authService.toggleSidebar();
+    this.authUiService.toggleSidebar();
   }
 }

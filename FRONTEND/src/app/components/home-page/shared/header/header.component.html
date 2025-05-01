@@ -16,10 +16,17 @@
 
   <!-- Connexion & Panier -->
   <div class="header-right">
-    <a href="#" class="static-link" (click)="toggleAuth()">
-      <img src="assets/icons/user.svg" alt="Se connecter" class="icon" />
-      Se connecter
+    <a *ngIf="(client$ | async) as client; else login" href="/profil" class="static-link">
+      <img src="assets/icons/user.svg" alt="Profil" class="icon" />
+      {{ client.prenom_client?.toUpperCase() }}
     </a>
+    <ng-template #login>
+      <a href="#" class="static-link" (click)="toggleAuth()">
+        <img src="assets/icons/user.svg" alt="Se connecter" class="icon" />
+        Se connecter
+      </a>
+    </ng-template>
+  
     <a href="#" class="static-link">
       <img src="assets/icons/shopping-bag.svg" alt="Panier" class="icon" />
       Panier

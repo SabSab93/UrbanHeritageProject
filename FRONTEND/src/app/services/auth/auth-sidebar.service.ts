@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
-export class AuthService {
+export class AuthUiService {
   private _isSidebarOpen = new BehaviorSubject<boolean>(false);
   isSidebarOpen$ = this._isSidebarOpen.asObservable();
 
