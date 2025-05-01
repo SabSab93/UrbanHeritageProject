@@ -1,0 +1,46 @@
+.footer {
+    border-top: 1px solid black;
+    background-color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .footer-links {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .footer-link {
+    text-decoration: none;
+    color: black;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  
+    &:hover {
+      opacity: 1;
+      font-weight: bold;
+    }
+  }
+  
+  .footer-social {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  
+  .social-icon img {
+    width: 25px;
+    opacity: 0.6;
+    transition: opacity 0.2s ease-in-out;
+  
+    &:hover {
+      opacity: 1;
+    }
+  }
+  
