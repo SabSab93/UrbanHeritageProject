@@ -5,11 +5,12 @@ import { SectionEngagementsComponent } from './sections/section-engagements/sect
 import { SectionIntroductionComponent } from './sections/section-introduction/section-introduction.component';
 import { SectionAProposComponent } from './sections/section-a-propos/section-a-propos.component';
 import { HeaderComponent } from './shared/header/header.component';
+import { FooterComponent } from './shared/footer/footer.component';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, SectionEngagementsComponent,SectionIntroductionComponent,SectionAProposComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, SectionEngagementsComponent,SectionIntroductionComponent,SectionAProposComponent, FooterComponent],
   templateUrl: './home-page.component.html'
 })
 export class HomePageComponent {}
