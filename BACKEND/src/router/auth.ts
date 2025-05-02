@@ -86,7 +86,7 @@ authRouter.post("/activate/:token", async (req, res) => {
       return res.status(400).json({ message: "Ce compte est déjà activé." });
     }
 
-    await prisma.client.update({
+    const updatedClient = await prisma.client.update({
       where: { id_client: client.id_client },
       data: {
         statut_compte: "actif",
@@ -95,12 +95,24 @@ authRouter.post("/activate/:token", async (req, res) => {
     });
 
     await sendMail({
-      to: client.adresse_mail_client,
+      to: updatedClient.adresse_mail_client,
       subject: "🎉 Bienvenue sur UrbanHeritage",
-      html: templateBienvenueCompte(client.prenom_client || client.nom_client),
+      html: templateBienvenueCompte(updatedClient.prenom_client || updatedClient.nom_client),
     });
 
-    res.json({ message: "Compte activé avec succès." });
+    const token = generateJwt(updatedClient.id_client, updatedClient.id_role);
+
+    res.json({
+      message: "Compte activé avec succès.",
+      token,
+      client: {
+        id_client: updatedClient.id_client,
+        nom_client: updatedClient.nom_client,
+        prenom_client: updatedClient.prenom_client,
+        adresse_mail_client: updatedClient.adresse_mail_client,
+        // ajoute ce que tu veux retourner
+      }
+    });
   } catch (error) {
     console.error("/activate", error);
     res.status(500).json({ message: "Erreur serveur" });

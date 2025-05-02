@@ -60,4 +60,10 @@ export class AuthLoginService {
   reloadClient() {
     this.restoreSession();
   }
+  
+  loginManuel(token: string, client: Client) {
+    localStorage.setItem('authToken', token);
+    this.clientSubject.next(client);
+  }
+  
 }

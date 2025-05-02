@@ -36,13 +36,37 @@
           </div>
         </div>
 
-        <input type="email" class="form-control" placeholder="Email *" formControlName="adresse_mail_client" />
-        <input type="password" class="form-control" placeholder="Mot de passe *" formControlName="mot_de_passe" />
+        <!-- Email -->
+        <input type="email"
+               class="form-control"
+               placeholder="Email *"
+               formControlName="adresse_mail_client"
+               [ngClass]="{'is-invalid': registerForm.get('adresse_mail_client')?.invalid && registerForm.get('adresse_mail_client')?.touched}" />
 
-        <button type="submit" class="btn btn-dark">Créer un compte</button>
+        <div *ngIf="registerForm.get('adresse_mail_client')?.hasError('email') && registerForm.get('adresse_mail_client')?.touched" class="text-danger">
+          Format d'email invalide.
+        </div>
+        <div *ngIf="errorMessage === 'Email déjà utilisé'" class="text-danger">
+          Cette adresse email est déjà utilisée.
+        </div>
+
+        <!-- Mot de passe -->
+        <input type="password"
+               class="form-control mt-2"
+               placeholder="Mot de passe *"
+               formControlName="mot_de_passe"
+               [ngClass]="{'is-invalid': registerForm.get('mot_de_passe')?.invalid && registerForm.get('mot_de_passe')?.touched}" />
+
+        <div *ngIf="registerForm.get('mot_de_passe')?.hasError('minlength') && registerForm.get('mot_de_passe')?.touched" class="text-danger">
+          Le mot de passe doit contenir au moins 6 caractères.
+        </div>
+
+        <button type="submit" class="btn btn-dark mt-3">Créer un compte</button>
 
         <div *ngIf="successMessage" class="text-success mt-3 text-center">{{ successMessage }}</div>
-        <div *ngIf="errorMessage" class="text-danger mt-2 text-center">{{ errorMessage }}</div>
+        <div *ngIf="errorMessage && errorMessage !== 'Email déjà utilisé'" class="text-danger mt-2 text-center">
+          {{ errorMessage }}
+        </div>
 
         <div class="already mt-3">
           Déjà inscrit ? <a routerLink="/connexion">Connecte-toi</a>

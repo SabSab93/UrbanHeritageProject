@@ -2,8 +2,8 @@
 
 <div class="profil-page">
   <aside class="profil-sidebar">
-    <h2>Bonjour Sabrina</h2>
-    <p class="email">sabrinah</p>
+    <h2>Bonjour {{ client?.prenom_client || 'Utilisateur' }}</h2>
+    <p class="email">{{ client?.adresse_mail_client || '' }}</p>
 
     <nav class="menu">
       <a href="#">Mes achats</a>
@@ -15,7 +15,6 @@
 
   <main class="profil-content">
     <h3>Mes achats</h3>
-    <!-- Placeholder pour commandes -->
     <div class="commandes-placeholder">Tes commandes s'afficheront ici prochainement.</div>
   </main>
 </div>

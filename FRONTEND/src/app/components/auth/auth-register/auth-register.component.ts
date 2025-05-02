@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { RouterModule, Router } from '@angular/router'; // ✅ ajout
+import { RouterModule, Router } from '@angular/router';
+import { AuthRegisterService } from '../../../services/auth-service/auth-register.service';
+
 
 @Component({
   selector: 'app-auth-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule], // ✅ ajout RouterModule ici
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './auth-register.component.html',
   styleUrls: ['./auth-register.component.scss']
 })
@@ -20,8 +21,8 @@ export class AuthRegisterComponent {
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient,
-    private router: Router // ✅ injection du Router
+    private registerService: AuthRegisterService,
+    private router: Router
   ) {
     this.registerForm = this.fb.group({
       nom_client: ['', Validators.required],
@@ -35,25 +36,34 @@ export class AuthRegisterComponent {
       adresse_mail_client: ['', [Validators.required, Validators.email]],
       mot_de_passe: ['', [Validators.required, Validators.minLength(6)]]
     });
+  
+    // ✅ Ajout ici : efface l’erreur si l’email change
+    this.registerForm.get('adresse_mail_client')?.valueChanges.subscribe(() => {
+      if (this.errorMessage === 'Email déjà utilisé') {
+        this.errorMessage = '';
+      }
+    });
   }
-
+  
   onSubmit() {
-    if (this.registerForm.invalid) return;
+    console.log('Formulaire valide ? =>', this.registerForm.valid);
+    console.log(this.registerForm.value);
+    if (this.registerForm.invalid) {
+      console.warn('⚠️ Formulaire invalide', this.registerForm.errors, this.registerForm.value);
+      return;
+    }
 
-    const data = { data: this.registerForm.value };
-
-    this.http.post('http://localhost:1992/api/auth/register-client', data).subscribe({
+    this.registerService.registerClient(this.registerForm.value).subscribe({
       next: () => {
         this.successMessage = 'Inscription réussie ! Vérifie ton e-mail pour activer ton compte.';
         this.errorMessage = '';
         this.registerForm.reset();
 
-        // ✅ redirection possible après 2 sec par exemple
         setTimeout(() => {
           this.router.navigate(['/']);
         }, 2000);
       },
-      error: (err) => {
+      error: (err: { error: { message: string; }; }) => {
         this.successMessage = '';
         this.errorMessage = err?.error?.message || 'Erreur inconnue';
       }
