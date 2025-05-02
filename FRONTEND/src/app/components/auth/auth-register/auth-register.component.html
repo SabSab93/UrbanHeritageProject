@@ -1,0 +1,49 @@
+<div class="auth-register-page">
+  <div class="left-side">
+    <img src="assets/images/logo/logo.png" alt="Logo UrbanHeritage" />
+    <p class="slogan">Le monde est à vous</p>
+  </div>
+
+  <div class="right-side">
+    <h2>Créer un compte</h2>
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <div class="col">
+          <input type="text" class="form-control" placeholder="Nom *" formControlName="nom_client" />
+        </div>
+        <div class="col">
+          <input type="text" class="form-control" placeholder="Prénom" formControlName="prenom_client" />
+        </div>
+      </div>
+
+      <select class="form-control" formControlName="civilite">
+        <option *ngFor="let opt of civiliteOptions" [value]="opt">{{ opt }}</option>
+      </select>
+
+      <input type="date" class="form-control" formControlName="date_naissance_client" />
+
+      <input type="text" class="form-control" placeholder="Adresse *" formControlName="adresse_client" />
+
+      <div class="row">
+        <div class="col">
+          <input type="text" class="form-control" placeholder="Code postal *" formControlName="code_postal_client" />
+        </div>
+        <div class="col">
+          <input type="text" class="form-control" placeholder="Ville *" formControlName="ville_client" />
+        </div>
+        <div class="col">
+          <input type="text" class="form-control" placeholder="Pays *" formControlName="pays_client" />
+        </div>
+      </div>
+
+      <input type="email" class="form-control" placeholder="Email *" formControlName="adresse_mail_client" />
+      <input type="password" class="form-control" placeholder="Mot de passe *" formControlName="mot_de_passe" />
+
+      <button type="submit" class="btn">Créer un compte</button>
+    </form>
+
+    <div class="already">
+      Déjà inscrit ? <a routerLink="/">Connecte-toi</a>
+    </div>
+  </div>
+</div>

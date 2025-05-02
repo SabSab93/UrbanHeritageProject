@@ -4,17 +4,19 @@ import { CommonModule } from '@angular/common';
 
 import { AuthUiService } from '../../../services/auth-service/auth-sidebar.service';
 import { AuthLoginService } from '../../../services/auth-service/auth-login.service';
+import { RouterModule, Router } from '@angular/router'; 
 
 @Component({
   selector: 'app-auth-sidebar',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './auth-sidebar.component.html',
   styleUrls: ['./auth-sidebar.component.scss']
 })
 export class AuthSidebarComponent {
   loginForm: FormGroup;
   errorMessage = '';
+  router: any;
 
   constructor(
     private fb: FormBuilder,
@@ -30,7 +32,10 @@ export class AuthSidebarComponent {
   toggleSidebar() {
     this.authUi.toggleSidebar();
   }
-
+  navigateToRegister() {
+    this.authUi.closeSidebar();
+    this.router.navigate(['/inscription']);
+  }
   onSubmit() {
     if (this.loginForm.invalid) return;
 

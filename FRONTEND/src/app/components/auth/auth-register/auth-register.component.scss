@@ -1,0 +1,85 @@
+.auth-register-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f2f2f2;
+  padding: 2rem;
+
+  // Pour les écrans larges (desktop)
+  flex-direction: row;
+
+  .left-side {
+    text-align: center;
+    margin-right: 60px;
+
+    img {
+      width: 300px; // ✅ agrandi pour desktop
+      margin-bottom: 20px;
+    }
+
+    .slogan {
+      font-weight: 600;
+      color: #333;
+    }
+  }
+
+  .right-side {
+    width: 100%;
+    max-width: 400px;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .form-control {
+      margin-bottom: 1rem;
+    }
+
+    .row {
+      margin-bottom: 1rem;
+    }
+
+    button {
+      width: 100%;
+      background-color: #000;
+      color: white;
+      font-weight: 600;
+    }
+
+    .already {
+      text-align: center;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+
+      a {
+        text-decoration: none;
+        color: #0d6efd;
+      }
+    }
+  }
+
+  // 🔁 Media query pour les petits écrans (mobile/tablette)
+  @media (max-width: 768px) {
+    flex-direction: column;
+
+    .left-side {
+      margin: 0 0 30px 0;
+
+      img {
+        width: 200px; // 🔁 plus petit pour mobile
+      }
+    }
+
+    .right-side {
+      max-width: 100%;
+      padding: 1.5rem;
+    }
+  }
+}

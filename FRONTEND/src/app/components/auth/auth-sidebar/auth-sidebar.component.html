@@ -29,7 +29,8 @@
     <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
     <div class="signup-text">
-      Tu n’as pas de compte ? <a href="#">Inscris-toi</a>
+      Tu n’as pas de compte ? <a [routerLink]="'/inscription'" (click)="authUi.closeSidebar()">Inscris-toi</a>
+
     </div>
   </div>
 </div>
