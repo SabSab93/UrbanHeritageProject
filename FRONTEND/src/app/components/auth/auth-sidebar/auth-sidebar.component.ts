@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 
 import { AuthUiService } from '../../../services/auth-service/auth-sidebar.service';
 import { AuthLoginService } from '../../../services/auth-service/auth-login.service';
-import { RouterModule, Router } from '@angular/router'; 
+import { RouterModule, Router } from '@angular/router';
 
 @Component({
   selector: 'app-auth-sidebar',
@@ -16,12 +16,12 @@ import { RouterModule, Router } from '@angular/router';
 export class AuthSidebarComponent {
   loginForm: FormGroup;
   errorMessage = '';
-  router: any;
 
   constructor(
     private fb: FormBuilder,
     public authLoginService: AuthLoginService,
-    public authUi: AuthUiService
+    public authUi: AuthUiService,
+    private router: Router
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -29,20 +29,27 @@ export class AuthSidebarComponent {
     });
   }
 
-  toggleSidebar() {
+  toggleSidebar(): void {
     this.authUi.toggleSidebar();
   }
-  navigateToRegister() {
+
+  navigateToRegister(): void {
     this.authUi.closeSidebar();
     this.router.navigate(['/inscription']);
   }
-  onSubmit() {
+
+  onSubmit(): void {
     if (this.loginForm.invalid) return;
 
     const { email, password } = this.loginForm.value;
     this.authLoginService.login(email, password).subscribe({
-      next: () => this.authUi.closeSidebar(),
-      error: (err: { error: { message: string; }; }) => this.errorMessage = err?.error?.message || 'Erreur inconnue',
+      next: () => {
+        this.authUi.closeSidebar();
+        this.router.navigate(['/']); // ✅ Redirection vers la page d’accueil
+      },
+      error: (err: { error: { message: string } }) => {
+        this.errorMessage = err?.error?.message || 'Erreur inconnue';
+      }
     });
   }
 }

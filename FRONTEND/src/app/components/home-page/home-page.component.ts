@@ -16,5 +16,5 @@ import { AuthUiService } from '../../services/auth-service/auth-sidebar.service'
   templateUrl: './home-page.component.html'
 })
 export class HomePageComponent {
-  constructor(public AuthUiService: AuthUiService) {}
+  constructor(public authUiService: AuthUiService) {}
 }
