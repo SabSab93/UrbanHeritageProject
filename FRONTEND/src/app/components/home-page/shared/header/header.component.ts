@@ -1,43 +1,39 @@
-import { Component, OnInit } from '@angular/core';
+/* src/app/components/home-page/shared/header/header.component.ts */
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
-import { AuthUiService } from '../../../../services/auth-service/auth-sidebar.service';
-import { ClientService } from '../../../../services/client-service/client.service';
-import { AuthSidebarComponent } from '../../../auth/auth-sidebar/auth-sidebar.component';
 
 import { Observable } from 'rxjs';
+import { AuthUiService } from '../../../../services/auth-service/auth-sidebar.service';
+import { AuthSidebarComponent } from '../../../auth/auth-sidebar/auth-sidebar.component';
+import { AuthLoginService } from '../../../../services/auth-service/auth-login.service';
 import { Client } from '../../../../models/client.model';
+
 
 @Component({
   selector: 'app-header',
   standalone: true,
   imports: [CommonModule, RouterModule, AuthSidebarComponent],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  styleUrls: ['./header.component.scss'],
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent {
   activeLink = 'accueil';
   client$: Observable<Client | null>;
 
   constructor(
     public authUiService: AuthUiService,
-    private clientService: ClientService
+    private authLogin: AuthLoginService
   ) {
-    this.client$ = this.clientService.client$;
+    this.client$ = this.authLogin.client$;   // ✅ flux client unique
   }
 
-  ngOnInit(): void {
-    console.log("Header init – tentative de récupération client");
-    this.clientService.loadClient();  // 🔁 FORCÉ ici
-  }
-
-  setActive(link: string): void {
+  setActive(link: string) {
     this.activeLink = link;
   }
 
-  toggleAuth(): void {
+  toggleAuth() {
     this.authUiService.toggleSidebar();
   }
 }
-

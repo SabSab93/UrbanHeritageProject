@@ -1,43 +1,66 @@
 .profil-page {
+  display: flex;
+  flex: 1;
+  background-color: #f5f5f5;
+  min-height: calc(100vh - 80px); // si le header fait environ 80px
+}
+
+.profil-sidebar {
+  width: 250px;
+  padding: 2rem 1.5rem;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+
+  h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .email {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 2rem;
+  }
+
+  .menu {
     display: flex;
-    padding: 2rem;
-  
-    .profil-sidebar {
-      width: 250px;
-      padding-right: 2rem;
-      border-right: 1px solid #ccc;
-  
-      h2 {
-        font-size: 1.2rem;
+    flex-direction: column;
+    gap: 1rem;
+
+    a {
+      text-decoration: none;
+      color: black;
+      font-size: 0.9rem;
+      transition: font-weight 0.2s;
+
+      &:hover {
         font-weight: bold;
       }
-  
-      .email {
-        font-size: 0.85rem;
-        color: gray;
-        margin-bottom: 1rem;
+
+      &.logout {
+        margin-top: 2rem;
+        font-weight: bold;
       }
-  
-      .menu {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-  
-        a {
-          text-decoration: none;
-          color: black;
-          font-weight: normal;
-  
-          &:hover {
-            font-weight: bold;
-          }
-        }
-      }
-    }
-  
-    .profil-content {
-      flex-grow: 1;
-      padding-left: 2rem;
     }
   }
-  
+}
+
+.profil-content {
+  flex: 1;
+  padding: 2rem;
+  background-color: #fafafa;
+
+  h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .commandes-placeholder {
+    padding: 1rem;
+    background-color: white;
+    border: 1px dashed #ccc;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #777;
+  }
+}

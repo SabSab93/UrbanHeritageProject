@@ -1,37 +1,35 @@
 <app-auth-sidebar *ngIf="authUiService.isSidebarOpen$ | async"></app-auth-sidebar>
 
 <header class="header">
-  <!-- Bloc gauche -->
   <div class="header-left">
     <div class="logo">UrbanHeritage</div>
 
     <nav class="nav">
-      <a href="#" class="nav-link" [class.active]="activeLink === 'accueil'" (click)="setActive('accueil')">Accueil</a>
-      <a href="#" class="nav-link" [class.active]="activeLink === 'maillots'" (click)="setActive('maillots')">Maillots</a>
-      <a href="#" class="nav-link" [class.active]="activeLink === 'engagements'" (click)="setActive('engagements')">Nos engagements</a>
-      <a href="#" class="nav-link" [class.active]="activeLink === 'artistes'" (click)="setActive('artistes')">Artistes</a>
-      <a href="#" class="nav-link" [class.active]="activeLink === 'associations'" (click)="setActive('associations')">Associations</a>
+      <a class="nav-link" [class.active]="activeLink === 'accueil'" (click)="setActive('accueil')">Accueil</a>
+      <a class="nav-link" [class.active]="activeLink === 'maillots'" (click)="setActive('maillots')">Maillots</a>
+      <a class="nav-link" [class.active]="activeLink === 'engagements'" (click)="setActive('engagements')">Nos engagements</a>
+      <a class="nav-link" [class.active]="activeLink === 'artistes'" (click)="setActive('artistes')">Artistes</a>
+      <a class="nav-link" [class.active]="activeLink === 'associations'" (click)="setActive('associations')">Associations</a>
     </nav>
   </div>
 
-  <!-- Connexion / Profil & Panier -->
   <div class="header-right">
     <ng-container *ngIf="client$ | async as client; else login">
       <a [routerLink]="['/profil']" class="static-link">
-        <img src="assets/icons/user.svg" alt="Profil" class="icon" />
-        {{ client.prenom_client ? (client.prenom_client | titlecase) : 'Profil' }}
+        <img src="assets/icons/user.svg" class="icon" alt="Profil" />
+        {{ client.prenom_client || client.nom_client | titlecase }}
       </a>
     </ng-container>
 
     <ng-template #login>
       <a href="#" class="static-link" (click)="toggleAuth()">
-        <img src="assets/icons/user.svg" alt="Se connecter" class="icon" />
+        <img src="assets/icons/user.svg" class="icon" alt="Se connecter" />
         Se connecter
       </a>
     </ng-template>
 
     <a href="#" class="static-link">
-      <img src="assets/icons/shopping-bag.svg" alt="Panier" class="icon" />
+      <img src="assets/icons/shopping-bag.svg" class="icon" alt="Panier" />
       Panier
     </a>
   </div>

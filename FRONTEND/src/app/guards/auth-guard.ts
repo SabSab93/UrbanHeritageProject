@@ -1,21 +1,21 @@
+// guards/auth-guard.ts
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
+import { map } from 'rxjs/operators';
+import { AuthLoginService } from '../services/auth-service/auth-login.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
-  constructor(private router: Router) {}
 
-  canActivate(): boolean {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      // Optionnel : décoder et vérifier l'expiration du token ici
-      return true;
-    }
+  constructor(private auth: AuthLoginService, private router: Router) {}
 
-    // Pas de token valide : redirection vers la page de connexion
-    this.router.navigate(['/']);
-    return false;
+  canActivate() {
+    return this.auth.client$.pipe(
+      map(client => {
+        if (client) return true;
+        this.router.navigate(['/']);
+        return false;
+      })
+    );
   }
 }
