@@ -66,7 +66,7 @@ artisteRouter.get("/", async (_req, res) => {
   res.json(artistes);
 });
 
-artisteRouter.get("/:id", async (req, res) => {
+artisteRouter.get("/:id([0-9]+)", async (req, res) => {
   try {
     const id = parseId(req.params.id);
     const artiste = await prisma.artiste.findUnique({ where: { id_artiste: id } });

@@ -1,0 +1,22 @@
+<app-header></app-header>
+
+<div class="profil-page">
+  <aside class="profil-sidebar">
+    <h2>Bonjour {{ client?.prenom_client || 'Utilisateur' }}</h2>
+    <p class="email">{{ client?.adresse_mail_client || '' }}</p>
+
+    <nav class="menu">
+      <a href="#">Mes achats</a>
+      <a href="#">Données personnelles</a>
+      <a href="#">Adresses enregistrées</a>
+      <a href="#" (click)="logout()" class="logout">Se déconnecter</a>
+    </nav>
+  </aside>
+
+  <main class="profil-content">
+    <h3>Mes achats</h3>
+    <div class="commandes-placeholder">Tes commandes s'afficheront ici prochainement.</div>
+  </main>
+</div>
+
+<app-footer></app-footer>

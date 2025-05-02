@@ -1,0 +1,131 @@
+.auth-sidebar {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 380px;
+    height: 100%;
+    background-color: white;
+    font-family: 'Montserrat', sans-serif;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    transition: right 0.3s ease-in-out;
+    z-index: 2000;
+  
+    &.open {
+      right: 0;
+    }
+  
+    .close-btn {
+      font-size: 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+    }
+  
+    .auth-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-top: 3rem;
+  
+      h2 {
+        font-size: 1.2rem;
+        text-align: center;
+        font-weight: bold;
+      }
+  
+      .google-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border: 1px solid black;
+        padding: 0.6rem;
+        background: none;
+        cursor: pointer;
+        font-size: 0.9rem;
+  
+        img {
+          width: 20px;
+        }
+      }
+  
+      .divider {
+        text-align: center;
+        position: relative;
+        margin: 0.5rem 0;
+  
+        &::before, &::after {
+          content: '';
+          height: 1px;
+          background: #ccc;
+          position: absolute;
+          top: 50%;
+          width: 40%;
+        }
+  
+        &::before {
+          left: 0;
+        }
+  
+        &::after {
+          right: 0;
+        }
+  
+        span {
+          background: white;
+          padding: 0 1rem;
+          font-size: 0.75rem;
+        }
+      }
+  
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+  
+        input {
+          padding: 0.6rem;
+          font-size: 0.9rem;
+          border: 1px solid #ccc;
+          outline: none;
+        }
+  
+        .options {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.75rem;
+  
+          a {
+            text-decoration: none;
+            color: black;
+            font-weight: bold;
+          }
+        }
+  
+        .submit-btn {
+          padding: 0.75rem;
+          background: black;
+          color: white;
+          font-weight: bold;
+          border: none;
+          cursor: pointer;
+        }
+      }
+  
+      .signup-text {
+        text-align: center;
+        font-size: 0.75rem;
+  
+        a {
+          font-weight: bold;
+          text-decoration: none;
+          color: black;
+        }
+      }
+    }
+  }
+  

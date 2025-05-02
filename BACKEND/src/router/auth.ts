@@ -86,7 +86,7 @@ authRouter.post("/activate/:token", async (req, res) => {
       return res.status(400).json({ message: "Ce compte est déjà activé." });
     }
 
-    await prisma.client.update({
+    const updatedClient = await prisma.client.update({
       where: { id_client: client.id_client },
       data: {
         statut_compte: "actif",
@@ -95,12 +95,24 @@ authRouter.post("/activate/:token", async (req, res) => {
     });
 
     await sendMail({
-      to: client.adresse_mail_client,
+      to: updatedClient.adresse_mail_client,
       subject: "🎉 Bienvenue sur UrbanHeritage",
-      html: templateBienvenueCompte(client.prenom_client || client.nom_client),
+      html: templateBienvenueCompte(updatedClient.prenom_client || updatedClient.nom_client),
     });
 
-    res.json({ message: "Compte activé avec succès." });
+    const token = generateJwt(updatedClient.id_client, updatedClient.id_role);
+
+    res.json({
+      message: "Compte activé avec succès.",
+      token,
+      client: {
+        id_client: updatedClient.id_client,
+        nom_client: updatedClient.nom_client,
+        prenom_client: updatedClient.prenom_client,
+        adresse_mail_client: updatedClient.adresse_mail_client,
+        // ajoute ce que tu veux retourner
+      }
+    });
   } catch (error) {
     console.error("/activate", error);
     res.status(500).json({ message: "Erreur serveur" });
@@ -256,6 +268,24 @@ authRouter.post("/register-admin", monMiddlewareBearer, isAdmin, async (req, res
     res.status(201).json(newAdmin);
   } catch (error) {
     console.error("/register-admin", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+/*** Récupération du client connecté ****************************************/
+authRouter.get("/me", monMiddlewareBearer, async (req, res) => {
+  const id_client = req.decoded?.id_client;
+  if (!id_client) return res.status(401).json({ message: "Non autorisé" });
+
+  try {
+    const client = await prisma.client.findUnique({
+      where: { id_client },
+    });
+    if (!client) return res.status(404).json({ message: "Client non trouvé" });
+
+    res.json(client);
+  } catch (error) {
+    console.error("/me", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
