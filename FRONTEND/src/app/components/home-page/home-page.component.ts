@@ -7,7 +7,7 @@ import { SectionAProposComponent } from './sections/section-a-propos/section-a-p
 import { HeaderComponent } from './shared/header/header.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { AuthSidebarComponent } from '../auth/auth-sidebar/auth-sidebar.component';
-import { AuthUiService } from '../../services/auth/auth-sidebar.service';
+import { AuthUiService } from '../../services/auth-service/auth-sidebar.service';
 
 @Component({
   selector: 'app-home-page',

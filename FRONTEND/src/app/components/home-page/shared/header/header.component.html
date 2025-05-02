@@ -1,7 +1,7 @@
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<app-auth-sidebar *ngIf="authUiService.isSidebarOpen$ | async"></app-auth-sidebar>
 
 <header class="header">
-  <!-- Bloc gauche avec logo + menu -->
+  <!-- Bloc gauche -->
   <div class="header-left">
     <div class="logo">UrbanHeritage</div>
 
@@ -14,19 +14,22 @@
     </nav>
   </div>
 
-  <!-- Connexion & Panier -->
+  <!-- Connexion / Profil & Panier -->
   <div class="header-right">
-    <a *ngIf="(client$ | async) as client; else login" href="/profil" class="static-link">
-      <img src="assets/icons/user.svg" alt="Profil" class="icon" />
-      {{ client.prenom_client?.toUpperCase() }}
-    </a>
+    <ng-container *ngIf="client$ | async as client; else login">
+      <a [routerLink]="['/profil']" class="static-link">
+        <img src="assets/icons/user.svg" alt="Profil" class="icon" />
+        {{ client.prenom_client ? (client.prenom_client | titlecase) : 'Profil' }}
+      </a>
+    </ng-container>
+
     <ng-template #login>
       <a href="#" class="static-link" (click)="toggleAuth()">
         <img src="assets/icons/user.svg" alt="Se connecter" class="icon" />
         Se connecter
       </a>
     </ng-template>
-  
+
     <a href="#" class="static-link">
       <img src="assets/icons/shopping-bag.svg" alt="Panier" class="icon" />
       Panier

@@ -1,28 +1,23 @@
 <div class="auth-sidebar" [class.open]="authUi.isSidebarOpen$ | async">
-
-  <button class="close-btn" (click)="toggleSidebar()">×</button>
+  <button class="close-btn" type="button" (click)="toggleSidebar()">×</button>
 
   <div class="auth-content">
-
-    <!-- Image/logo -->
     <img src="assets/images/logo/logo.png" alt="logo UrbanHeritage" style="width: 120px; margin: 0 auto;" />
 
     <h2>Connecte-toi ou crée ton compte</h2>
 
     <!-- Connexion via Google -->
-    <button class="google-btn">
+    <button type="button" class="google-btn">
       <img src="assets/icons/google.svg" alt="Google" />
       Continuer avec Google
     </button>
 
-    <!-- Séparateur -->
     <div class="divider"><span>ou</span></div>
 
     <!-- Connexion classique -->
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <input type="email" formControlName="email" placeholder="E-mail" />
       <input type="password" formControlName="password" placeholder="Mot de passe" />
-      <!-- le reste du formulaire -->
 
       <div class="options">
         <a href="#">Mot de passe oublié ?</a>
@@ -31,10 +26,8 @@
       <button type="submit" class="submit-btn">Se connecter</button>
     </form>
 
-    <!-- Erreur -->
     <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-    <!-- Lien vers inscription -->
     <div class="signup-text">
       Tu n’as pas de compte ? <a href="#">Inscris-toi</a>
     </div>

@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../services/auth/auth-service';
-import { AuthUiService } from '../../../services/auth/auth-sidebar.service';
+
+import { AuthUiService } from '../../../services/auth-service/auth-sidebar.service';
+import { AuhtLoginService } from '../../../services/auth-service/auth-login.service';
 
 @Component({
   selector: 'app-auth-sidebar',
@@ -17,7 +18,7 @@ export class AuthSidebarComponent {
 
   constructor(
     private fb: FormBuilder,
-    public authService: AuthService,
+    public auhtLoginService: AuhtLoginService,
     public authUi: AuthUiService
   ) {
     this.loginForm = this.fb.group({
@@ -34,7 +35,7 @@ export class AuthSidebarComponent {
     if (this.loginForm.invalid) return;
 
     const { email, password } = this.loginForm.value;
-    this.authService.login(email, password).subscribe({
+    this.auhtLoginService.login(email, password).subscribe({
       next: () => this.authUi.closeSidebar(),
       error: err => this.errorMessage = err?.error?.message || 'Erreur inconnue',
     });
