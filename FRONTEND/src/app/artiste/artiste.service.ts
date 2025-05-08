@@ -2,7 +2,7 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient }   from '@angular/common/http';
-import { Observable }   from 'rxjs';
+import { map, Observable }   from 'rxjs';
 import { Artiste }      from '../models/artiste.model';
 
 @Injectable({ providedIn: 'root' })
@@ -15,6 +15,14 @@ export class ArtisteService {
     return this.http.get<Artiste[]>(this.apiUrl);
   }
   getById(id: number): Observable<Artiste> {
-    return this.http.get<Artiste>(`${this.apiUrl}/${id}`);
+    return this.http
+      .get<any>(`${this.apiUrl}/${id}`)    // on récupère tout brut
+      .pipe(
+        map(res => {
+          const maillots = res.Maillots ?? [];
+          delete res.Maillots;
+          return { ...res, maillots } as Artiste;
+        })
+      );
   }
 }

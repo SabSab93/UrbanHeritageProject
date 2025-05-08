@@ -81,8 +81,61 @@
       />
     </div>
   </div>
+  <!-- … fin de la page artise … -->
 
+  <div *ngIf="maillots.length" class="artist-maillots mt-5">
+    <h3 class="section-title mb-4 text-center">
+      Maillots créés par {{ artiste?.prenom_artiste }}
+    </h3>
+
+    <div
+      id="artistMaillotCarousel"
+      class="carousel slide"
+      data-bs-ride="carousel"
+    >
+      <div class="carousel-inner">
+        <div class="carousel-item" *ngFor="let m of maillots; let i = index" [class.active]="i === 0">
+          <div class="position-relative">
+            <img
+              [src]="m.url_image_maillot_1"
+              [alt]="m.nom_maillot"
+              class="d-block w-100 carousel-img"
+            />
+            <div class="carousel-overlay d-flex flex-column justify-content-center align-items-center">
+              <h5 class="text-white mb-3">{{ m.nom_maillot }}</h5>
+              <a
+                [routerLink]="['/maillots', m.id_maillot]"
+                class="btn btn-light"
+              >
+                Voir le maillot
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        class="carousel-control-prev"
+        type="button"
+        data-bs-target="#artistMaillotCarousel"
+        data-bs-slide="prev"
+      >
+        <span class="carousel-control-prev-icon"></span>
+        <span class="visually-hidden">Précédent</span>
+      </button>
+      <button
+        class="carousel-control-next"
+        type="button"
+        data-bs-target="#artistMaillotCarousel"
+        data-bs-slide="next"
+      >
+        <span class="carousel-control-next-icon"></span>
+        <span class="visually-hidden">Suivant</span>
+      </button>
+    </div>
+  </div>
 </div>
+
 
 
 <app-footer></app-footer>

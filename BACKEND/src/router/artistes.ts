@@ -66,17 +66,36 @@ artisteRouter.get("/", async (_req, res) => {
   res.json(artistes);
 });
 
+// src/routes/artiste.router.ts
+
 artisteRouter.get("/:id([0-9]+)", async (req, res) => {
   try {
     const id = parseId(req.params.id);
-    const artiste = await prisma.artiste.findUnique({ where: { id_artiste: id } });
-    if (!artiste) return res.status(404).json({ message: "Artiste non trouvé" });
+
+    const artiste = await prisma.artiste.findUnique({
+      where: { id_artiste: id },
+      include: {
+        Maillots: {
+          select: {
+            id_maillot: true,
+            nom_maillot: true,
+            url_image_maillot_1: true,
+          }
+        }
+      }
+    });
+
+    if (!artiste) {
+      return res.status(404).json({ message: "Artiste non trouvé" });
+    }
+
     res.json(artiste);
   } catch (error: any) {
     const status = error.message === "ID invalide" ? 400 : 500;
     res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
+
 
 /*** Mise à jour & Suppression (Admin) ***************************************/
 artisteRouter.put("/:id", monMiddlewareBearer, isAdmin, async (req, res) => {
