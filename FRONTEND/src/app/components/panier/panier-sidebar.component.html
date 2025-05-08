@@ -18,7 +18,7 @@
             TTC :
             {{
               (ligne.prix_ht *
-                (1 + (ligne.TVA?.taux_tva ?? 20) / 100) *
+                (1 + ligne.TVA.taux_tva / 100) *
                 ligne.quantite)
                 | currency:'EUR':'symbol':'1.2-2'
             }}
