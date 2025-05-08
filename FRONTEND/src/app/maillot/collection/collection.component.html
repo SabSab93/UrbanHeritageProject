@@ -5,10 +5,34 @@
   <h1 class="section-title">Maillots</h1>
 
   <div class="topbar d-flex justify-content-between align-items-center flex-wrap mb-3">
-    <!-- filtres … -->
+    <!-- Filtres sous forme de pills -->
+    <ul class="filters nav flex-nowrap mb-2">
+      <li class="nav-item" *ngFor="let f of filterList">
+        <button
+          class="btn pill"
+          [class.active]="filter === f.key"
+          (click)="filter = f.key"
+        >
+          {{ f.label }}
+        </button>
+      </li>
+    </ul>
+  
+    <!-- Boutons de vue (grid / list) + filtre -->
+    <div class="view-actions btn-group mb-2">
+      <button class="btn icon-btn">
+        <i class="bi bi-grid-3x3-gap-fill"></i>
+      </button>
+      <button class="btn icon-btn">
+        <i class="bi bi-list"></i>
+      </button>
+      <button class="btn icon-btn">
+        <i class="bi bi-funnel"></i>
+      </button>
+    </div>
   </div>
 
-  <div class="row g-0 gallery" *ngIf="!loading && !error">
+  <div class="row g-3 gallery" *ngIf="!loading && !error">
     <div
       class="col-12 col-sm-6 col-md-4 col-lg-3"
       *ngFor="let m of maillots"
@@ -38,7 +62,7 @@
             </div>
           </div>
         </div>
-        <!-- ➊ fin du wrapper image -->
+    
       
         <!-- ➋ Légende : titre + prix (en dehors du wrapper) -->
         <figcaption class="pt-2">
