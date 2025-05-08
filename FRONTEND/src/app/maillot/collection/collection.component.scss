@@ -1,0 +1,79 @@
+/* SECTION GÉNÉRALE -------------------------------------------------------- */
+.collection-wrapper {
+  padding: 5rem 1.5rem;     // marge intérieure globale
+  background-color: #f5f5f5;
+  min-height: calc(100vh - 80px); // si ton header ≈ 80 px
+}
+
+.section-title {
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+}
+
+/* FILTRES ----------------------------------------------------------------- */
+.filters .pill {
+  --bs-btn-padding-y: .35rem;
+  --bs-btn-padding-x: .9rem;
+  --bs-btn-bg: #fff;
+  --bs-btn-border-color: #d1d1d1;
+  --bs-btn-border-radius: 50rem; /* pill */
+  --bs-btn-hover-bg: #000;
+  --bs-btn-hover-color: #fff;
+  margin-right: .5rem;
+  font-size: .875rem;
+}
+
+.filters .pill.active {
+  background-color: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+/* ACTIONS (icônes) -------------------------------------------------------- */
+.icon-btn {
+  --bs-btn-padding-y: .3rem;
+  --bs-btn-padding-x: .6rem;
+  --bs-btn-bg: transparent;
+  --bs-btn-border: 0;
+  font-size: 1rem;
+}
+
+/* PRODUITS ---------------------------------------------------------------- */
+.gallery {
+}
+
+.product {
+  position: relative;
+  margin: 0;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.product-img {
+  aspect-ratio: 3 / 4;       /* ratio portrait */
+  object-fit: cover;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.new-badge {
+  position: absolute;
+  top: .4rem;
+  left: .4rem;
+  font-size: .65rem;
+  padding: .25rem .45rem;
+  letter-spacing: .02em;
+}
+
+.prod-title {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.prod-price {
+  font-size: 1.2rem;
+}
+
+/* Colonnes vides (fillers) ------------------------------------------------ */
+.empty-col {
+  height: 0;   /* invisible mais réserve la place */
+}

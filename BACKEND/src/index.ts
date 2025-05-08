@@ -1,6 +1,7 @@
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
+import dotenv from 'dotenv';
 
 
 import { PrismaClient } from "@prisma/client";
@@ -32,7 +33,7 @@ import { avoirRouter } from "./router/avoirs";
 import { clientRouter } from "./router/clients";
 
 
-
+dotenv.config();
 export const prisma = new PrismaClient();
 
 const app = express();
