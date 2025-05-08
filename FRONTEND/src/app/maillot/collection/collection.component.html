@@ -38,41 +38,44 @@
       *ngFor="let m of maillots"
     >
       <figure class="product">
-        <div class="img-wrapper position-relative">
-          <img
-            [src]="m.url_image_maillot_1"
-            [alt]="m.nom_maillot"
-            class="product-img primary"
-          />
-          <img
-            [src]="m.url_image_maillot_2"
-            [alt]="m.nom_maillot + ' vue arrière'"
-            class="product-img secondary"
-          />
-      
-          <!-- overlay de sélection de taille -->
-          <div class="size-overlay">
-            <p class="overlay-text">Sélectionne une taille</p>
-            <div class="sizes">
-              <span>XS</span>
-              <span>S</span>
-              <span>M</span>
-              <span>L</span>
-              <span>XL</span>
+        <!-- On transforme l'image en lien -->
+        <a 
+          [routerLink]="['/collection/maillot', m.id_maillot]" 
+          class="d-block text-decoration-none text-reset"
+        >
+          <div class="img-wrapper position-relative">
+            <img
+              [src]="m.url_image_maillot_1"
+              [alt]="m.nom_maillot"
+              class="product-img primary"
+            />
+            <img
+              [src]="m.url_image_maillot_2"
+              [alt]="m.nom_maillot + ' vue arrière'"
+              class="product-img secondary"
+            />
+        
+            <!-- overlay de sélection de taille -->
+            <div class="size-overlay">
+              <p class="overlay-text">Sélectionne une taille</p>
+              <div class="sizes">
+                <span>XS</span>
+                <span>S</span>
+                <span>M</span>
+                <span>L</span>
+                <span>XL</span>
+              </div>
             </div>
           </div>
-        </div>
-    
-      
-        <!-- ➋ Légende : titre + prix (en dehors du wrapper) -->
+        </a>
+
+        <!-- Légende hors lien, ou incluse si tu veux cliquer dessus aussi -->
         <figcaption class="pt-2">
           <h6 class="prod-title mb-1">{{ m.nom_maillot }}</h6>
           <p class="prod-price mb-0 fw-bold">
             {{ m.prix_ht_maillot | currency:'EUR':'symbol':'1.0-0' }}
           </p>
         </figcaption>
-        <!-- ➋ fin figcaption -->
-      
       </figure>
     </div>
 

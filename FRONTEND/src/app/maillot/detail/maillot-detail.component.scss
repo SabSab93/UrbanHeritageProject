@@ -1,0 +1,26 @@
+/* detail.component.scss */
+
+/* Wrapper général déjà présent */
+.detail-wrapper {
+  padding: 5rem 1.5rem;
+  min-height: calc(100vh - 80px);
+}
+
+/* Images secondaires  */
+.detail-img {
+  object-fit: cover;
+  border-radius: .25rem;
+}
+
+
+.main-img {  
+  object-fit: cover;        
+  border-radius: .25rem;
+  width: 100%;
+}
+
+
+.size-pill.active {
+  background: #000;
+  color: #fff;
+}

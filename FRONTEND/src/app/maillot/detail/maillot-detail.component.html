@@ -1,0 +1,94 @@
+<app-header></app-header>
+<div class="detail-wrapper">
+  <div class="container-fluid py-4 detail-page">
+    <div class="row">
+      <!-- Colonne 1 : image principale -->
+      <div class="col">
+        <img
+          [src]="maillot?.url_image_maillot_1"
+          [alt]="maillot?.nom_maillot"
+          class="img-fluid main-img detail-img"   
+        />
+      </div>
+
+      <div class="col">
+        <img
+          [src]="maillot?.url_image_maillot_2"
+          [alt]="maillot?.nom_maillot"
+          class="img-fluid main-img detail-img"   
+        />
+      </div>
+
+      <!-- Colonne 3 : infos produit -->
+      <div class="col">
+        <h2 class="mb-1">{{ maillot?.nom_maillot }}</h2>
+        <p class="text-muted">{{ maillot?.pays_maillot }} · Réf. {{ maillot?.id_maillot }}</p>
+
+        <h3 class="text-primary mb-3">
+          {{ maillot?.prix_ht_maillot | currency:'EUR':'symbol':'1.2-2' }}
+        </h3>
+
+        <!-- Sélecteur de taille -->
+        <div class="mb-4">
+          <p class="mb-2 fw-semibold">Sélectionner une taille</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button *ngFor="let s of ['XS','S','M','L','XL']"
+                    class="btn btn-outline-secondary size-pill">
+              {{ s }}
+            </button>
+          </div>
+          <small class="text-muted d-block mt-2">
+            Taille du mannequin : S · 175 cm
+          </small>
+        </div>
+
+        <button class="btn btn-success btn-lg w-100 mb-4">Ajouter au panier</button>
+
+        <!-- Accordéons informations -->
+        <div class="accordion" id="prodInfo">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#collapseOne">
+                Composition, soin & traçabilité
+              </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse"
+                data-bs-parent="#prodInfo">
+              <div class="accordion-body">
+                <b>Composition :</b> {{ maillot?.composition_maillot }}<br>
+                <b>Entretien :</b> {{ maillot?.entretien }}<br>
+                <b>Origine :</b> {{ maillot?.origine }} – {{ maillot?.tracabilite }}
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#collapseTwo">
+                Disponibilité & Retours
+              </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse"
+                data-bs-parent="#prodInfo">
+              <div class="accordion-body">
+                Retrait gratuit en magasin sous 2 h.<br>
+                Retour sous 30 jours.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloc livraison -->
+        <div class="shipping d-flex justify-content-between mt-4 pt-3 border-top">
+          <span><i class="bi bi-truck me-1 text-success"></i> Livraison standard gratuite</span>
+          <span><i class="bi bi-shop me-1 text-success"></i> Retrait gratuit magasin</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>

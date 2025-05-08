@@ -4,10 +4,11 @@ import { CommonModule }      from '@angular/common';
 import { RouterModule }      from '@angular/router';
 
 import { MaillotService }    from '../maillot.service';
-import { Maillot }           from '../maillot.service';
+import { Maillot } from '../../models/maillot.model';
 
 import { HeaderComponent }   from '../../components/home-page/shared/header/header.component';
 import { FooterComponent }   from '../../components/home-page/shared/footer/footer.component';
+
 
 @Component({
   selector: 'app-collection',
