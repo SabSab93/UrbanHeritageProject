@@ -4,7 +4,7 @@ import { CommonModule }      from '@angular/common';
 import { RouterModule }      from '@angular/router';
 
 import { MaillotService }    from '../maillot.service';
-import { Maillot }          from '../maillot.service';
+import { Maillot }           from '../maillot.service';
 
 import { HeaderComponent }   from '../../components/home-page/shared/header/header.component';
 import { FooterComponent }   from '../../components/home-page/shared/footer/footer.component';
@@ -22,15 +22,48 @@ import { FooterComponent }   from '../../components/home-page/shared/footer/foot
   styleUrls: ['./collection.component.scss']
 })
 export class CollectionComponent implements OnInit {
-  maillots: Maillot[] = [];  // ↖️ typage fort
+  maillots: Maillot[] = [];  
   loading  = true;
   error    = '';
   filter   = 'all';
 
+  filterList = [
+    { key: 'all',           label: 'Afficher tout'      },
+    { key: 'nouveautes',    label: 'Nouveautés'         },
+    { key: 'coup-de-coeur', label: 'Les plus vendus'    }
+  ];
+
   constructor(private svc: MaillotService) {}
 
   ngOnInit(): void {
-    this.svc.getAll().subscribe({
+    this.loadMaillots();
+  }
+
+  /** Change le filtre et recharge les données */
+  setFilter(key: string) {
+    if (this.filter === key) return;
+    this.filter = key;
+    this.loadMaillots();
+  }
+
+  /** Charge les maillots selon le filtre courant */
+  private loadMaillots() {
+    this.loading = true;
+    this.error   = '';
+
+    let obs;
+    switch (this.filter) {
+      case 'nouveautes':
+        obs = this.svc.getNewArrivals();
+        break;
+      case 'coup-de-coeur':
+        obs = this.svc.getBestSellers();
+        break;
+      default:
+        obs = this.svc.getAll();
+    }
+
+    obs.subscribe({
       next: (data: Maillot[]) => {
         this.maillots = data;
         this.loading  = false;
@@ -40,15 +73,5 @@ export class CollectionComponent implements OnInit {
         this.loading = false;
       }
     });
-  }
-  filterList = [
-    { key: 'all',      label: 'Afficher tout' },
-    { key: 'longues',  label: 'Longues' },
-    { key: 'mini',     label: 'Mini' },
-    { key: 'denim',    label: 'Denim' }
-  ];
-  matchesFilter(m: Maillot, filter: string): boolean {
-
-    return true;
   }
 }

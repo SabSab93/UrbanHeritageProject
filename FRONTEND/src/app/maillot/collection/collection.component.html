@@ -11,7 +11,7 @@
         <button
           class="btn pill"
           [class.active]="filter === f.key"
-          (click)="filter = f.key"
+          (click)="setFilter(f.key)"
         >
           {{ f.label }}
         </button>
