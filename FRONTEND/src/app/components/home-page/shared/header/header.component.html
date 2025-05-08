@@ -5,11 +5,46 @@
     <div class="logo">UrbanHeritage</div>
 
     <nav class="nav">
-      <a class="nav-link" [class.active]="activeLink === 'accueil'" (click)="setActive('accueil')">Accueil</a>
-      <a class="nav-link" [class.active]="activeLink === 'maillots'" (click)="setActive('maillots')">Maillots</a>
-      <a class="nav-link" [class.active]="activeLink === 'engagements'" (click)="setActive('engagements')">Nos engagements</a>
-      <a class="nav-link" [class.active]="activeLink === 'artistes'" (click)="setActive('artistes')">Artistes</a>
-      <a class="nav-link" [class.active]="activeLink === 'associations'" (click)="setActive('associations')">Associations</a>
+      <a
+        class="nav-link"
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        Accueil
+      </a>
+    
+      <a
+        class="nav-link"
+        routerLink="/collection"
+        routerLinkActive="active"
+      >
+        Maillots
+      </a>
+    
+      <a
+        class="nav-link"
+        routerLink="/engagements"
+        routerLinkActive="active"
+      >
+        Nos engagements
+      </a>
+    
+      <a
+        class="nav-link"
+        routerLink="/artistes"
+        routerLinkActive="active"
+      >
+        Artistes
+      </a>
+    
+      <a
+        class="nav-link"
+        routerLink="/associations"
+        routerLinkActive="active"
+      >
+        Associations
+      </a>
     </nav>
   </div>
 
