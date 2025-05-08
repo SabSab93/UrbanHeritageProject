@@ -19,4 +19,9 @@ export const routes: Routes = [
       ),
   },
   { path: 'collection', component: CollectionComponent },
+  {
+    path: 'collection/maillot/:id',
+    loadComponent: () =>
+      import('./maillot/detail/maillot-detail.component').then(m => m.DetailComponent)
+  },
 ];

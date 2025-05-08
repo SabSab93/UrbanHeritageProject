@@ -4,10 +4,11 @@ import { CommonModule }      from '@angular/common';
 import { RouterModule }      from '@angular/router';
 
 import { MaillotService }    from '../maillot.service';
-import { Maillot }           from '../maillot.service';
+import { Maillot } from '../../models/maillot.model';
 
 import { HeaderComponent }   from '../../components/home-page/shared/header/header.component';
 import { FooterComponent }   from '../../components/home-page/shared/footer/footer.component';
+
 
 @Component({
   selector: 'app-collection',
@@ -39,14 +40,14 @@ export class CollectionComponent implements OnInit {
     this.loadMaillots();
   }
 
-  /** Change le filtre et recharge les données */
+
   setFilter(key: string) {
     if (this.filter === key) return;
     this.filter = key;
     this.loadMaillots();
   }
 
-  /** Charge les maillots selon le filtre courant */
+ 
   private loadMaillots() {
     this.loading = true;
     this.error   = '';
