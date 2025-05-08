@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { uploadImages } from '../../middleware/upload';
 import { isAdmin } from "../../middleware/isAdmin";
 
 export const maillotRouter = Router();
@@ -24,9 +25,12 @@ maillotRouter.post(
   "/create",
   monMiddlewareBearer,
   isAdmin,
+  uploadImages.array('images', 3),
   async (req: Request, res: Response) => {
     try {
       const maillotData = req.body?.data;
+      const files = req.files as Express.Multer.File[];
+      const urls  = files.map(f => f.path);
       if (!maillotData)
         return res.status(400).json({ message: "Corps de requête manquant" });
 
@@ -60,9 +64,9 @@ maillotRouter.post(
           pays_maillot: maillotData.pays_maillot,
           description_maillot: maillotData.description_maillot,
           composition_maillot: maillotData.composition_maillot,
-          url_image_maillot_1: maillotData.url_image_maillot_1,
-          url_image_maillot_2: maillotData.url_image_maillot_2,
-          url_image_maillot_3: maillotData.url_image_maillot_3,
+          url_image_maillot_1: urls[0] ?? '',
+          url_image_maillot_2: urls[1] ?? '',
+          url_image_maillot_3: urls[2] ?? '',
           origine: maillotData.origine,
           tracabilite: maillotData.tracabilite,
           entretien: maillotData.entretien,
