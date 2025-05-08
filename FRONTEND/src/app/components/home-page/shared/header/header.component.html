@@ -1,4 +1,5 @@
 <app-auth-sidebar *ngIf="authUiService.isSidebarOpen$ | async"></app-auth-sidebar>
+<app-panier-sidebar></app-panier-sidebar>
 
 <header class="header">
   <div class="header-left">
@@ -63,7 +64,12 @@
       </a>
     </ng-template>
 
-    <a href="#" class="static-link">
+      <a
+      href="#"
+      class="static-link"
+      role="button"
+      (click)="panierUi.toggleSidebar(); $event.preventDefault()"
+    >
       <img src="assets/icons/shopping-bag.svg" class="icon" alt="Panier" />
       Panier
     </a>
