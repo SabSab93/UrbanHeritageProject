@@ -1,0 +1,56 @@
+/* conteneur général */
+.container {
+  .artist-hero,
+  .artist-section {
+    // ajoute un peu d’espacement vertical
+    & + & {
+      margin-top: 4rem;
+    }
+  }
+}
+
+/* images dans chaque section */
+.section-img {
+  width: 100%;            /* Bootstrap img-fluid s’en charge déjà */
+  height: auto;           /* respecte le ratio d’origine */
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+/* titre principal */
+.artist-hero-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 2.5rem;
+  letter-spacing: 0.05em;
+  color: #1a1a1a;
+}
+
+/* texte intro */
+.artist-hero-text {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #444;
+}
+
+/* sous-titres de sections */
+.section-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.75rem;
+  letter-spacing: 0.05em;
+  color: #222;
+}
+
+/* paragraphe de section */
+.section-text {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #555;
+  text-align: justify;
+}
+
+/* boutons réseaux */
+.artist-socials .btn {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+}

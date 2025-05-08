@@ -6,6 +6,7 @@ import { AuthRegisterComponent } from './components/auth/auth-register/auth-regi
 import { AuthLoginComponent } from './components/auth/auth-login/auth-login.component';
 import { CollectionComponent } from './maillot/collection/collection.component';
 import { ArtisteComponent } from './artiste/list/list-artiste.component';
+import { ArtisteDetailComponent } from './artiste/detail/artiste-detail.component';
 
 export const routes: Routes = [
   { path: '', component: HomePageComponent },
@@ -26,4 +27,5 @@ export const routes: Routes = [
       import('./maillot/detail/maillot-detail.component').then(m => m.DetailComponent)
   },
   { path: 'artistes', component: ArtisteComponent },
+  { path: 'artiste/:id', component: ArtisteDetailComponent },
 ];

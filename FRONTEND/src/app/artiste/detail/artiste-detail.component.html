@@ -1,0 +1,88 @@
+<app-header></app-header>
+
+<div class="container py-5">
+
+  <!-- Hero : texte à gauche, image à droite -->
+  <div class="row align-items-center mb-5 artist-hero">
+    <div class="col-md-6">
+      <h2 class="artist-hero-title text-uppercase mb-3">
+        {{ artiste?.prenom_artiste }} {{ artiste?.nom_artiste }}
+      </h2>
+      <p class="text-muted mb-1">
+        {{ artiste?.pays_artiste }}
+        <span *ngIf="artiste?.date_naissance_artiste">
+          · Date de naissance {{ artiste?.date_naissance_artiste }}
+        </span>
+      </p>
+      <p class="artist-hero-text">
+        {{ artiste?.description_artiste_1 }}
+      </p>
+      <p *ngIf="artiste?.site_web_artiste">
+        <a [href]="artiste?.site_web_artiste" target="_blank" rel="noopener" class="btn btn-primary btn-sm mt-3">
+          Visiter son site officiel
+        </a>
+      </p>
+    </div>
+    <div class="col-md-6 text-center">
+      <img
+        [src]="artiste?.url_image_artiste_1"
+        [alt]="artiste?.nom_artiste"
+        class="img-fluid section-img"
+      />
+    </div>
+  </div>
+
+  <!-- Parcours : image à gauche, texte à droite -->
+  <div class="row align-items-center mb-5 artist-section">
+    <div class="col-md-6 text-center">
+      <img
+        [src]="artiste?.url_image_artiste_2"
+        [alt]="artiste?.nom_artiste"
+        class="img-fluid section-img"
+      />
+    </div>
+    <div class="col-md-6">
+      <h3 class="section-title mb-3">Parcours</h3>
+      <p class="section-text">
+        {{ artiste?.description_artiste_2 }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Valeurs : texte à gauche, image à droite -->
+  <div class="row align-items-center artist-section">
+    <div class="col-md-6">
+      <h3 class="section-title mb-3">Valeurs</h3>
+      <p class="section-text">
+        {{ artiste?.description_artiste_3 }}
+      </p>
+      <div class="artist-socials mt-3">
+        <a *ngIf="instagramUrl"
+           [href]="instagramUrl"
+           target="_blank"
+           rel="noopener"
+           class="btn btn-outline-dark me-2 btn-sm">
+          Instagram
+        </a>
+        <a *ngIf="tiktokUrl"
+           [href]="tiktokUrl"
+           target="_blank"
+           rel="noopener"
+           class="btn btn-outline-dark btn-sm">
+          TikTok
+        </a>
+      </div>
+    </div>
+    <div class="col-md-6 text-center">
+      <img
+        [src]="artiste?.url_image_artiste_3"
+        [alt]="artiste?.nom_artiste"
+        class="img-fluid section-img"
+      />
+    </div>
+  </div>
+
+</div>
+
+
+<app-footer></app-footer>
