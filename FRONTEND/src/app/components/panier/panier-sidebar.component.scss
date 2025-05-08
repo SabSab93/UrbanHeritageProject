@@ -1,0 +1,104 @@
+/* src/app/components/cart-sidebar/cart-sidebar.component.scss */
+.cart-sidebar {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 380px;
+    height: 100%;
+    background: white;
+    padding: 2rem;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+    font-family: 'Montserrat', sans-serif;
+    transition: right 0.3s ease-in-out;
+    z-index: 2000;
+  
+    &.open {
+      right: 0;
+    }
+  
+    .close-btn {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+  
+    h2 {
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+  
+    .cart-line {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+  
+      img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 0.75rem;
+      }
+  
+      .info {
+        flex: 1;
+  
+        h4 {
+          margin: 0 0 0.25rem;
+          font-size: 1rem;
+        }
+  
+        p {
+          margin: 0;
+          font-size: 0.85rem;
+          color: #555;
+        }
+      }
+  
+      .remove-btn {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        color: #888;
+        cursor: pointer;
+        padding: 0 0.25rem;
+      }
+    }
+  
+    .cart-footer {
+      margin-top: 2rem;
+      p {
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+        text-align: right;
+      }
+      .btn {
+        font-weight: bold;
+      }
+    }
+  
+    .empty {
+      text-align: center;
+      margin-top: 3rem;
+  
+      img {
+        width: 80px;
+        margin-bottom: 1rem;
+      }
+      h3 {
+        margin-bottom: 0.5rem;
+        font-size: 1.25rem;
+      }
+      p {
+        margin-bottom: 1.5rem;
+        color: #666;
+        font-size: 0.9rem;
+      }
+    }
+  }
