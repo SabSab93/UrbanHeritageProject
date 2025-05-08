@@ -110,5 +110,37 @@
       </p>
     </div>
   </div>
+  <div class="row artist-section align-items-center my-5">
+    <!-- Titre -->
+    <div class="col-12 mb-4 text-center">
+      <h3 class="artist-section-title text-uppercase">
+        Découvrez l'artiste associé
+      </h3>
+    </div>
+  
+    <!-- Colonne image artiste -->
+    <div class="col-md-4 text-center">
+      <!-- <img
+        [src]="maillot?.artiste?.url_image_artiste"
+        [alt]="maillot?.artiste?.nom_artiste"
+        class="img-fluid rounded-circle artist-img mb-3"
+      /> -->
+    </div>
+  
+    <!-- Colonne détails artiste -->
+    <div class="col-md-8">
+      <h4 class="artist-name mb-2">
+        <!-- {{ maillot?.artiste?.nom_artiste }} -->
+      </h4>
+      <p class="artist-bio">
+        <!-- {{ maillot?.artiste?.bio_courte }} -->
+      </p>
+      <ul class="artist-stats list-unstyled d-flex flex-wrap gap-3 mt-3">
+        <!-- <li><strong>Œuvres :</strong> {{ maillot?.artiste?.nombre_oeuvres }}</li>
+        <li><strong>Style :</strong> {{ maillot?.artiste?.style_principal }}</li>
+        <li><strong>Association :</strong> {{ maillot?.association?.nom_association }}</li> -->
+      </ul>
+    </div>
+  </div>
 </div>
 <app-footer></app-footer>
