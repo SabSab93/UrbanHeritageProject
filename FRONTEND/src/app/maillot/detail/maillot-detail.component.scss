@@ -1,12 +1,10 @@
-/* detail.component.scss */
 
-/* Wrapper général déjà présent */
 .detail-wrapper {
   padding: 5rem 1.5rem;
   min-height: calc(100vh - 80px);
 }
 
-/* Images secondaires  */
+
 .detail-img {
   object-fit: cover;
   border-radius: .25rem;
@@ -24,12 +22,12 @@
   background: #000;
   color: #fff;
 }
-/* section « hero » image + texte */
+
 .hero-section {
   margin: 4rem 0;
 
   .hero-img {
-    max-height: 800px;     // limite la hauteur
+    max-height: 800px; 
     object-fit: cover;
 
   }
