@@ -1,5 +1,6 @@
+// src/app/components/panier/panier.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface LignePanier {
@@ -15,7 +16,6 @@ export interface LignePanier {
     nom_maillot: string;
     url_image_maillot_1: string;
   };
-  // … ajoute d’autres champs si nécessaire
 }
 
 @Injectable({ providedIn: 'root' })
@@ -24,32 +24,47 @@ export class PanierService {
 
   constructor(private http: HttpClient) {}
 
-  /** Récupère les lignes de panier pour un client */
+  /** header Authorization si token présent */
+  private authOptions() {
+    const token = localStorage.getItem('authToken');
+    return token
+      ? { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) }
+      : {};
+  }
+
+  /** Lignes du panier */
   getCartLines(idClient: number): Observable<LignePanier[]> {
     return this.http.get<LignePanier[]>(
-      `${this.apiUrl}/client/${idClient}/panier`
+      `${this.apiUrl}/client/${idClient}/panier`,
+      this.authOptions()
     );
   }
 
-  /** Récupère le total TTC du panier pour un client */
+  /** Total TTC du panier */
   getCartTotal(idClient: number): Observable<{ total: string }> {
     return this.http.get<{ total: string }>(
-      `${this.apiUrl}/client/${idClient}/total`
+      `${this.apiUrl}/client/${idClient}/total`,
+      this.authOptions()
     );
   }
 
-  /** Supprime une ligne du panier */
+  /** Supprime une ligne */
   removeLine(idLigne: number): Observable<void> {
     return this.http.delete<void>(
-      `${this.apiUrl}/${idLigne}/client`
+      `${this.apiUrl}/${idLigne}/client`,
+      this.authOptions()
     );
   }
 
-  /** Met à jour la quantité ou la taille d’une ligne */
-  updateLine(idLigne: number, data: { quantite?: number; taille_maillot?: string }): Observable<LignePanier> {
+  /** Met à jour la ligne */
+  updateLine(
+    idLigne: number,
+    data: { quantite?: number; taille_maillot?: string }
+  ): Observable<LignePanier> {
     return this.http.put<LignePanier>(
-      `${this.apiUrl}/${idLigne}`, 
-      { data }
+      `${this.apiUrl}/${idLigne}`,
+      { data },
+      this.authOptions()
     );
   }
 
@@ -63,8 +78,8 @@ export class PanierService {
   }): Observable<LignePanier> {
     return this.http.post<LignePanier>(
       `${this.apiUrl}/create`,
-      { data: payload }
+      { data: payload },
+      this.authOptions()
     );
   }
 }
-
