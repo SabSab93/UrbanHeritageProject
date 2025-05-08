@@ -40,14 +40,14 @@ export class CollectionComponent implements OnInit {
     this.loadMaillots();
   }
 
-  /** Change le filtre et recharge les données */
+
   setFilter(key: string) {
     if (this.filter === key) return;
     this.filter = key;
     this.loadMaillots();
   }
 
-  /** Charge les maillots selon le filtre courant */
+ 
   private loadMaillots() {
     this.loading = true;
     this.error   = '';

@@ -24,3 +24,29 @@
   background: #000;
   color: #fff;
 }
+/* section « hero » image + texte */
+.hero-section {
+  margin: 4rem 0;
+
+  .hero-img {
+    max-height: 800px;     // limite la hauteur
+    object-fit: cover;
+
+  }
+
+  .maillot-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #1a1a1a;
+  }
+
+  .maillot-description {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: #444;
+    text-align: justify;
+  }
+}
