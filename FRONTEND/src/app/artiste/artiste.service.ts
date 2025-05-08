@@ -16,7 +16,7 @@ export class ArtisteService {
   }
   getById(id: number): Observable<Artiste> {
     return this.http
-      .get<any>(`${this.apiUrl}/${id}`)    // on récupère tout brut
+      .get<any>(`${this.apiUrl}/${id}`)   
       .pipe(
         map(res => {
           const maillots = res.Maillots ?? [];
