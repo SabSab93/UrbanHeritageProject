@@ -16,11 +16,18 @@ export interface Maillot {
 
 @Injectable({ providedIn: 'root' })
 export class MaillotService {
-  private baseUrl = 'http://localhost:1992/api/maillot';
+  private apiUrl = 'http://localhost:1992/api/maillot';
 
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Maillot[]> {
-    return this.http.get<Maillot[]>(`${this.baseUrl}`);
+    return this.http.get<Maillot[]>(`${this.apiUrl}`);
+  }
+  getBestSellers(limit = 8): Observable<Maillot[]> {
+    return this.http.get<Maillot[]>(`${this.apiUrl}/coup-de-coeur?limit=${limit}`);
+  }
+
+  getNewArrivals(limit = 8): Observable<Maillot[]> {
+    return this.http.get<Maillot[]>(`${this.apiUrl}/nouveautes?limit=${limit}`);
   }
 }
