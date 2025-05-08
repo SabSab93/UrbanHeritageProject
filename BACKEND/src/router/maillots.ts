@@ -1,7 +1,6 @@
 import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../../middleware/checkToken";
-import { uploadImages } from '../../middleware/upload';
 import { isAdmin } from "../../middleware/isAdmin";
 
 export const maillotRouter = Router();
