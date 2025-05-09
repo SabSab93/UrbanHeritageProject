@@ -1,0 +1,59 @@
+<!-- src/app/components/panier/panier-sidebar.component.html -->
+<div class="cart-sidebar" [class.open]="isOpen$ | async">
+    <button class="close-btn" type="button" (click)="close()">×</button>
+  
+    <h2>Panier</h2>
+  
+    <ng-container *ngIf="(lignes$ | async) as lignes; else empty">
+      <div class="cart-line" *ngFor="let ligne of lignes">
+        <img
+          [src]="ligne.Maillot.url_image_maillot_1"
+          [alt]="ligne.Maillot.nom_maillot"
+        />
+        <div class="info">
+          <h4>{{ ligne.Maillot.nom_maillot }}</h4>
+          <p>Taille : {{ ligne.taille_maillot }} × {{ ligne.quantite }}</p>
+          <p>
+            HT : {{ ligne.prix_ht | currency:'EUR':'symbol':'1.2-2' }}<br />
+            TTC :
+            {{
+              (ligne.prix_ht *
+                (1 + ligne.TVA.taux_tva / 100) *
+                ligne.quantite)
+                | currency:'EUR':'symbol':'1.2-2'
+            }}
+          </p>
+        </div>
+        <button
+          class="remove-btn"
+          type="button"
+          (click)="removeLine(ligne.id_lignecommande)"
+        >
+          &times;
+        </button>
+      </div>
+  
+      <div class="cart-footer">
+        <p>Total : {{ (total$ | async)?.total }}</p>
+        <button class="btn btn-primary w-100">
+          Valider ma commande
+        </button>
+      </div>
+    </ng-container>
+  
+    <ng-template #empty>
+      <div class="empty">
+        <img src="assets/icons/empty-cart.png" alt="Panier vide" />
+        <h3>Panier vide</h3>
+        <p>Ton panier est encore vide, découvre tout ce que nous avons pour toi</p>
+        <button
+          class="btn btn-dark"
+          routerLink="/collection"
+          (click)="close()"
+        >
+          DÉCOUVRIR
+        </button>
+      </div>
+    </ng-template>
+  </div>
+  
