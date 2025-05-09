@@ -65,5 +65,11 @@ export class AuthLoginService {
     localStorage.setItem('authToken', token);
     this.clientSubject.next(client);
   }
-  
+    get currentClient(): Client | null {
+    return this.clientSubject.value;
+  }
+
+  get currentClientId(): number | null {
+    return this.clientSubject.value?.id_client ?? null;
+  }
 }

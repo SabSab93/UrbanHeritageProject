@@ -7,9 +7,10 @@ import { filter, switchMap, tap, shareReplay } from 'rxjs/operators';
 import { Observable, of }            from 'rxjs';
 
 import { PanierUiService }           from './panier-sidebar.service';
-import { PanierService, LignePanier } from './panier.service';
+import { PanierService } from './panier.service';
 import { AuthLoginService }          from '../../services/auth-service/auth-login.service';
 import { Client }                    from '../../models/client.model';
+import { LignePanier } from '../../models/ligne-panier.model';
 
 @Component({
   selector: 'app-panier-sidebar',

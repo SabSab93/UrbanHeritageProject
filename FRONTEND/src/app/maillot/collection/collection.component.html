@@ -58,10 +58,13 @@
             <div class="size-overlay">
               <p class="overlay-text">Sélectionne une taille</p>
               <div class="sizes">
-                <span>S</span>
-                <span>M</span>
-                <span>L</span>
-                <span>XL</span>
+                <span
+                  *ngFor="let t of ['S','M','L','XL']"
+                  (click)="addToCart(m, t);
+                          $event.preventDefault();
+                          $event.stopImmediatePropagation()">
+                  {{ t }}
+                </span>
               </div>
             </div>
           </div>
