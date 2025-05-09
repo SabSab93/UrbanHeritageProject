@@ -29,7 +29,7 @@ export class HeaderComponent {
     private authLogin: AuthLoginService,
     public panierUi: PanierUiService
   ) {
-    this.client$ = this.authLogin.client$;   // ✅ flux client unique
+    this.client$ = this.authLogin.client$;   
   }
 
   setActive(link: string) {
