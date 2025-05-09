@@ -32,17 +32,24 @@
         <div class="mb-4">
           <p class="mb-2 fw-semibold">Sélectionner une taille</p>
           <div class="d-flex flex-wrap gap-2">
-            <button *ngFor="let s of ['S','M','L','XL']"
-                    class="btn btn-outline-secondary size-pill">
-              {{ s }}
-            </button>
+          <button *ngFor="let s of ['S','M','L','XL']"
+                  class="btn btn-outline-secondary size-pill"
+                  [class.active]="selectedSize === s"
+                  (click)="selectSize(s)">
+            {{ s }}
+          </button>
           </div>
           <small class="text-muted d-block mt-2">
             Taille du mannequin : S · 175 cm
           </small>
         </div>
 
-        <button class="btn btn-success btn-lg w-100 mb-4">Ajouter au panier</button>
+        <button 
+        class="btn btn-success btn-lg w-100 mb-4"
+        [disabled]="!selectedSize"
+        (click)="addToCart()">
+        Ajouter au panier
+      </button>
 
         <!-- Accordéons informations -->
         <div class="accordion" id="prodInfo">
