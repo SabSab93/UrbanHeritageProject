@@ -74,17 +74,20 @@ export class CollectionComponent implements OnInit {
   }
 
   /** Ajoute un maillot au panier puis ouvre la side-bar */
-  addToCart(maillot: Maillot, taille: string) {
-    const id_client = this.authLogin.currentClientId;  
+ addToCart(maillot: Maillot, taille: string) {
+  const id_client = this.authLogin.currentClientId;
 
-    this.panierSrv.addLine({
-      ...(id_client !== null ? { id_client } : {}),     
-      id_maillot     : maillot.id_maillot,
-      taille_maillot : taille,
-      quantite       : 1
-    }).subscribe({
-      next : ()  => this.panierUi.toggleSidebar(),
-      error: err => console.error('Erreur addToCart', err)
-    });
+  this.panierSrv.addLine({
+    id_client: id_client ?? undefined,
+    id_maillot: maillot.id_maillot,
+    taille_maillot: taille,
+    quantite: 1,
+    prix_ht: maillot.prix_ht_maillot,
+    Maillot: {
+      nom_maillot: maillot.nom_maillot,
+      url_image_maillot_1: maillot.url_image_maillot_1
+    }
+  })
+  .subscribe(() => this.panierUi.toggleSidebar());
   }
 }
