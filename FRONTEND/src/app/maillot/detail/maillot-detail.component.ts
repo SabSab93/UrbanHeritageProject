@@ -1,10 +1,15 @@
+// src/app/maillot/maillot-detail/maillot-detail.component.ts
+
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+
 import { MaillotService } from '../maillot.service';
+import { Maillot } from '../../models/maillot.model';
+
 import { HeaderComponent } from '../../components/home-page/shared/header/header.component';
 import { FooterComponent } from '../../components/home-page/shared/footer/footer.component';
-import { Maillot } from '../../models/maillot.model';
+
 import { PanierService } from '../../components/panier/panier.service';
 import { PanierUiService } from '../../components/panier/panier-sidebar.service';
 import { AuthLoginService } from '../../services/auth-service/auth-login.service';
@@ -21,6 +26,7 @@ export class DetailComponent implements OnInit {
   loading = true;
   error = '';
   selectedSize: string | null = null;
+  errorMessage: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -46,12 +52,21 @@ export class DetailComponent implements OnInit {
 
   selectSize(size: string): void {
     this.selectedSize = size;
+    this.errorMessage = null;
   }
 
+
   addToCart(): void {
-    if (!this.maillot || !this.selectedSize) return;
+    if (!this.selectedSize) {
+      this.errorMessage = 'Merci de sélectionner une taille.';
+      setTimeout(() => this.errorMessage = null, 3000);
+      return;
+    }
+
+    if (!this.maillot) return;
 
     const id_client = this.authLogin.currentClientId;
+
     this.panierSrv.addLine({
       id_client: id_client ?? undefined,
       id_maillot: this.maillot.id_maillot,
@@ -63,8 +78,8 @@ export class DetailComponent implements OnInit {
         url_image_maillot_1: this.maillot.url_image_maillot_1
       }
     }).subscribe(() => {
+      this.errorMessage = null;
       this.panierUi.toggleSidebar();
     });
   }
 }
-
