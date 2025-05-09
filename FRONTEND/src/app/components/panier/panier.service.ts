@@ -2,11 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { LignePanier } from '../../models/ligne-panier.model';
+import { Client } from '../../models/client.model';
 
 @Injectable({ providedIn: 'root' })
 export class PanierService {
   private apiUrl = 'http://localhost:1992/api/lignecommande';
   private GUEST_KEY = 'panier_guest';
+
 
   private guestLines$ = new BehaviorSubject<LignePanier[]>(this.loadGuest());
 
@@ -51,15 +53,18 @@ export class PanierService {
   }
 
   /** DELETE une ligne du panier */
-  removeLine(idLigne: number, idClient: number | null): Observable<void> {
-    if (idClient !== null) {
-      return this.http.delete<void>(`${this.apiUrl}/${idLigne}/client`, this.authOptions());
-    } else {
-      const updated = this.guestLines$.value.filter(l => l.id_lignecommande !== idLigne);
-      this.saveGuest(updated);
-      return of(undefined);
-    }
+removeLine(idLigne: number, idClient: number | null): Observable<void> {
+  if (idClient !== null) {
+    // suppression côté serveur
+    return this.http.delete<void>(`${this.apiUrl}/${idLigne}/client`, this.authOptions());
+  } else {
+    // suppression côté invité (localStorage)
+    const updated = this.guestLines$.value.filter(l => l.id_lignecommande !== idLigne);
+    this.saveGuest(updated);
+    return of(undefined);
   }
+}
+
 
   /** POST ajout d’une ligne */
   addLine(payload: {

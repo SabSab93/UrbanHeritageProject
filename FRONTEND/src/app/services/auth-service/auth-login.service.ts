@@ -8,7 +8,7 @@ export class AuthLoginService {
   private baseUrl = 'http://localhost:1992/api/auth';
   private tokenKey = 'authToken';
 
-  private clientSubject = new BehaviorSubject<Client | null>(null);
+  public clientSubject = new BehaviorSubject<Client | null>(null);
   public client$ = this.clientSubject.asObservable();
 
   constructor(private http: HttpClient) {

@@ -1,7 +1,7 @@
 // src/app/components/panier/panier-sidebar.component.ts
-import { Component, OnInit }           from '@angular/core';
-import { CommonModule }                from '@angular/common';
-import { RouterModule }                from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import {
   filter,
   switchMap,
@@ -11,12 +11,12 @@ import {
   withLatestFrom,
   shareReplay
 } from 'rxjs/operators';
-import { Observable, Subject, merge }  from 'rxjs';
+import { Observable, Subject, merge } from 'rxjs';
 
-import { PanierUiService }             from './panier-sidebar.service';
-import { PanierService }               from './panier.service';
-import { AuthLoginService }            from '../../services/auth-service/auth-login.service';
-import { LignePanier }                 from '../../models/ligne-panier.model';
+import { PanierUiService } from './panier-sidebar.service';
+import { PanierService } from './panier.service';
+import { AuthLoginService } from '../../services/auth-service/auth-login.service';
+import { LignePanier } from '../../models/ligne-panier.model';
 
 @Component({
   selector: 'app-panier-sidebar',
@@ -33,7 +33,7 @@ export class PanierSidebarComponent implements OnInit {
   private reload$ = new Subject<void>();
 
   constructor(
-    public  panierUi : PanierUiService,
+    public panierUi: PanierUiService,
     private panierSrv: PanierService,
     private authLogin: AuthLoginService
   ) {}
@@ -49,34 +49,31 @@ export class PanierSidebarComponent implements OnInit {
     );
 
     // 3) triggers : ouverture OU reload
-    const open$   = this.isOpen$.pipe(filter(open => open), mapTo(undefined));
+    const open$ = this.isOpen$.pipe(filter(open => open), mapTo(undefined));
     const trigger$ = merge(open$, this.reload$);
 
-    // 4) lignes : à chaque trigger on prend le clientId courant
+    // 4) lignes du panier
     this.lignes$ = trigger$.pipe(
       withLatestFrom(clientId$),
-      tap(([_, id]) => console.log('↻ loadCartLines for client', id)),
-      switchMap(([_, id]) => this.panierSrv.getCartLines(id)),
-      tap(lines => console.log('📦 lines:', lines))
+      switchMap(([_, id]) => this.panierSrv.getCartLines(id))
     );
 
-    // 5) total : même principe
+    // 5) total du panier
     this.total$ = trigger$.pipe(
       withLatestFrom(clientId$),
-      switchMap(([_, id]) => this.panierSrv.getCartTotal(id)),
-      tap(total => console.log('💰 total:', total))
+      switchMap(([_, id]) => this.panierSrv.getCartTotal(id))
     );
   }
 
-  close() {
+  close(): void {
     this.panierUi.closeSidebar();
   }
 
-  removeLine(id: number) {
-    this.panierSrv.removeLine(id, /* si ta méthode prend idClient, passe idClient ici */ null)
-      .subscribe({
-        next: () => this.reload$.next(),
-        error: err => console.error(err)
-      });
+  removeLine(id: number): void {
+    const idClient = this.authLogin.clientSubject?.value?.id_client ?? null;
+    this.panierSrv.removeLine(id, idClient).subscribe({
+      next: () => this.reload$.next(),
+      error: err => console.error('❌ Erreur suppression ligne', err)
+    });
   }
 }
