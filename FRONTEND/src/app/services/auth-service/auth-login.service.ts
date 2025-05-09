@@ -8,7 +8,7 @@ export class AuthLoginService {
   private baseUrl = 'http://localhost:1992/api/auth';
   private tokenKey = 'authToken';
 
-  private clientSubject = new BehaviorSubject<Client | null>(null);
+  public clientSubject = new BehaviorSubject<Client | null>(null);
   public client$ = this.clientSubject.asObservable();
 
   constructor(private http: HttpClient) {
@@ -65,5 +65,11 @@ export class AuthLoginService {
     localStorage.setItem('authToken', token);
     this.clientSubject.next(client);
   }
-  
+    get currentClient(): Client | null {
+    return this.clientSubject.value;
+  }
+
+  get currentClientId(): number | null {
+    return this.clientSubject.value?.id_client ?? null;
+  }
 }

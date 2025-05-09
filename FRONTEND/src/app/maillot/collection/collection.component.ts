@@ -4,11 +4,14 @@ import { CommonModule }      from '@angular/common';
 import { RouterModule }      from '@angular/router';
 
 import { MaillotService }    from '../maillot.service';
-import { Maillot } from '../../models/maillot.model';
+import { Maillot }           from '../../models/maillot.model';
 
 import { HeaderComponent }   from '../../components/home-page/shared/header/header.component';
 import { FooterComponent }   from '../../components/home-page/shared/footer/footer.component';
 
+import { PanierService }     from '../../components/panier/panier.service';
+import { PanierUiService }   from '../../components/panier/panier-sidebar.service';
+import { AuthLoginService }  from '../../services/auth-service/auth-login.service';
 
 @Component({
   selector: 'app-collection',
@@ -23,23 +26,27 @@ import { FooterComponent }   from '../../components/home-page/shared/footer/foot
   styleUrls: ['./collection.component.scss']
 })
 export class CollectionComponent implements OnInit {
-  maillots: Maillot[] = [];  
+  maillots: Maillot[] = [];
   loading  = true;
   error    = '';
   filter   = 'all';
 
   filterList = [
-    { key: 'all',           label: 'Afficher tout'      },
-    { key: 'nouveautes',    label: 'Nouveautés'         },
-    { key: 'coup-de-coeur', label: 'Les plus vendus'    }
+    { key: 'all',           label: 'Afficher tout'  },
+    { key: 'nouveautes',    label: 'Nouveautés'     },
+    { key: 'coup-de-coeur', label: 'Les plus vendus'}
   ];
 
-  constructor(private svc: MaillotService) {}
+  constructor(
+    private svc       : MaillotService,
+    private panierSrv : PanierService,
+    private panierUi  : PanierUiService,
+    private authLogin : AuthLoginService
+  ) {}
 
   ngOnInit(): void {
     this.loadMaillots();
   }
-
 
   setFilter(key: string) {
     if (this.filter === key) return;
@@ -47,32 +54,40 @@ export class CollectionComponent implements OnInit {
     this.loadMaillots();
   }
 
- 
+  /** Récupère les maillots selon le filtre actif */
   private loadMaillots() {
     this.loading = true;
     this.error   = '';
 
     let obs;
     switch (this.filter) {
-      case 'nouveautes':
-        obs = this.svc.getNewArrivals();
-        break;
-      case 'coup-de-coeur':
-        obs = this.svc.getBestSellers();
-        break;
-      default:
-        obs = this.svc.getAll();
+      case 'nouveautes':     obs = this.svc.getNewArrivals();  break;
+      case 'coup-de-coeur':  obs = this.svc.getBestSellers();  break;
+      default:               obs = this.svc.getAll();
     }
 
     obs.subscribe({
-      next: (data: Maillot[]) => {
-        this.maillots = data;
-        this.loading  = false;
-      },
-      error: () => {
-        this.error   = 'Impossible de charger la collection';
-        this.loading = false;
-      }
+      next : data => { this.maillots = data; this.loading = false; },
+      error: ()   => { this.error   = 'Impossible de charger la collection';
+                       this.loading = false; }
     });
+  }
+
+  /** Ajoute un maillot au panier puis ouvre la side-bar */
+ addToCart(maillot: Maillot, taille: string) {
+  const id_client = this.authLogin.currentClientId;
+
+  this.panierSrv.addLine({
+    id_client: id_client ?? undefined,
+    id_maillot: maillot.id_maillot,
+    taille_maillot: taille,
+    quantite: 1,
+    prix_ht: maillot.prix_ht_maillot,
+    Maillot: {
+      nom_maillot: maillot.nom_maillot,
+      url_image_maillot_1: maillot.url_image_maillot_1
+    }
+  })
+  .subscribe(() => this.panierUi.toggleSidebar());
   }
 }

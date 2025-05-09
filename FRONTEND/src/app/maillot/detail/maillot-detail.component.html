@@ -28,21 +28,33 @@
           {{ maillot?.prix_ht_maillot | currency:'EUR':'symbol':'1.2-2' }}
         </h3>
 
-        <!-- Sélecteur de taille -->
-        <div class="mb-4">
-          <p class="mb-2 fw-semibold">Sélectionner une taille</p>
-          <div class="d-flex flex-wrap gap-2">
-            <button *ngFor="let s of ['S','M','L','XL']"
-                    class="btn btn-outline-secondary size-pill">
-              {{ s }}
-            </button>
-          </div>
-          <small class="text-muted d-block mt-2">
-            Taille du mannequin : S · 175 cm
-          </small>
+      <!-- Sélecteur de taille -->
+      <div class="mb-4">
+        <p class="mb-2 fw-semibold">Sélectionner une taille</p>
+        <div class="d-flex flex-wrap gap-2">
+          <button 
+            *ngFor="let s of ['S','M','L','XL']"
+            class="btn btn-outline-secondary size-pill"
+            [class.active]="selectedSize === s"
+            (click)="selectSize(s)"
+          >
+            {{ s }}
+          </button>
         </div>
+        <small class="text-muted d-block mt-2">
+          Taille du mannequin : S · 175 cm
+        </small>
 
-        <button class="btn btn-success btn-lg w-100 mb-4">Ajouter au panier</button>
+        <!-- Message d’erreur -->
+        <div *ngIf="errorMessage" class="text-danger mt-2 small">
+          {{ errorMessage }}
+        </div>
+      </div>
+
+      <!-- Bouton Ajouter au panier -->
+      <button class="btn btn-success btn-lg w-100 mb-4" (click)="addToCart()">
+        Ajouter au panier
+      </button>
 
         <!-- Accordéons informations -->
         <div class="accordion" id="prodInfo">
