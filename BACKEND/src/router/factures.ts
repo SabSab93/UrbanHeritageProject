@@ -85,7 +85,7 @@ factureRouter.post("/create/:id_commande",monMiddlewareBearer, async (req: Reque
         LigneCommande: {
           include: {
             Maillot: true,
-            LigneCommandePersonnalisation: { include: { Personnalisation: true } },
+            Personnalisation: true,
           },
         },
         Livraison: { include: { MethodeLivraison: true, LieuLivraison: true, Livreur: true } },

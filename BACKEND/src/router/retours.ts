@@ -11,48 +11,66 @@ const prisma = new PrismaClient();
 
 /*** Création ***************************************************************/
 
-// Création : demande de retour
+/*** POST /retour/demander *********************************************/
 retourRouter.post("/demander", monMiddlewareBearer, async (req: any, res) => {
   const { id_commande, motif_retour, lignes_retour } = req.body.data;
   const idClient = req.decoded.id_client;
 
-  if (!id_commande || !motif_retour || !Array.isArray(lignes_retour) || lignes_retour.length === 0) {
-    return res.status(400).json({ message: "Champs requis manquants ou lignes vides." });
+  /* ---------- 1. Validation basique ---------- */
+  if (
+    !id_commande ||
+    !motif_retour ||
+    !Array.isArray(lignes_retour) ||
+    lignes_retour.length === 0
+  ) {
+    return res
+      .status(400)
+      .json({ message: "Champs requis manquants ou lignes vides." });
   }
 
   try {
+    /* ---------- 2. Charger la commande + lignes ---------- */
     const commande = await prisma.commande.findUnique({
       where: { id_commande },
       include: {
         Client: true,
         LigneCommande: {
-          include: { LigneCommandePersonnalisation: true },
+          include: {
+            Personnalisation: true, // pour info dans l’email
+          },
         },
       },
     });
+    if (!commande)
+      return res.status(404).json({ message: "Commande introuvable." });
+    if (commande.id_client !== idClient)
+      return res.status(403).json({ message: "Accès interdit." });
 
-    if (!commande) return res.status(404).json({ message: "Commande introuvable." });
-    if (commande.id_client !== idClient) return res.status(403).json({ message: "Accès interdit." });
-
+    /* ---------- 3. Vérifier si des lignes déjà retournées ---------- */
     const lignesDejaRetournees = await prisma.retourLigneCommande.findMany({
       where: { id_lignecommande: { in: lignes_retour } },
     });
-
     if (lignesDejaRetournees.length > 0) {
       return res.status(400).json({
-        message: "Certaines lignes ont déjà fait l'objet d'une demande de retour.",
-        lignes: lignesDejaRetournees.map(lr => lr.id_lignecommande),
+        message:
+          "Certaines lignes ont déjà fait l'objet d'une demande de retour.",
+        lignes: lignesDejaRetournees.map((lr) => lr.id_lignecommande),
       });
     }
 
-    const lignesAvecPerso = commande.LigneCommande.filter(lc =>
-      lignes_retour.includes(lc.id_lignecommande) && lc.LigneCommandePersonnalisation.length > 0
+    /* ---------- 4. Interdire retour sur articles personnalisés ---------- */
+    const lignesAvecPerso = commande.LigneCommande.filter(
+      (lc) =>
+        lignes_retour.includes(lc.id_lignecommande) &&
+        lc.ligne_commande_personnalisee // flag = true
     );
-
     if (lignesAvecPerso.length > 0) {
-      return res.status(400).json({ message: "Retour interdit sur articles personnalisés." });
+      return res
+        .status(400)
+        .json({ message: "Retour interdit sur articles personnalisés." });
     }
 
+    /* ---------- 5. Créer le retour + lignes ---------- */
     const retour = await prisma.retour.create({
       data: {
         id_commande_retour: id_commande,
@@ -61,23 +79,35 @@ retourRouter.post("/demander", monMiddlewareBearer, async (req: any, res) => {
         droit_retour: true,
         reception_retour: false,
         RetourLigneCommande: {
-          create: lignes_retour.map((id_lignecommande: number) => ({ id_lignecommande })),
+          create: lignes_retour.map((id_lignecommande: number) => ({
+            id_lignecommande,
+          })),
         },
       },
+      include: { RetourLigneCommande: true },
     });
 
+    /* ---------- 6. Envoyer l'email de confirmation ---------- */
     await sendMail({
       to: commande.Client.adresse_mail_client,
       subject: "📦 Bon de retour UrbanHeritage",
-      html: templateBonRetour(commande.Client.prenom_client || commande.Client.nom_client, id_commande),
+      html: templateBonRetour(
+        commande.Client.prenom_client || commande.Client.nom_client,
+        id_commande
+      ),
     });
 
-    res.status(201).json({ message: "Demande de retour enregistrée.", retour });
+    res
+      .status(201)
+      .json({ message: "Demande de retour enregistrée.", retour });
   } catch (error: any) {
     console.error("Erreur demande retour :", error.message || error);
-    res.status(500).json({ message: "Erreur serveur", details: error.message || error });
+    res
+      .status(500)
+      .json({ message: "Erreur serveur", details: error.message || error });
   }
 });
+
 
 /*** Mise à jour *************************************************************/
 
