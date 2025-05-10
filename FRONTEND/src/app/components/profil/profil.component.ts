@@ -7,8 +7,8 @@ import { AuthLoginService } from '../../services/auth-service/auth-login.service
 import { Client } from '../../models/client.model';
 import { DonneesPersonnellesComponent } from './section-profil-donnee-personnelle/donnees-personnelles.component';
 import { MesCommandesComponent } from './section-profil-commandes/mes-commandes/mes-commandes.component';
+import { MesFacturesComponent } from './section-profil-facture/mes-factures/mes-factures.component';
 
-// import { AdressesEnregistreesComponent } from './adresses-enregistrees/adresses-enregistrees.component';
 
 @Component({
   selector: 'app-profil',
@@ -18,7 +18,8 @@ import { MesCommandesComponent } from './section-profil-commandes/mes-commandes/
     HeaderComponent,
     FooterComponent,
     DonneesPersonnellesComponent,
-    MesCommandesComponent
+    MesCommandesComponent,
+    MesFacturesComponent
     
   ],
   templateUrl: './profil.component.html',
@@ -26,7 +27,7 @@ import { MesCommandesComponent } from './section-profil-commandes/mes-commandes/
 })
 export class ProfilComponent {
   client: Client | null = null;
-  selected: 'achats' | 'donnees' | 'adresses' = 'achats';
+  selected: 'achats' | 'donnees' | 'factures' = 'achats';
 
   constructor(
     private auth: AuthLoginService
@@ -34,7 +35,7 @@ export class ProfilComponent {
     this.auth.client$.subscribe(c => this.client = c);
   }
 
-  select(section: 'achats' | 'donnees' | 'adresses') {
+  select(section: 'achats' | 'donnees' | 'factures') {
     this.selected = section;
   }
 
