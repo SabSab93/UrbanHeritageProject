@@ -1,27 +1,29 @@
+// src/app/services/auth-service/auth-login.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, map, tap, catchError, of } from 'rxjs';
+import { BehaviorSubject, map, tap, catchError, of, Observable } from 'rxjs';
 import { Client } from '../../models/client.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthLoginService {
-  private baseUrl = 'http://localhost:1992/api/auth';
-  private tokenKey = 'authToken';
+  private authUrl   = 'http://localhost:1992/api/auth';
+  private clientUrl = 'http://localhost:1992/api/client';
+  private tokenKey  = 'authToken';
 
   public clientSubject = new BehaviorSubject<Client | null>(null);
-  public client$ = this.clientSubject.asObservable();
+  public client$       = this.clientSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    this.restoreSession(); // au chargement
+    this.restoreSession();
   }
 
   /** Connexion */
-  login(email: string, mot_de_passe: string) {
+  login(email: string, mot_de_passe: string): Observable<string> {
     return this.http
-      .post<{ token: string; client: Client }>(`${this.baseUrl}/login`, {
-        email,
-        mot_de_passe,
-      })
+      .post<{ token: string; client: Client }>(
+        `${this.authUrl}/login`,
+        { email, mot_de_passe }
+      )
       .pipe(
         tap(({ token, client }) => {
           localStorage.setItem(this.tokenKey, token);
@@ -32,40 +34,78 @@ export class AuthLoginService {
   }
 
   /** Déconnexion */
-  logout() {
+  logout(): void {
     localStorage.removeItem(this.tokenKey);
     this.clientSubject.next(null);
   }
 
-  /** Récupération du client au rechargement */
-  private restoreSession() {
+  /** Mise à jour du client */
+  updateClient(client: Client): Observable<Client> {
+    const token = localStorage.getItem(this.tokenKey) ?? '';
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http
+      .put<{ message: string; client: Client }>(
+        `${this.clientUrl}/${client.id_client}`,
+        { data: client },
+        { headers }
+      )
+      .pipe(
+        tap(response => {
+          // Met à jour le BehaviorSubject avec le nouveau client
+          this.clientSubject.next(response.client);
+        }),
+        map(response => response.client)
+      );
+  }
+
+  /** Suppression/anonymisation RGPD */
+  deleteAccount(id: number): Observable<any> {
+    const token = localStorage.getItem(this.tokenKey) ?? '';
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http
+      .delete<{ message: string; client: Client }>(
+        `${this.clientUrl}/${id}`,
+        { headers }
+      )
+      .pipe(
+        tap(() => {
+          // Après anonymisation, déconnecte l’utilisateur
+          this.logout();
+        })
+      );
+  }
+
+  /** Restaure la session si token présent */
+  private restoreSession(): void {
     const token = localStorage.getItem(this.tokenKey);
     if (!token) return;
 
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    this.http.get<Client>(`${this.baseUrl}/me`, { headers }).pipe(
-      tap(client => {
-        console.log('✅ Client restauré depuis /me', client);
-        this.clientSubject.next(client);
-      }),
-      catchError(err => {
-        console.error('❌ Erreur de restauration de session', err);
-        this.logout();
-        return of(null);
-      })
-    ).subscribe();
+    this.http
+      .get<Client>(`${this.authUrl}/me`, { headers })
+      .pipe(
+        tap(client => this.clientSubject.next(client)),
+        catchError(err => {
+          this.logout();
+          return of(null);
+        })
+      )
+      .subscribe();
   }
 
-  /** Forcer rechargement manuel du client (si besoin) */
-  reloadClient() {
+  /** Force un rechargement manuel du client */
+  reloadClient(): void {
     this.restoreSession();
   }
-  
-  loginManuel(token: string, client: Client) {
-    localStorage.setItem('authToken', token);
+
+  /** Injection manuelle (tests, dev) */
+  loginManuel(token: string, client: Client): void {
+    localStorage.setItem(this.tokenKey, token);
     this.clientSubject.next(client);
   }
-    get currentClient(): Client | null {
+
+  /** Accès direct au client courant */
+  get currentClient(): Client | null {
     return this.clientSubject.value;
   }
 
