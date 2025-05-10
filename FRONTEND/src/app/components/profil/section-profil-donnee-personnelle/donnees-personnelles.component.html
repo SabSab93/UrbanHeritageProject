@@ -1,0 +1,183 @@
+<section class="dp-root container py-4" *ngIf="client">
+  <h3 class="dp-title mb-4">Données personnelles</h3>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="row gx-4 gy-3">
+
+      <!-- Prénom -->
+      <div class="col-md-6">
+        <label for="prenom_client" class="form-label dp-label">Prénom</label>
+        <input
+          id="prenom_client"
+          type="text"
+          formControlName="prenom_client"
+          class="form-control dp-input"
+        />
+      </div>
+
+      <!-- Nom de famille -->
+      <div class="col-md-6">
+        <label for="nom_client" class="form-label dp-label">Nom de famille</label>
+        <input
+          id="nom_client"
+          type="text"
+          formControlName="nom_client"
+          class="form-control dp-input"
+        />
+      </div>
+
+      <!-- Téléphone -->
+      <div class="col-12">
+        <label for="telephone_client" class="form-label dp-label">Téléphone</label>
+        <div class="input-group dp-input dp-input--tel">
+          <span class="input-group-text dp-tel-code">+33</span>
+          <input
+            id="telephone_client"
+            type="text"
+            formControlName="telephone_client"
+            class="form-control dp-input--inner"
+            placeholder="6XXXXXXXX"
+          />
+        </div>
+      </div>
+
+      <!-- Anniversaire -->
+      <div class="col-md-6">
+        <label for="date_naissance_client" class="form-label dp-label">
+          Anniversaire <small class="text-muted">(Facultatif)</small>
+        </label>
+        <input
+          id="date_naissance_client"
+          type="date"
+          formControlName="date_naissance_client"
+          class="form-control dp-input"
+        />
+      </div>
+
+      <!-- Civilité -->
+      <div class="col-md-6">
+        <p class="dp-subtitle">Civilité</p>
+        <div class="btn-group dp-toggle-group" role="group" aria-label="Civilité" data-bs-toggle="buttons">
+          <!-- Femme -->
+          <label
+            class="btn dp-toggle"
+            [class.dp-toggle--active]="form.get('civilite')!.value === 'femme'"
+          >
+            <input
+              type="radio"
+              formControlName="civilite"
+              value="femme"
+              autocomplete="off"
+            />
+            Femme
+          </label>
+          <!-- Homme -->
+          <label
+            class="btn dp-toggle"
+            [class.dp-toggle--active]="form.get('civilite')!.value === 'homme'"
+          >
+            <input
+              type="radio"
+              formControlName="civilite"
+              value="homme"
+              autocomplete="off"
+            />
+            Homme
+          </label>
+          <!-- Non spécifié -->
+          <label
+            class="btn dp-toggle"
+            [class.dp-toggle--active]="form.get('civilite')!.value === 'non_specifie'"
+          >
+            <input
+              type="radio"
+              formControlName="civilite"
+              value="non_specifie"
+              autocomplete="off"
+            />
+            Non spécifié
+          </label>
+        </div>
+      </div>
+
+      <!-- Adresse de facturation (titre full) -->
+      <div class="col-12 mt-4">
+        <p class="dp-subtitle mb-2">Adresse de facturation :</p>
+      </div>
+
+      <!-- Rue et numéro -->
+      <div class="col-12">
+        <label for="adresse_client" class="form-label dp-label">Rue et numéro</label>
+        <input
+          id="adresse_client"
+          type="text"
+          formControlName="adresse_client"
+          class="form-control dp-input"
+        />
+      </div>
+
+      <!-- Code postal -->
+      <div class="col-md-6">
+        <label for="code_postal_client" class="form-label dp-label">Code postal</label>
+        <input
+          id="code_postal_client"
+          type="text"
+          formControlName="code_postal_client"
+          class="form-control dp-input"
+        />
+      </div>
+
+      <!-- Ville -->
+      <div class="col-md-6">
+        <label for="ville_client" class="form-label dp-label">Ville</label>
+        <input
+          id="ville_client"
+          type="text"
+          formControlName="ville_client"
+          class="form-control dp-input"
+        />
+      </div>
+
+      <!-- Informations du compte (titre full) -->
+      <div class="col-12 mt-4">
+        <p class="dp-subtitle mb-2">Informations du compte</p>
+      </div>
+
+      <!-- Mot de passe -->
+      <div class="col-md-6">
+        <div class="dp-card p-3 d-flex align-items-center">
+          <i class="icon-lock dp-card__icon me-3"></i>
+          <div class="dp-card__body flex-grow-1">
+            <p class="dp-card__label mb-1">Mot de passe</p>
+          </div>
+          <button
+            type="button"
+            class="btn btn-sm dp-card__action"
+            (click)="onChangePassword()"
+          >
+            Changer
+          </button>
+        </div>
+      </div>
+
+      <!-- Supprimer un compte -->
+      <div class="col-md-6">
+        <div class="dp-delete p-3 d-flex align-items-center" (click)="onDeleteAccount()">
+          <i class="icon-trash dp-delete__icon me-2"></i>
+          <span>Supprimer un compte</span>
+        </div>
+      </div>
+
+    </div> <!-- fin .row -->
+
+    <div class="d-grid mt-4">
+      <button
+        type="submit"
+        class="btn dp-submit"
+        [disabled]="form.invalid"
+      >
+        ENREGISTRER
+      </button>
+    </div>
+  </form>
+</section>

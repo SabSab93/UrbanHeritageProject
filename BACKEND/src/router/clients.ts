@@ -81,34 +81,45 @@ clientRouter.put("/:id", monMiddlewareBearer, async (req: any, res) => {
     const updateData = req.body.data;
     let hashedPassword = existingClient.mot_de_passe;
 
-    if (updateData.mot_de_passe)
+    if (updateData.mot_de_passe) {
       hashedPassword = await bcrypt.hash(updateData.mot_de_passe, 10);
+    }
 
-    if (updateData.id_role && req.decoded?.id_role !== 1)
+    if (updateData.id_role && req.decoded?.id_role !== 1) {
       return res.status(403).json({ message: "Seul un administrateur peut changer un rôle." });
+    }
 
+    // Gestion de la date dans plusieurs formats
     let parsedBirthDate: Date | undefined;
     if (updateData.date_naissance_client) {
-      const [jour, mois, annee] = updateData.date_naissance_client.split("/");
-      const birth = new Date(`${annee}-${mois}-${jour}`);
-      if (Number.isNaN(birth.getTime()))
-        return res.status(400).json({ message: "Format de date invalide. JJ/MM/AAAA" });
-      parsedBirthDate = birth;
+      const raw = updateData.date_naissance_client as string;
+      if (raw.includes("/")) {
+        // format JJ/MM/AAAA
+        const [jour, mois, annee] = raw.split("/");
+        parsedBirthDate = new Date(`${annee}-${mois}-${jour}`);
+      } else {
+        // on suppose ISO YYYY-MM-DD
+        parsedBirthDate = new Date(raw);
+      }
+      if (isNaN(parsedBirthDate.getTime())) {
+        return res.status(400).json({ message: "Format de date invalide. JJ/MM/AAAA ou YYYY-MM-DD attendu." });
+      }
     }
 
     const updatedClient = await prisma.client.update({
       where: { id_client: id },
       data: {
-        nom_client: updateData.nom_client ?? undefined,
-        prenom_client: updateData.prenom_client ?? undefined,
-        civilite: updateData.civilite ?? undefined,
-        date_naissance_client: parsedBirthDate ?? undefined,
-        adresse_client: updateData.adresse_client ?? undefined,
-        code_postal_client: updateData.code_postal_client ?? undefined,
-        ville_client: updateData.ville_client ?? undefined,
-        pays_client: updateData.pays_client ?? undefined,
-        mot_de_passe: hashedPassword,
-        id_role: updateData.id_role ?? undefined,
+        nom_client:            updateData.nom_client             ?? undefined,
+        prenom_client:         updateData.prenom_client          ?? undefined,
+        civilite:              updateData.civilite               ?? undefined,
+        date_naissance_client: parsedBirthDate                   ?? undefined,
+        adresse_client:        updateData.adresse_client         ?? undefined,
+        telephone_client:      updateData.telephone_client       ?? undefined,
+        code_postal_client:    updateData.code_postal_client     ?? undefined,
+        ville_client:          updateData.ville_client           ?? undefined,
+        pays_client:           updateData.pays_client            ?? undefined,
+        mot_de_passe:          hashedPassword,
+        // on n’envoie plus id_role si non admin
       },
     });
 
@@ -118,6 +129,7 @@ clientRouter.put("/:id", monMiddlewareBearer, async (req: any, res) => {
     res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
+
 
 /*** 3. Suppression (anonymisation RGPD) *************************************/
 clientRouter.delete("/:id", monMiddlewareBearer, async (req: any, res) => {

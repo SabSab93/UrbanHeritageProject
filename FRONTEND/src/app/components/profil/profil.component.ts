@@ -1,32 +1,43 @@
+// profil.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { HeaderComponent } from '../home-page/shared/header/header.component';
 import { FooterComponent } from '../home-page/shared/footer/footer.component';
 import { AuthLoginService } from '../../services/auth-service/auth-login.service';
 import { Client } from '../../models/client.model';
 
+// import { MesAchatsComponent } from './mes-achats/mes-achats.component';
+import { DonneesPersonnellesComponent } from './section-profil-donnee-personnelle/donnees-personnelles.component';
+// import { AdressesEnregistreesComponent } from './adresses-enregistrees/adresses-enregistrees.component';
+
 @Component({
-  selector   : 'app-profil',
-  standalone : true,
-  imports    : [CommonModule, HeaderComponent, FooterComponent],
+  selector: 'app-profil',
+  standalone: true,
+  imports: [
+    CommonModule,
+    HeaderComponent,
+    FooterComponent,
+    DonneesPersonnellesComponent,
+    
+  ],
   templateUrl: './profil.component.html',
-  styleUrls  : ['./profil.component.scss']
+  styleUrls: ['./profil.component.scss']
 })
 export class ProfilComponent {
   client: Client | null = null;
+  selected: 'achats' | 'donnees' | 'adresses' = 'achats';
 
   constructor(
-    private router: Router,
-    private authService: AuthLoginService
+    private auth: AuthLoginService
   ) {
-    this.authService.client$.subscribe((client) => {
-      this.client = client;
-    });
+    this.auth.client$.subscribe(c => this.client = c);
+  }
+
+  select(section: 'achats' | 'donnees' | 'adresses') {
+    this.selected = section;
   }
 
   logout() {
-    this.authService.logout();
-    this.router.navigate(['/']);
+    this.auth.logout();
   }
 }

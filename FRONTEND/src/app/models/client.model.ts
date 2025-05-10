@@ -5,6 +5,7 @@ export interface Client {
     is_anonymised: boolean;
     nom_client: string;
     prenom_client?: string;
+    telephone_client?: string;
     civilite: 'homme' | 'femme' | 'non_specifie'; 
     provider: 'local' | 'google'; 
     google_sub?: string;
