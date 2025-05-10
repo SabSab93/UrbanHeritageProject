@@ -1,0 +1,57 @@
+<div class="mes-commandes py-4">
+
+  <!-- LISTE -->
+  <div *ngIf="!selectedCommandeId">
+    <h3>Mes commandes</h3>
+
+    <div *ngIf="loading" class="text-center py-5">
+      Chargement…
+    </div>
+
+    <div *ngIf="error" class="alert alert-danger">
+      {{ error }}
+    </div>
+
+    <table *ngIf="!loading && !error" class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Montant TTC</th>
+          <th>Statut</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cmd of commandes">
+          <td>{{ cmd.id_commande }}</td>
+          <td>{{ cmd.date_commande | date:'shortDate' }}</td>
+          <td>{{ cmd.montant_total_ttc | currency:'EUR' }}</td>
+          <td>{{ cmd.statut_commande }}</td>
+          <td>
+            <button
+              class="btn btn-sm btn-outline-primary"
+              (click)="showDetails(cmd.id_commande)"
+            >
+              Détails
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- DÉTAIL -->
+  <div *ngIf="selectedCommandeId">
+    <button
+      class="btn btn-link mb-3"
+      (click)="backToList()"
+    >
+      ← Retour à la liste
+    </button>
+    <app-details-commande
+      [commandeId]="selectedCommandeId"
+    ></app-details-commande>
+  </div>
+
+</div>

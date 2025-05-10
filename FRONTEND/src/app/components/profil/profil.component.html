@@ -14,7 +14,7 @@
   </aside>
 
   <main class="profil-content">
-    <!-- <app-mes-achats            *ngIf="selected==='achats'"></app-mes-achats> -->
+    <app-mes-commandes            *ngIf="selected==='achats'"></app-mes-commandes>
     <app-donnees-personnelles  *ngIf="selected==='donnees'" [client]="client!"></app-donnees-personnelles>
     <!-- <app-adresses-enregistrees *ngIf="selected==='adresses'"></app-adresses-enregistrees> -->
   </main>
