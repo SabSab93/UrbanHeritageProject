@@ -343,8 +343,8 @@ enum type_mouvement_enum {
 }
 
 enum type_personnalisation_enum {
-  NAME_ONLY
-  NAME_AND_COLOR
+  name
+  name_color
 }
 
 
