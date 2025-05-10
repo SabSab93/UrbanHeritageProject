@@ -33,7 +33,6 @@ ligneCommandeRouter.get("/:id_ligne",monMiddlewareBearer,isAdmin, async (req, re
   }
 });
 
-//Lecture : détail complet d’une ligne
 ligneCommandeRouter.get("/:id_ligne/details", async (req, res) => {
   try {
     const id = parseId(req.params.id_ligne, "id_lignecommande");
@@ -42,47 +41,80 @@ ligneCommandeRouter.get("/:id_ligne/details", async (req, res) => {
       include: {
         Maillot: true,
         TVA: true,
-        LigneCommandePersonnalisation: { include: { Personnalisation: true } },
+        Personnalisation: true, 
       },
     });
-    if (!ligne) return res.status(404).json({ message: "Ligne non trouvée" });
-    res.json(ligne);
+    if (!ligne) {
+      return res.status(404).json({ message: "Ligne non trouvée" });
+    }
+
+    let totalPrixHt = Number(ligne.prix_ht);
+    if (ligne.ligne_commande_personnalisee && ligne.Personnalisation) {
+      totalPrixHt += Number(ligne.Personnalisation.prix_ht);
+    }
+
+    res.json({
+      ...ligne,
+      totalPrixHt: totalPrixHt.toFixed(2), 
+    });
   } catch (error: any) {
     const status = error.message.includes("invalide") ? 400 : 500;
     res.status(status).json({ message: error.message ?? "Erreur serveur" });
   }
 });
 
-/*** Création & mise à jour  **************************************************/
-// src/routes/ligneCommande.ts
 
+/*** Création & mise à jour  **************************************************/
 
 ligneCommandeRouter.post(
   '/create',
-  authOptional,       // ← autorise invités et connectés
-  async (req: any, res) => {
+  authOptional, 
+  async (req: any, res: Response) => {
     const data = req.body?.data;
-    if (!data) return res.status(400).json({ message: 'Corps manquant' });
+    if (!data) {
+      return res.status(400).json({ message: 'Corps manquant' });
+    }
 
     try {
       const maillot = await prisma.maillot.findUnique({
         where: { id_maillot: data.id_maillot }
       });
-      if (!maillot) return res.status(404).json({ message: 'Maillot non trouvé' });
+      if (!maillot) {
+        return res.status(404).json({ message: 'Maillot non trouvé' });
+      }
+
+      let prixPerso = 0;
+      if (data.ligne_commande_personnalisee) {
+        if (!data.id_personnalisation) {
+          return res.status(400).json({ message: 'id_personnalisation requis' });
+        }
+        const perso = await prisma.personnalisation.findUnique({
+          where: { id_personnalisation: data.id_personnalisation }
+        });
+        if (!perso) {
+          return res.status(404).json({ message: 'Personnalisation non trouvée' });
+        }
+        prixPerso = Number(perso.prix_ht);
+      }
 
       const newLine = await prisma.ligneCommande.create({
         data: {
-          // id_client n’est fourni QUE si l’invité s’est connecté
           ...(data.id_client ? { id_client: data.id_client } : {}),
-          id_maillot     : data.id_maillot,
-          taille_maillot : data.taille_maillot,
-          quantite       : data.quantite,
-          prix_ht        : maillot.prix_ht_maillot,
-          id_tva         : data.id_tva ?? 1,
+          id_maillot       : data.id_maillot,
+          taille_maillot   : data.taille_maillot,
+          quantite         : data.quantite,
+          prix_ht          : maillot.prix_ht_maillot + prixPerso,
+          id_tva           : data.id_tva ?? 1,
+          ligne_commande_personnalisee: data.ligne_commande_personnalisee ?? false,
+          id_personnalisation         : data.ligne_commande_personnalisee ? data.id_personnalisation : undefined,
+          valeur_personnalisation     : data.valeur_personnalisation,
+          couleur_personnalisation    : data.couleur_personnalisation,
         }
       });
+
       return res.status(201).json(newLine);
-    } catch {
+    } catch (err: any) {
+      console.error('💥 Erreur POST /ligneCommande/create:', err);
       return res.status(500).json({ message: 'Erreur serveur' });
     }
   }
@@ -91,23 +123,20 @@ ligneCommandeRouter.post(
 
 ligneCommandeRouter.put(
   '/:id_ligne',
-  authOptional,   // décode le JWT si présent, ne bloque jamais
+  authOptional,   
   async (req: any, res: Response) => {
     try {
-      // 1) Extraction & logs (optionnel pour debug)
       const id       = parseId(req.params.id_ligne, 'id_lignecommande');
       const payload  = req.decoded as any;
-      console.log('Headers.Authorization =', req.headers.authorization);
-      console.log('req.decoded =', payload);
+      const updates  = req.body.data || {};
 
-      // 2) Récupérer l’ID client depuis le token (futur claim ou actuel)
+
       const idClient =
-        payload?.id_client     /* si tu utilises ce claim */
-        ?? payload?.idf_client /* sinon ton claim */
+        payload?.id_client   
+        ?? payload?.idf_client 
         ?? null;
-      console.log('idClient (JWT) =', idClient);
 
-      // 3) Charger la ligne existante
+
       const ligne = await prisma.ligneCommande.findUnique({
         where: { id_lignecommande: id }
       });
@@ -115,9 +144,6 @@ ligneCommandeRouter.put(
         return res.status(404).json({ message: 'Ligne non trouvée' });
       }
 
-      // 4) Autorisation : 
-      //    – ok si invité ET ligne.id_client===null 
-      //    – ok si connecté ET ligne.id_client===idClient
       const forbidden =
         ligne.id_client !== null &&
         ligne.id_client !== idClient;
@@ -125,25 +151,76 @@ ligneCommandeRouter.put(
         return res.status(403).json({ message: 'Accès interdit' });
       }
 
-      // 5) Immuabilité après commande validée
+
       if (ligne.id_commande !== null) {
         return res.status(400).json({ message: 'Commande déjà validée' });
       }
 
-      // 6) Mise à jour
+
+      const dataToUpdate: any = { ...updates };
+
+
+      if (updates.ligne_commande_personnalisee !== undefined) {
+
+        if (!updates.ligne_commande_personnalisee) {
+          dataToUpdate.id_personnalisation      = null;
+          dataToUpdate.valeur_personnalisation   = null;
+          dataToUpdate.couleur_personnalisation  = null;
+        } else {
+
+          if (!updates.id_personnalisation) {
+            return res.status(400).json({ message: 'id_personnalisation requis' });
+          }
+          const perso = await prisma.personnalisation.findUnique({
+            where: { id_personnalisation: updates.id_personnalisation }
+          });
+          if (!perso) {
+            return res.status(404).json({ message: 'Personnalisation non trouvée' });
+          }
+          dataToUpdate.id_personnalisation     = updates.id_personnalisation;
+          dataToUpdate.valeur_personnalisation  = updates.valeur_personnalisation;
+          dataToUpdate.couleur_personnalisation = updates.couleur_personnalisation;
+        }
+      }
+      let newPrixHt = Number(ligne.prix_ht);
+      let hasRecalc = false;
+
+      if (
+        updates.ligne_commande_personnalisee !== undefined ||
+        updates.id_personnalisation !== undefined
+      ) {
+        const maillot = await prisma.maillot.findUnique({
+          where: { id_maillot: ligne.id_maillot }
+        });
+        newPrixHt = maillot ? Number(maillot.prix_ht_maillot) : newPrixHt;
+
+        if (updates.ligne_commande_personnalisee) {
+          const perso = await prisma.personnalisation.findUnique({
+            where: { id_personnalisation: dataToUpdate.id_personnalisation }
+          });
+          if (perso) {
+            newPrixHt += Number(perso.prix_ht);
+          }
+        }
+        dataToUpdate.prix_ht = newPrixHt;
+        hasRecalc = true;
+      }
+
+      // 7) Exécuter la mise à jour
       const updated = await prisma.ligneCommande.update({
         where: { id_lignecommande: id },
-        data: req.body.data    // { quantite?:…, taille_maillot?:… }
+        data: dataToUpdate
       });
 
       return res.json(updated);
     } catch (err: any) {
-      console.error('💥 Erreur PUT /lignecommande:', err);
+      console.error('💥 Erreur PUT /lignecommande/:id_ligne:', err);
       const status = err.message?.includes('invalide') ? 400 : 500;
       return res.status(status).json({ message: err.message ?? 'Erreur serveur' });
     }
   }
 );
+
 
 /*** Lecture côté client *****************************************************/
 //Lecture : lignes d’un client
@@ -153,17 +230,26 @@ ligneCommandeRouter.get(
   async (req, res) => {
     try {
       const id = parseId(req.params.id_client, "id_client");
+
       const lignes = await prisma.ligneCommande.findMany({
         where: { id_client: id },
         include: {
           Maillot: true,
           TVA: true,
-          LigneCommandePersonnalisation: {
-            include: { Personnalisation: true },
-          },
+          Personnalisation: true,
         },
+        orderBy: { date_creation: "asc" },
       });
-      res.json(lignes);
+
+      res.json(
+        lignes.map(ligne => ({
+          ...ligne,
+          totalTtc: (
+            Number(ligne.prix_ht) *
+            (1 + (ligne.TVA?.taux_tva ?? 20) / 100)
+          ).toFixed(2) + " €"
+        }))
+      );
     } catch (error: any) {
       const status = error.message.includes("invalide") ? 400 : 500;
       res.status(status).json({ message: error.message ?? "Erreur serveur" });
@@ -172,37 +258,81 @@ ligneCommandeRouter.get(
 );
 
 // Lecture : total panier client
-ligneCommandeRouter.get("/client/:id_client/total",monMiddlewareBearer, async (req, res) => {
-  try {
-    const id = parseId(req.params.id_client, "id_client");
-    const lignes = await prisma.ligneCommande.findMany({ where: { id_client: id, id_commande: null }, include: { TVA: true } });
-    const total = lignes.reduce((sum, l) => {
-      const tva = l.TVA?.taux_tva ?? 20;
-      const prixTtc = Number(l.prix_ht) * (1 + tva / 100);
-      return sum + l.quantite * prixTtc;
-    }, 0);
-    res.json({ total: total.toFixed(2) + " €" });
-  } catch (error: any) {
-    const status = error.message.includes("invalide") ? 400 : 500;
-    res.status(status).json({ message: error.message ?? "Erreur serveur" });
-  }
-});
+ligneCommandeRouter.get(
+  "/client/:id_client/total",
+  monMiddlewareBearer,
+  async (req, res) => {
+    try {
+      const id = parseId(req.params.id_client, "id_client");
 
-// Lecture : panier client 
-ligneCommandeRouter.get("/client/:id_client/panier",monMiddlewareBearer, async (req, res) => {
-  try {
-    const id = parseId(req.params.id_client, "id_client");
-    const panier = await prisma.ligneCommande.findMany({
-      where: { id_client: id, id_commande: null },
-      include: { Maillot: true, TVA: true, LigneCommandePersonnalisation: { include: { Personnalisation: true } } },
-      orderBy: { date_creation: "asc" },
-    });
-    res.json(panier);
-  } catch (error: any) {
-    const status = error.message.includes("invalide") ? 400 : 500;
-    res.status(status).json({ message: error.message ?? "Erreur serveur" });
+      const lignes = await prisma.ligneCommande.findMany({
+        where: { id_client: id, id_commande: null },
+        include: {
+          TVA: true,
+          Personnalisation: true, 
+        },
+      });
+
+      const total = lignes.reduce((sum, l) => {
+        const tvaRate = (l.TVA?.taux_tva ?? 20) / 100;
+        const baseHt = Number(l.prix_ht);
+        const persoHt = l.Personnalisation
+          ? Number(l.Personnalisation.prix_ht)
+          : 0;
+
+        const unitTtc = (baseHt + persoHt) * (1 + tvaRate);
+        return sum + l.quantite * unitTtc;
+      }, 0);
+
+      res.json({ total: total.toFixed(2) + " €" });
+    } catch (error: any) {
+      const status = error.message.includes("invalide") ? 400 : 500;
+      res.status(status).json({ message: error.message ?? "Erreur serveur" });
+    }
   }
-});
+);
+
+ligneCommandeRouter.get(
+  "/client/:id_client/panier",
+  monMiddlewareBearer,
+  async (req, res) => {
+    try {
+      const id = parseId(req.params.id_client, "id_client");
+
+      const panier = await prisma.ligneCommande.findMany({
+        where: { id_client: id, id_commande: null },
+        include: {
+          Maillot: true,
+          TVA: true,
+          Personnalisation: true, 
+        },
+        orderBy: { date_creation: "asc" },
+      });
+
+      const panierAvecPrix = panier.map(ligne => {
+        const tvaRate = (ligne.TVA?.taux_tva ?? 20) / 100;
+        const baseHt = Number(ligne.prix_ht);
+
+        const persoHt = ligne.Personnalisation
+          ? Number(ligne.Personnalisation.prix_ht)
+          : 0;
+
+        const unitTtc = (baseHt + persoHt) * (1 + tvaRate);
+
+        return {
+          ...ligne,
+          unitTtc: unitTtc.toFixed(2) + " €",
+          totalTtc: (unitTtc * ligne.quantite).toFixed(2) + " €"
+        };
+      });
+      res.json(panierAvecPrix);
+    } catch (error: any) {
+      const status = error.message.includes("invalide") ? 400 : 500;
+      res.status(status).json({ message: error.message ?? "Erreur serveur" });
+    }
+  }
+);
+
 
 // Lecture : lignes client (param all) 
 ligneCommandeRouter.get("/client/:id_client/lignes",monMiddlewareBearer, async (req, res) => {
@@ -221,32 +351,9 @@ ligneCommandeRouter.get("/client/:id_client/lignes",monMiddlewareBearer, async (
 });
 
 
-/*** Modification par le client ************************************************/
-ligneCommandeRouter.put("/:id_ligne", async (req: any, res) => {
-  try {
-    const id = parseId(req.params.id_ligne, "id_lignecommande");
-    const idClient = req.decoded.id_client;
-    const data = req.body?.data;
-
-    const ligne = await prisma.ligneCommande.findUnique({ where: { id_lignecommande: id } });
-    if (!ligne) return res.status(404).json({ message: "Ligne non trouvée" });
-    if (ligne.id_client !== idClient) return res.status(403).json({ message: "Accès interdit" });
-    if (ligne.id_commande !== null) return res.status(400).json({ message: "Commande déjà validée" });
-
-    const updated = await prisma.ligneCommande.update({
-      where: { id_lignecommande: id },
-      data,
-    });
-
-    res.json(updated);
-  } catch (error: any) {
-    const status = error.message?.includes("invalide") ? 400 : 500;
-    res.status(status).json({ message: error.message ?? "Erreur serveur" });
-  }
-});
 
 /*** Nettoyage des paniers invités  ***********************************/
-// Suppression : paniers invités expirés 
+
 ligneCommandeRouter.delete("/cleanup", async (_req, res) => {
   try {
     const cutoff = new Date();
@@ -262,35 +369,43 @@ ligneCommandeRouter.delete("/cleanup", async (_req, res) => {
 
 ligneCommandeRouter.delete(
   '/:id_ligne/client',
-  authOptional,   // ← IMPORTANT
+  authOptional,  
   async (req: any, res: Response) => {
-    const id      = parseId(req.params.id_ligne, 'id_lignecommande');
-    // récupère le bon champ du token (ai-je appelé idf_client dans le JWT ?)
-    const idClient =
-      (req.decoded as any)?.id_client
-      ?? (req.decoded as any)?.idf_client
-      ?? null;
+    try {
 
-    const ligne = await prisma.ligneCommande.findUnique({
-      where: { id_lignecommande: id }
-    });
-    if (!ligne) return res.status(404).json({ message: 'Ligne non trouvée' });
+      const id = parseId(req.params.id_ligne, 'id_lignecommande');
 
-    // autorisé si :
-    //  - invité ET ligne.id_client===null
-    //  - ou connecté ET ligne.id_client===idClient
-    const interdit =
-      ligne.id_client !== null &&
-      ligne.id_client !== idClient;
-    if (interdit) {
-      return res.status(403).json({ message: 'Accès interdit' });
+      const idClient =
+        (req.decoded as any)?.id_client
+        ?? (req.decoded as any)?.idf_client
+        ?? null;
+
+      const ligne = await prisma.ligneCommande.findUnique({
+        where: { id_lignecommande: id }
+      });
+      if (!ligne) {
+        return res.status(404).json({ message: 'Ligne non trouvée' });
+      }
+
+      const interdit =
+        ligne.id_client !== null &&
+        ligne.id_client !== idClient;
+      if (interdit) {
+        return res.status(403).json({ message: 'Accès interdit' });
+      }
+
+      if (ligne.id_commande !== null) {
+        return res.status(400).json({ message: 'Commande déjà validée' });
+      }
+      await prisma.ligneCommande.delete({
+        where: { id_lignecommande: id }
+      });
+      return res.sendStatus(204);
+    } catch (error: any) {
+      console.error('💥 Erreur DELETE /ligneCommande/:id_ligne/client:', error);
+      const status = error.message.includes('invalide') ? 400 : 500;
+      return res.status(status).json({ message: error.message ?? 'Erreur serveur' });
     }
-    if (ligne.id_commande !== null) {
-      return res.status(400).json({ message: 'Commande déjà validée' });
-    }
-
-    await prisma.ligneCommande.delete({ where: { id_lignecommande: id } });
-    return res.sendStatus(204);
   }
 );
 

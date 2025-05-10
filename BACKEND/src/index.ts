@@ -18,7 +18,7 @@ import { reductionRouter } from "./router/reductions";
 import { tvaRouter } from "./router/tva";
 import { roleRouter } from "./router/roles";
 import { personnalisationRouter } from "./router/personnalisations";
-import { ligneCommandePersonnalisationRouter } from "./router/lignecommandepersonnalisation";
+
 import { livraisonRouter } from "./router/livraisons";
 import { livreurRouter } from "./router/livreurs";
 import { lieuLivraisonRouter } from "./router/lieuLivraisons";
@@ -61,7 +61,7 @@ apiRouter.use("/reduction", reductionRouter);
 apiRouter.use("/tva", tvaRouter);
 apiRouter.use("/role",monMiddlewareBearer,isAdmin, roleRouter);
 apiRouter.use("/personnalisation", personnalisationRouter);
-apiRouter.use("/lignecommande-personnalisation", ligneCommandePersonnalisationRouter);
+
 apiRouter.use("/livraison",monMiddlewareBearer, livraisonRouter);
 apiRouter.use("/livreur", livreurRouter);
 apiRouter.use("/lieu-livraison", lieuLivraisonRouter);
