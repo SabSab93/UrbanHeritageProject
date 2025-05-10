@@ -52,7 +52,7 @@ clientRouter.get("/:id/details", monMiddlewareBearer, async (req, res) => {
               include: {
                 Maillot: true,
                 TVA: true,
-                LigneCommandePersonnalisation: { include: { Personnalisation: true } },
+                Personnalisation: true,
               },
             },
             Livraison: { include: { MethodeLivraison: true, LieuLivraison: true, Livreur: true } },

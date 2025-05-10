@@ -85,7 +85,8 @@ commandeRouter.get("/:id", async (req, res) => {
         LigneCommande: {
           include: {
             Maillot: true,
-            LigneCommandePersonnalisation: { include: { Personnalisation: true } },
+            TVA: true,
+            Personnalisation: true,
           },
         },
         CommandeReduction: { include: { Reduction: true } },
@@ -99,6 +100,19 @@ commandeRouter.get("/:id", async (req, res) => {
       },
     });
     if (!order) return res.status(404).json({ message: "Commande non trouvée" });
+        const lignes = order.LigneCommande.map((l) => {
+      const tva = l.TVA?.taux_tva ?? 20;
+      const prixBaseHt = Number(l.prix_ht);
+      const prixPersoHt = l.Personnalisation ? Number(l.Personnalisation.prix_ht) : 0;
+      const unitTtc = (prixBaseHt + prixPersoHt) * (1 + tva / 100);
+      const totalLigneTtc = unitTtc * l.quantite;
+
+      return {
+        ...l,
+        unitTtc: unitTtc.toFixed(2),
+        totalLigneTtc: totalLigneTtc.toFixed(2),
+      };
+    });
     res.json(order);
   } catch (error: any) {
     const status = error.message.includes("ID") ? 400 : 500;
