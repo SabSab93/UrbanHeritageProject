@@ -1,6 +1,5 @@
-/* src/app/components/artiste/list-artiste.component.scss */
-.artist-list {
-  /* padding horizontal déjà géré par .container.px-4 */
+/* src/app/components/association/list-association/list-association.component.scss */
+.association-list {
   padding-top: 2rem;
   padding-bottom: 2rem;
 
@@ -9,19 +8,19 @@
     font-weight: 500;
   }
 
-  .artist-thumb {
+  .association-thumb {
     width: 100%;
-    height: 700px;
+    height: 220px;
     object-fit: cover;
     object-position: top;
     display: block;
     border-bottom: 2px solid #f0f0f0;
   }
 
-  .card {
+  .association-card {
     overflow: hidden;
     transition: transform .2s, box-shadow .2s;
-    border: 1px solid #dee2e6; /* bordure légère */
+    border: 1px solid #dee2e6;
     &:hover {
       transform: translateY(-4px);
       box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
