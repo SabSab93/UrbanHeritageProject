@@ -95,6 +95,7 @@ model Client {
   is_anonymised         Boolean       @default(false)
   nom_client            String        @db.VarChar(100)
   prenom_client         String?       @db.VarChar(100)
+  telephone_client      String?        @db.VarChar(20)
   civilite              civilite_enum @default(non_specifie)
   provider              provider_enum @default(local)
   google_sub            String?       @unique
@@ -224,7 +225,8 @@ model LigneCommandePersonnalisation {
   id_lignecommande         Int
   id_personnalisation      Int
   prix_personnalisation_ht Decimal @db.Decimal(10,2) 
-
+  couleur_personnalisation String?   @db.VarChar(10)               
+  valeur_personnalisation  String?  @db.VarChar(20) 
   LigneCommande    LigneCommande    @relation(fields: [id_lignecommande], references: [id_lignecommande], onDelete: Cascade)
   Personnalisation Personnalisation @relation(fields: [id_personnalisation], references: [id_personnalisation], onDelete: Cascade)
 
