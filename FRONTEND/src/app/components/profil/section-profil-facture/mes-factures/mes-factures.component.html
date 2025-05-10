@@ -1,0 +1,37 @@
+<!-- src/app/components/commandes/mes-factures/mes-factures.component.html -->
+<div class="mes-factures py-4">
+  <h3>Mes factures</h3>
+
+  <div *ngIf="loading" class="text-center py-5">Chargement…</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <table *ngIf="!loading && !error" class="table">
+    <thead>
+      <tr>
+        <th>Numéro</th>
+        <th>Date</th>
+        <th>Hors UE</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let f of factures">
+        <td>{{ f.numero_facture }}</td>
+        <td>{{ f.date_facture | date:'shortDate' }}</td>
+        <td>
+          <span [class.text-success]="f.facture_hors_ue" [class.text-muted]="!f.facture_hors_ue">
+            {{ f.facture_hors_ue ? 'Oui' : 'Non' }}
+          </span>
+        </td>
+        <td>
+          <button
+            class="btn btn-sm btn-outline-primary"
+            (click)="onDownload(f)"
+          >
+            Télécharger
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

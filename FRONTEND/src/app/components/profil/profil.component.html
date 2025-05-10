@@ -8,7 +8,7 @@
     <nav class="menu">
       <a href="#" [class.active]="selected==='achats'"  (click)="select('achats'); $event.preventDefault()">Mes achats</a>
       <a href="#" [class.active]="selected==='donnees'" (click)="select('donnees'); $event.preventDefault()">Données personnelles</a>
-      <a href="#" [class.active]="selected==='adresses'"(click)="select('adresses'); $event.preventDefault()">Adresses enregistrées</a>
+      <a href="#" [class.active]="selected==='factures'"(click)="select('factures'); $event.preventDefault()">Factures</a>
       <a href="#" (click)="logout()" class="logout">Se déconnecter</a>
     </nav>
   </aside>
@@ -16,7 +16,8 @@
   <main class="profil-content">
     <app-mes-commandes            *ngIf="selected==='achats'"></app-mes-commandes>
     <app-donnees-personnelles  *ngIf="selected==='donnees'" [client]="client!"></app-donnees-personnelles>
-    <!-- <app-adresses-enregistrees *ngIf="selected==='adresses'"></app-adresses-enregistrees> -->
+      <app-mes-factures *ngIf="selected==='factures'"></app-mes-factures>
+  
   </main>
 </div>
 
