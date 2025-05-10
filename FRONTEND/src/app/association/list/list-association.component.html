@@ -20,11 +20,15 @@
       *ngFor="let a of associations"
     >
       <div class="card h-100 shadow-sm association-card border">
-        <img
-          [src]="a.url_image_association_1"
-          [alt]="a.nom_association"
-          class="card-img-top association-thumb"
-        />
+        <!-- Image cliquable vers le détail -->
+        <a [routerLink]="['/association', a.id_association]">
+          <img
+            [src]="a.url_image_association_1"
+            [alt]="a.nom_association"
+            class="card-img-top association-thumb"
+          />
+        </a>
+
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">{{ a.nom_association }}</h5>
           <p class="card-text flex-grow-1 text-muted">

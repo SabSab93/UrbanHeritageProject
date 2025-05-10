@@ -1,0 +1,52 @@
+/* src/app/components/association/detail-association/detail-association.component.scss */
+
+/* Espacement vertical entre les sections */
+.container {
+  .assoc-hero,
+  .assoc-section {
+    & + & {
+      margin-top: 4rem;
+    }
+  }
+}
+
+/* Images des sections */
+.section-img {
+  width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+}
+
+/* Titre principal */
+.assoc-hero-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 2.5rem;
+  letter-spacing: 0.05em;
+  color: #1a1a1a;
+}
+
+/* Texte d’intro */
+.assoc-hero-text {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #444;
+}
+
+/* Sous-titres de sections */
+.section-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.75rem;
+  letter-spacing: 0.05em;
+  color: #222;
+}
+
+/* Paragraphes de section */
+.section-text {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #555;
+  text-align: justify;
+}
