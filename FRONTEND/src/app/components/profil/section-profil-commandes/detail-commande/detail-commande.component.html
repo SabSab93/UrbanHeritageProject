@@ -1,0 +1,46 @@
+<div class="details-commande p-4 bg-white shadow-sm rounded">
+
+  <!-- En-tête -->
+  <div class="d-flex justify-content-between align-items-baseline mb-4">
+    <h4 class="mb-0">Commande n°{{ commande!.id_commande }}</h4>
+    <span class="badge bg-secondary text-uppercase">
+      {{ commande!.statut_commande }}
+    </span>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <p class="text-muted mb-1">Date :</p>
+      <p class="fw-semibold">{{ commande!.date_commande | date:'fullDate' }}</p>
+    </div>
+    <div class="col-md-6 text-md-end">
+      <p class="text-muted mb-1">Montant TTC :</p>
+      <p class="fw-semibold">
+        {{ commande!.montant_total_ttc | currency:'EUR' }}
+      </p>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- Lignes de commande -->
+  <h5 class="mt-4 mb-3">Lignes</h5>
+  <div *ngFor="let l of commande!.LigneCommande" class="ligne d-flex align-items-center py-3 border-bottom">
+    <div class="me-3">
+      <img
+        [src]="l.Maillot.url_image_maillot_1"
+        alt="Maillot {{ l.Maillot.nom_maillot }}"
+        class="img-thumbnail maillot-thumb"
+      />
+    </div>
+    <div class="flex-grow-1">
+      <p class="mb-1"><strong>{{ l.Maillot.nom_maillot }}</strong></p>
+      <p class="text-muted mb-0">
+        Qté : {{ l.quantite }} &mdash; Prix HT : {{ l.prix_ht | number:'1.0-2' }}€
+      </p>
+    </div>
+    <span class="badge bg-light text-dark ms-3">
+      Taille : {{ l.taille_maillot }}
+    </span>
+  </div>
+</div>

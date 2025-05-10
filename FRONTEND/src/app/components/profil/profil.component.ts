@@ -5,9 +5,9 @@ import { HeaderComponent } from '../home-page/shared/header/header.component';
 import { FooterComponent } from '../home-page/shared/footer/footer.component';
 import { AuthLoginService } from '../../services/auth-service/auth-login.service';
 import { Client } from '../../models/client.model';
-
-// import { MesAchatsComponent } from './mes-achats/mes-achats.component';
 import { DonneesPersonnellesComponent } from './section-profil-donnee-personnelle/donnees-personnelles.component';
+import { MesCommandesComponent } from './section-profil-commandes/mes-commandes/mes-commandes.component';
+
 // import { AdressesEnregistreesComponent } from './adresses-enregistrees/adresses-enregistrees.component';
 
 @Component({
@@ -18,6 +18,7 @@ import { DonneesPersonnellesComponent } from './section-profil-donnee-personnell
     HeaderComponent,
     FooterComponent,
     DonneesPersonnellesComponent,
+    MesCommandesComponent
     
   ],
   templateUrl: './profil.component.html',
