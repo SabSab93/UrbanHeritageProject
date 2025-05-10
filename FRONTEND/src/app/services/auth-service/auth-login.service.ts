@@ -40,23 +40,24 @@ export class AuthLoginService {
   }
 
   /** Mise à jour du client */
-  updateClient(client: Client): Observable<Client> {
-    const token = localStorage.getItem(this.tokenKey) ?? '';
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http
-      .put<{ message: string; client: Client }>(
-        `${this.clientUrl}/${client.id_client}`,
-        { data: client },
-        { headers }
-      )
-      .pipe(
-        tap(response => {
-          // Met à jour le BehaviorSubject avec le nouveau client
-          this.clientSubject.next(response.client);
-        }),
-        map(response => response.client)
-      );
-  }
+    updateClient(
+      id: number,
+      data: Partial<Client>
+    ): Observable<Client> {
+      const token = localStorage.getItem(this.tokenKey) ?? '';
+      const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+      return this.http
+        .put<{ message: string; client: Client }>(
+          `${this.clientUrl}/${id}`,
+          { data },     // on n’envoie QUE { data: { … } }
+          { headers }
+        )
+        .pipe(
+          tap(res => this.clientSubject.next(res.client)),
+          map(res => res.client)
+        );
+    }
 
   /** Suppression/anonymisation RGPD */
   deleteAccount(id: number): Observable<any> {
