@@ -1,30 +1,26 @@
+
 import { Router, Request, Response } from "express";
 import { PrismaClient, provider_enum } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
-
 import { monMiddlewareBearer } from "../../middleware/checkToken";
 import { isAdmin } from "../../middleware/isAdmin";
-
 import { sendMail } from "../utils/mailService";
 import { templateActivationCompte } from "../templateMails/compte/activationCompte";
 import { templateBienvenueCompte } from "../templateMails/compte/bienvenueCompte";
 import { templateForgotPassword } from "../templateMails/compte/resetMotDePasse";
 import { findOrCreateUser } from "../utils/findOrCreateUser";
-
 export const authRouter = Router();
 const prisma = new PrismaClient();
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
 /*** Utils *******************************************************************/
 /** Génère un JWT valable 24 h pour le client donné. */
 const generateJwt = (idClient: number, idRole: number | null) =>
   jwt.sign({ id_client: idClient, id_role: idRole }, process.env.JWT_SECRET!, {
     expiresIn: "24h",
   });
-
 /*** Inscription locale (client) *******************************************/
 authRouter.post("/register-client", async (req: Request, res: Response) => {
   try {
@@ -64,7 +60,6 @@ authRouter.post("/register-client", async (req: Request, res: Response) => {
   }
 });
 
-
 /*** Activation via lien e‑mail ********************************************/
 authRouter.post("/activate/:token", async (req, res) => {
   const activationToken = req.params.token;
@@ -72,10 +67,8 @@ authRouter.post("/activate/:token", async (req, res) => {
     const client = await prisma.client.findFirst({
       where: { activation_token: activationToken },
     });
-
     if (!client)
       return res.status(404).json({ message: "Lien d’activation invalide ou expiré." });
-
     if (client.statut_compte === "actif") {
       if (client.activation_token) {
         await prisma.client.update({
@@ -85,7 +78,6 @@ authRouter.post("/activate/:token", async (req, res) => {
       }
       return res.status(400).json({ message: "Ce compte est déjà activé." });
     }
-
     const updatedClient = await prisma.client.update({
       where: { id_client: client.id_client },
       data: {
@@ -93,15 +85,12 @@ authRouter.post("/activate/:token", async (req, res) => {
         activation_token: null,
       },
     });
-
     await sendMail({
       to: updatedClient.adresse_mail_client,
       subject: "🎉 Bienvenue sur UrbanHeritage",
       html: templateBienvenueCompte(updatedClient.prenom_client || updatedClient.nom_client),
     });
-
     const token = generateJwt(updatedClient.id_client, updatedClient.id_role);
-
     res.json({
       message: "Compte activé avec succès.",
       token,
@@ -118,7 +107,6 @@ authRouter.post("/activate/:token", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
-
 
 /*** Connexion locale ******************************************************/
 authRouter.post("/login", async (req, res) => {
@@ -143,14 +131,12 @@ authRouter.post("/login", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
-
 /*** Connexion Google ******************************************************/
 authRouter.post("/google", async (req, res) => {
   try {
     const { credential } = req.body;
     if (!credential)
       return res.status(400).json({ message: "Token Google manquant" });
-
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -158,13 +144,11 @@ authRouter.post("/google", async (req, res) => {
     const payload = ticket.getPayload();
     if (!payload?.email_verified)
       return res.status(400).json({ message: "Email Google non vérifié" });
-
     const client = await findOrCreateUser({
       email: payload.email!,
       googleSub: payload.sub!,
       name: payload.name,
     });
-
     const token = generateJwt(client.id_client, client.id_role);
     res.json({ token, client });
   } catch (error) {
@@ -172,63 +156,82 @@ authRouter.post("/google", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
-
 /*** Mot de passe oublié / réinitialisation **************************************/
-authRouter.post("/forgot-password", async (req, res) => {
-  const { email } = req.body;
+authRouter.post('/forgot-password', async (req, res) => {
+  const { email } = req.body as { email?: string };
+  if (!email) {
+    return res.status(400).json({ message: 'Email manquant' });
+  }
   try {
     const client = await prisma.client.findUnique({
       where: { adresse_mail_client: email },
     });
-    if (!client || client.provider !== provider_enum.local)
-      return res.status(404).json({ message: "Compte introuvable" });
-
-    const resetToken = crypto.randomBytes(30).toString("hex");
+    if (!client || client.provider !== provider_enum.local) {
+      return res.status(404).json({ message: 'Compte introuvable' });
+    }
+    // Génère un token et l’enregistre
+    const resetToken = crypto.randomBytes(30).toString('hex');
     await prisma.client.update({
       where: { id_client: client.id_client },
-      data: { activation_token: resetToken },
+      data: {
+        activation_token: resetToken,
+        // facultatif : token_expires_at: new Date(Date.now() + 3600_000), // +1h
+      },
     });
-    console.log("Envoi mail reset vers :", client.adresse_mail_client);
+    // Envoi du mail
     await sendMail({
       to: client.adresse_mail_client,
-      subject: "🔑 UrbanHeritage – Réinitialisation de votre mot de passe",
+      subject: '🔑 UrbanHeritage – Réinitialisation de votre mot de passe',
       html: templateForgotPassword(
         client.prenom_client || client.nom_client,
         resetToken
       ),
     });
-    res.json({ message: "Email envoyé" });
-  } catch (error) {
-    console.error("/forgot-password", error);
-    res.status(500).json({ message: "Erreur serveur" });
+    console.log('Email de reset envoyé à :', client.adresse_mail_client);
+    return res.json({ message: 'Email envoyé' });
+  } catch (err) {
+    console.error('/forgot-password', err);
+    return res.status(500).json({ message: 'Erreur serveur' });
   }
 });
-
-authRouter.post("/reset-password/:token", async (req, res) => {
-  const resetToken = req.params.token;
-  const { newPassword } = req.body;
-  if (!newPassword)
-    return res.status(400).json({ message: "Mot de passe manquant" });
-
+/*** 1.2 Réinitialisation du mot de passe ***/
+authRouter.post('/reset-password', async (req, res) => {
+  const { token }    = req.query as { token?: string };
+  const { password } = req.body as { password?: string };
+  if (!token) {
+    return res.status(400).json({ message: 'Token manquant' });
+  }
+  if (!password) {
+    return res.status(400).json({ message: 'Mot de passe manquant' });
+  }
   try {
+    // Vérifie le token
     const client = await prisma.client.findFirst({
-      where: { activation_token: resetToken },
+      where: {
+        activation_token: token,
+        provider: provider_enum.local,
+        // facultatif : token_expires_at: { gt: new Date() }
+      }
     });
-    if (!client)
-      return res.status(404).json({ message: "Token invalide" });
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    if (!client) {
+      return res.status(400).json({ message: 'Token invalide ou expiré' });
+    }
+    // Hash et update
+    const hash = await bcrypt.hash(password, 10);
     await prisma.client.update({
       where: { id_client: client.id_client },
-      data: { mot_de_passe: hashedPassword, activation_token: null },
+      data: {
+        mot_de_passe: hash,
+        activation_token: null,
+        // facultatif : token_expires_at: null
+      },
     });
-    res.json({ message: "Mot de passe réinitialisé" });
-  } catch (error) {
-    console.error("/reset-password", error);
-    res.status(500).json({ message: "Erreur serveur" });
+    return res.json({ message: 'Mot de passe réinitialisé avec succès' });
+  } catch (err) {
+    console.error('/reset-password', err);
+    return res.status(500).json({ message: 'Erreur serveur' });
   }
 });
-
 
 /*** Creation Admin *********************************************************/
 authRouter.post("/register-admin", monMiddlewareBearer, isAdmin, async (req, res) => {
@@ -236,16 +239,13 @@ authRouter.post("/register-admin", monMiddlewareBearer, isAdmin, async (req, res
     const adminData = req.body.data;
     if (!adminData)
       return res.status(400).json({ message: "Corps de requête manquant" });
-
     const adminExists = await prisma.client.findUnique({
       where: { adresse_mail_client: adminData.adresse_mail_client },
     });
     if (adminExists)
       return res.status(400).json({ message: "Email déjà utilisé" });
-
     // ✅ Conversion explicite de la date
     adminData.date_naissance_client = new Date(adminData.date_naissance_client);
-
     const hashedPassword = await bcrypt.hash(adminData.mot_de_passe, 10);
     const newAdmin = await prisma.client.create({
       data: {
@@ -256,7 +256,6 @@ authRouter.post("/register-admin", monMiddlewareBearer, isAdmin, async (req, res
         id_role: 1,
       },
     });
-
     await sendMail({
       to: adminData.adresse_mail_client,
       subject: "🎉 Bienvenue sur UrbanHeritage",
@@ -264,25 +263,21 @@ authRouter.post("/register-admin", monMiddlewareBearer, isAdmin, async (req, res
         adminData.prenom_client || adminData.nom_client
       ),
     });
-
     res.status(201).json(newAdmin);
   } catch (error) {
     console.error("/register-admin", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
-
 /*** Récupération du client connecté ****************************************/
 authRouter.get("/me", monMiddlewareBearer, async (req, res) => {
   const id_client = req.decoded?.id_client;
   if (!id_client) return res.status(401).json({ message: "Non autorisé" });
-
   try {
     const client = await prisma.client.findUnique({
       where: { id_client },
     });
     if (!client) return res.status(404).json({ message: "Client non trouvé" });
-
     res.json(client);
   } catch (error) {
     console.error("/me", error);

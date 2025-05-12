@@ -1,5 +1,3 @@
-// src/templateMails/compte/forgotPassword.ts
-
 export const templateForgotPassword = (prenom: string, token: string) => `
   <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
     <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px;">
