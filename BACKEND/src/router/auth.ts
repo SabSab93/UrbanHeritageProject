@@ -244,7 +244,7 @@ authRouter.post("/register-admin", monMiddlewareBearer, isAdmin, async (req, res
     });
     if (adminExists)
       return res.status(400).json({ message: "Email déjà utilisé" });
-    // ✅ Conversion explicite de la date
+
     adminData.date_naissance_client = new Date(adminData.date_naissance_client);
     const hashedPassword = await bcrypt.hash(adminData.mot_de_passe, 10);
     const newAdmin = await prisma.client.create({
@@ -284,3 +284,56 @@ authRouter.get("/me", monMiddlewareBearer, async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
+
+/*** Changement de mot de passe pour le client authentifié ***/
+authRouter.patch(
+  "/change-password",
+  monMiddlewareBearer,
+  async (req: Request, res: Response) => {
+    const idClient = req.decoded?.id_client;
+    if (!idClient) return res.status(401).json({ message: "Non autorisé" });
+
+    const { oldPassword, newPassword } = req.body as {
+      oldPassword?: string;
+      newPassword?: string;
+    };
+
+    if (!oldPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Ancien et nouveau mot de passe requis" });
+    }
+    if (newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "Le nouveau mot de passe doit faire au moins 8 caractères" });
+    }
+
+    try {
+      const client = await prisma.client.findUnique({
+        where: { id_client: idClient },
+      });
+      if (!client || !client.mot_de_passe) {
+        return res.status(404).json({ message: "Client introuvable" });
+      }
+
+      const match = await bcrypt.compare(oldPassword, client.mot_de_passe);
+      if (!match) {
+        await new Promise((r) => setTimeout(r, 1000));
+        return res.status(401).json({ message: "Ancien mot de passe incorrect" });
+      }
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      await prisma.client.update({
+        where: { id_client: idClient },
+        data: { mot_de_passe: hashed },
+      });
+
+      return res.json({ message: "Mot de passe mis à jour avec succès" });
+    } catch (error) {
+      console.error("/change-password", error);
+      return res.status(500).json({ message: "Erreur serveur" });
+    }
+  }
+);
