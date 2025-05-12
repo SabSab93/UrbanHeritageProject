@@ -9,6 +9,8 @@ import { ArtisteComponent } from './artiste/list/list-artiste.component';
 import { ArtisteDetailComponent } from './artiste/detail/artiste-detail.component';
 import { AssociationComponent } from './association/list/list-association.component';
 import { AssociationDetailComponent } from './association/detail/association-detail.component';
+import { ForgotPasswordComponent } from './components/auth/auth-forgot-password/auth-forgot-password.component';
+import { ResetPasswordComponent } from './components/auth/auth-reset-pasword/auth-reset-password.component';
 
 export const routes: Routes = [
   { path: '', component: HomePageComponent },
@@ -32,5 +34,7 @@ export const routes: Routes = [
   { path: 'artiste/:id', component: ArtisteDetailComponent },
 
   { path: 'associations', component: AssociationComponent },
-   { path: 'association/:id', component: AssociationDetailComponent },
+  { path: 'association/:id', component: AssociationDetailComponent },
+  { path: 'forgot-password',  component: ForgotPasswordComponent },
+  { path: 'reset-password',   component: ResetPasswordComponent },
 ];
