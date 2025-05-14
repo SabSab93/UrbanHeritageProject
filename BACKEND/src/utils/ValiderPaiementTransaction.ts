@@ -74,7 +74,7 @@ export const validerPaiementTransaction = async (id_commande: number) => {
         LigneCommande: {
           include: {
             Maillot: true,
-            LigneCommandePersonnalisation: { include: { Personnalisation: true } },
+            Personnalisation: true,
           },
         },
         Livraison: {

@@ -15,13 +15,13 @@ export const creerAvoirDepuisRetour = async (id_commande_retour: number) => {
         include: {
           Client          : true,
           CommandeReduction: { include: { Reduction: true } },
-          LigneCommande   : { include: { LigneCommandePersonnalisation: true } },
+          LigneCommande   : { include: { Personnalisation: true} },
         },
       },
       RetourLigneCommande: {
         include: {
           LigneCommande: {
-            include: { Maillot: true, LigneCommandePersonnalisation: true },
+            include: { Maillot: true, Personnalisation: true },
           },
         },
       },

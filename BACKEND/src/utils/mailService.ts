@@ -50,8 +50,8 @@ export const sendMailWithAttachment = async (
     attachments: [
       {
         filename: path.basename(options.attachmentPath),
-        content: fileBuffer,            // ← buffer binaire
-        contentType: "application/pdf", // ← type explicite
+        content: fileBuffer, 
+        contentType: "application/pdf", 
       },
     ],
   });

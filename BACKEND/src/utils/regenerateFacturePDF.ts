@@ -22,9 +22,7 @@ export const regenerateFacturePDF = async (numeroFacture: string): Promise<strin
           LigneCommande: {
             include: {
               Maillot: true,
-              LigneCommandePersonnalisation: {
-                include: { Personnalisation: true }
-              }
+              Personnalisation: true
             }
           },
           Livraison: {
