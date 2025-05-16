@@ -41,13 +41,9 @@ const app = express();
 app.use(cors()); 
 app.use(express.json());
 
-
-
 const apiRouter = express.Router();
 
-
 app.use("/api", apiRouter); 
-
 
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/client", clientRouter);
@@ -70,7 +66,6 @@ apiRouter.use('/stock', stockRouter);
 apiRouter.use("/stockmaillot", stockmaillotRouter);
 apiRouter.use("/stripe", stripeRouter);
 apiRouter.use("/facture", factureRouter);
-
 apiRouter.use("/retour", retourRouter);
 apiRouter.use("/avoir", monMiddlewareBearer, isAdmin, avoirRouter);
 
