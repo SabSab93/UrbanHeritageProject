@@ -45,13 +45,13 @@ authRouter.post("/register-client", async (req: Request, res: Response) => {
         id_role: 2
       }
     });
+    const prenom = clientData.prenom_client || clientData.nom_client;
+    const { html, text } = templateActivationCompte(prenom, activationToken);
     await sendMail({
       to: clientData.adresse_mail_client,
       subject: "🎉 Bienvenue chez UrbanHeritage - Activez votre compte",
-      html: templateActivationCompte(
-        clientData.prenom_client || clientData.nom_client,
-        activationToken
-      ),
+      html,
+      text,   // version texte pour les clients mail en “plain text”
     });
     res.status(201).json({ message: "Email d'activation envoyé." });
   } catch (error) {
