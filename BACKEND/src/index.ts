@@ -1,4 +1,4 @@
-// src/app.ts
+
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
@@ -33,21 +33,35 @@ dotenv.config();
 
 export const prisma = new PrismaClient();
 
+
 export const app = express();
+
 app.use(cors({
-  origin: (origin, callback) => {
-    console.log("CORS Origin reçu →", origin);
-    if (
-      !origin ||
-      origin.endsWith(".vercel.app") ||
-      origin.startsWith("http://localhost")
-    ) {
+  origin: (incomingOrigin, callback) => {
+    console.log("CORS Origin reçu →", incomingOrigin);
+
+    // 1) Pas d’origin => autorisé (Postman, CURL…)
+    if (!incomingOrigin) {
       return callback(null, true);
     }
+
+    // 2) Match par hostname *.vercel.app
+    let hostname: string;
+    try {
+      hostname = new URL(incomingOrigin).hostname;
+    } catch {
+      // Si ce n’est pas une URL valide, on refuse
+      return callback(null, false);
+    }
+    if (hostname.endsWith(".vercel.app")) {
+      return callback(null, true);
+    }
+
+    // 3) Sinon on refuse proprement
     return callback(null, false);
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   credentials: true,
   optionsSuccessStatus: 204
 }));
