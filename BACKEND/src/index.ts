@@ -1,3 +1,4 @@
+// src/app.ts
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
@@ -32,31 +33,29 @@ dotenv.config();
 
 export const prisma = new PrismaClient();
 
-const app = express();
+export const app = express();
 app.use(cors({
   origin: (origin, callback) => {
-    // autorise localhost et tout *.vercel.app
     console.log("CORS Origin reçu →", origin);
-    if (!origin || origin.endsWith(".vercel.app") || origin.startsWith("http://localhost")) {
+    if (
+      !origin ||
+      origin.endsWith(".vercel.app") ||
+      origin.startsWith("http://localhost")
+    ) {
       return callback(null, true);
     }
-    // sinon on refuse proprement (le header CORS ne sera pas renvoyé)
     return callback(null, false);
   },
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","Authorization"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
-  optionsSuccessStatus: 204    // s’assure qu’OPTIONS renvoie 204
+  optionsSuccessStatus: 204
 }));
-
 app.options("*", cors());
-
-
 app.use(express.json());
+
 const apiRouter = express.Router();
-
 app.use("/api", apiRouter);
-
 
 // Montage des sous‐routes
 apiRouter.use("/auth", authRouter);
@@ -81,18 +80,3 @@ apiRouter.use("/stripe", stripeRouter);
 apiRouter.use("/facture", factureRouter);
 apiRouter.use("/retour", retourRouter);
 apiRouter.use("/avoir", monMiddlewareBearer, isAdmin, avoirRouter);
-
-// Lecture du port et démarrage
-const port = Number(process.env.PORT) || 1992;
-const server = app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
-
-// Gestion du SIGTERM pour arrêt propre
-process.once("SIGTERM", () => {
-  server.close(() => {
-    console.log("HTTP server closed");
-  });
-});
-
-app.listen(port, () => console.log(`Server on ${port}`));
