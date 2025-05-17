@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { monMiddlewareBearer } from "../middleware/checkToken";
 
 export const livraisonRouter = Router();
 const prisma = new PrismaClient();

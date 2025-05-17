@@ -1,0 +1,82 @@
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
+export const seedAssociations = async () => {
+  console.log("Seeding associations…");
+  await prisma.association.createMany({
+    data: [
+      {
+        id_association: 1,
+        nom_association: "Fondazione Arte Italiana",
+        numero_identification_association: "IT123456",
+        adresse_siege_social_association: "Via Roma 10, 20121 Milano",
+        pays_association: "Italie",
+        site_web_association: "https://fondazionearte.it",
+        url_image_association_1: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/fa_arte1.jpg",
+        url_image_association_2: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/fa_arte2.jpg",
+        url_image_association_3: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/fa_arte3.jpg",
+        description_association_1: "Organisation promouvant l’art italien",
+        description_association_2: "Soutien aux jeunes talents en Italie",
+        description_association_3: "Organisation d’expositions et d’événements culturels",
+      },
+      {
+        id_association: 2,
+        nom_association: "Andes Animales Desamparados",
+        numero_identification_association: "MX987654",
+        adresse_siege_social_association: "Via del Corso 112, 00186 Mexico",
+        pays_association: "Mexique",
+        site_web_association: "https://andes.org.mx",
+        url_image_association_1: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/association_mexique_1.png",
+        url_image_association_2: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/association_mexique_2.jpg",
+        url_image_association_3: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/association_mexique_3.jpg",
+        description_association_1: "Plus de 20 ans de campagnes de stérilisation gratuites …",
+        description_association_2: "Rescue et hébergement d’animaux abandonnés …",
+        description_association_3: "Mobilisation et solidarité pour nourrir …",
+      },
+      {
+        id_association: 3,
+        nom_association: "NAACP",
+        numero_identification_association: "US987578",
+        adresse_siege_social_association: "Baltimore, Maryland, États-Unis",
+        pays_association: "États-Unis",
+        site_web_association: "https://naacp.org/",
+        url_image_association_1: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/association_usa_1.png",
+        url_image_association_2: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/association_usa_2.png",
+        url_image_association_3: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/association_usa_3.png",
+        description_association_1: "Pionniers de l’activisme pour les droits civiques …",
+        description_association_2: "Plus de 2 millions de militants …",
+        description_association_3: "Programmes jeunesse et bourses …",
+      },
+      {
+        id_association: 5,
+        nom_association: "Fundación La Salle - Argentina",
+        numero_identification_association: "AR148878",
+        adresse_siege_social_association: "Fundación La Salle, Argentina",
+        pays_association: "Argentine",
+        site_web_association: "https://fundacionlasalle.org.ar/",
+        url_image_association_1: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/association_argentine_1.png",
+        url_image_association_2: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/association_argentine_2.jpg",
+        url_image_association_3: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/association_argentine_3.png",
+        description_association_1: "Organisation à but non lucratif fondée en 1967 …",
+        description_association_2: "Réseau de 32 institutions …",
+        description_association_3: "Engagée dans la formation et la capacitation …",
+      },
+      {
+        id_association: 6,
+        nom_association: "Associazione D.i.Re – Donne in Rete contro la violenza",
+        numero_identification_association: "IT987654",
+        adresse_siege_social_association: "Via della Lungara, 19, 00165 Roma",
+        pays_association: "Italie",
+        site_web_association: "https://www.direcontrolaviolenza.it/",
+        url_image_association_1: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/association_italie_1.jpg",
+        url_image_association_2: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/association_italie_2.jpg",
+        url_image_association_3: "https://res.cloudinary.com/dpwuvu0k3/image/upload/v…/association_italie_3.jpg",
+        description_association_1: "Réseau national de 88 organisations …",
+        description_association_2: "Fondée officiellement en 2008 …",
+        description_association_3: "Visibilité du phénomène, recherche …",
+      },
+      
+    ],
+    skipDuplicates: true,
+  });
+};

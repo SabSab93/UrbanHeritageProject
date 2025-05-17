@@ -4,7 +4,11 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts"
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/src/index.js",
+    "seed:prod": "dotenv -e .env.prod -- ts-node --transpile-only prisma/seed/index.ts",
+    "prod": "dotenv -e .env.prod -- npm run build && npm run seed:prod && npm run start"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +25,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/pdfkit": "^0.13.9",
     "concurrently": "^8.2.0",
+    "dotenv-cli": "^8.0.0",
     "nodemon": "^3.1.9",
     "prisma": "^6.5.0",
     "rimraf": "^6.0.1",

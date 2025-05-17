@@ -10,7 +10,7 @@ import { authRouter } from "./router/auth";
 import { maillotRouter } from "./router/maillots";
 import { artisteRouter } from "./router/artistes";
 import { associationRouter } from "./router/associations";
-import { monMiddlewareBearer } from "../middleware/checkToken";
+import { monMiddlewareBearer } from "./middleware/checkToken";
 import { avisRouter } from "./router/avis";
 import { ligneCommandeRouter } from "./router/lignecommandes";
 import { commandeRouter } from "./router/commandes";
@@ -28,7 +28,7 @@ import { stockmaillotRouter } from "./router/stockMaillots";
 import { stripeRouter } from "./router/stripe";
 import { factureRouter } from "./router/factures";
 import { retourRouter } from "./router/retours";
-import { isAdmin } from "../middleware/isAdmin";
+import { isAdmin } from "./middleware/isAdmin";
 import { avoirRouter } from "./router/avoirs";
 import { clientRouter } from "./router/clients";
 
@@ -70,7 +70,12 @@ apiRouter.use("/retour", retourRouter);
 apiRouter.use("/avoir", monMiddlewareBearer, isAdmin, avoirRouter);
 
 
-app.listen(process.env.PORT, () => {
-  console.log(`Example app listening on port ${process.env.PORT}!`)
+const server = app.listen(process.env.PORT, () => {
+  console.log(`Server listening on ${process.env.PORT}`);
 });
 
+process.once('SIGTERM', () => {
+  server.close(() => {
+    console.log('HTTP server closed');
+  });
+});

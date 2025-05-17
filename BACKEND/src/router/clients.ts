@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
-import { monMiddlewareBearer } from "../../middleware/checkToken";
-import { isAdmin } from "../../middleware/isAdmin";
+import { monMiddlewareBearer } from "../middleware/checkToken";
+import { isAdmin } from "../middleware/isAdmin";
 import { anonymiseClient } from "../utils/anonymiseClient";
 
 export const clientRouter = Router();

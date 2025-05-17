@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
-import { monMiddlewareBearer } from "../../middleware/checkToken";
-import { isAdmin } from "../../middleware/isAdmin";
+import { monMiddlewareBearer } from "../middleware/checkToken";
+import { isAdmin } from "../middleware/isAdmin";
 import { sendMail } from "../utils/mailService";
 import { templateBonRetour } from "../templateMails/retour/bonRetour";
 import { gererReceptionRetour } from "../utils/gererReceptionRetour";
