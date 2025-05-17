@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+// src/prisma/seedAdmin.ts (ou là où tu as mis ton seed)
+import { PrismaClient, provider_enum } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -6,23 +7,25 @@ const prisma = new PrismaClient();
 export async function seedAdmin() {
   console.log('Seeding admin…');
 
-  // 1. Récupère l'id du rôle "admin" (créé dans seedRoles)
   const adminRole = await prisma.role.findFirst({
     where: { nom_role: 'admin' },
   });
-
   if (!adminRole) {
     console.error('❌  Rôle "admin" introuvable — lance d’abord seedRoles()');
     return;
   }
 
-  // 2. Hash du mot de passe
-  const hashed = await bcrypt.hash('kiwi', 10); // SALT_ROUNDS = 10
+  const hashed = await bcrypt.hash('kiwi', 10);
 
-  // 3. Création (ou ignore si déjà présent)
   await prisma.client.upsert({
     where: { adresse_mail_client: 'urbanheritage.project.mds@gmail.com' },
-    update: {},            // rien à mettre si déjà présent
+    update: {
+      // Si l’admin existe, mets à jour aussi le mdp + statut + provider
+      mot_de_passe: hashed,
+      provider: provider_enum.local,
+      statut_compte: 'actif',
+      id_role: adminRole.id_role,
+    },
     create: {
       nom_client: 'Hammadi',
       prenom_client: 'Sabrina',
@@ -34,7 +37,12 @@ export async function seedAdmin() {
       pays_client: 'France',
       adresse_mail_client: 'urbanheritage.project.mds@gmail.com',
       mot_de_passe: hashed,
+      provider: provider_enum.local,
+      statut_compte: 'actif',
       id_role: adminRole.id_role,
     },
   });
+
+  console.log('✅  Admin seedé avec succès');
+  await prisma.$disconnect();
 }

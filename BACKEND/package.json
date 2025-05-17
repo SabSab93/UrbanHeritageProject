@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
-  "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc",
-    "start": "node dist/src/server.js",
-    "migrate:deploy": "prisma migrate deploy",
-    "seed:prod": "dotenv -e .env.prod -- ts-node --transpile-only prisma/seed.ts",
-    "prod": "dotenv -e .env.prod -- npm run build && npm run seed:prod && npm run start"
-  },
+"scripts": {
+  "dev":       "dotenv -e .env.dev -- ts-node-dev --respawn --transpile-only src/server.ts",
+  "dev:prod":  "dotenv -e .env.prod -- ts-node-dev --respawn --transpile-only src/server.ts",
+  "build":     "tsc",
+  "start":     "node dist/src/server.js",
+  "migrate:deploy:prod": "dotenv -e .env.prod -- prisma migrate deploy",
+  "seed:prod": "dotenv -e .env.prod -- ts-node --transpile-only prisma/seed.ts",
+   "dev:prod:full": "npm run migrate:deploy:prod && npm run seed:prod && npm run dev:prod"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
