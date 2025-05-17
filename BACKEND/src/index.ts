@@ -33,7 +33,17 @@ dotenv.config();
 export const prisma = new PrismaClient();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:4200",                            
+    "https://urban-heritage-project.vercel.app"       
+  ],
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"],
+  credentials: true
+}));
+
+app.options("*", cors());
 app.use(express.json());
 
 // Router principal
