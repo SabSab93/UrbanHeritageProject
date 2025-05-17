@@ -1,10 +1,11 @@
 // src/app/auth-register/auth-register.service.ts
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthRegisterService {
-  private baseUrl = 'http://localhost:1992/api/auth'; // comme AuthLoginService
+  private readonly baseUrl = `${environment.apiUrl}/auth`;
 
   constructor(private http: HttpClient) {}
 

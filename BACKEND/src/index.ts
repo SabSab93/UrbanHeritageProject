@@ -1,9 +1,6 @@
 import cors from "cors";
-import "dotenv/config";
+import dotenv from "dotenv";
 import express from "express";
-import dotenv from 'dotenv';
-
-
 import { PrismaClient } from "@prisma/client";
 
 import { authRouter } from "./router/auth";
@@ -18,7 +15,6 @@ import { reductionRouter } from "./router/reductions";
 import { tvaRouter } from "./router/tva";
 import { roleRouter } from "./router/roles";
 import { personnalisationRouter } from "./router/personnalisations";
- 
 import { livraisonRouter } from "./router/livraisons";
 import { livreurRouter } from "./router/livreurs";
 import { lieuLivraisonRouter } from "./router/lieuLivraisons";
@@ -32,19 +28,19 @@ import { isAdmin } from "./middleware/isAdmin";
 import { avoirRouter } from "./router/avoirs";
 import { clientRouter } from "./router/clients";
 
-
 dotenv.config();
+
 export const prisma = new PrismaClient();
 
 const app = express();
-
-app.use(cors()); 
+app.use(cors());
 app.use(express.json());
 
+// Router principal
 const apiRouter = express.Router();
+app.use("/api", apiRouter);
 
-app.use("/api", apiRouter); 
-
+// Montage des sous‐routes
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/client", clientRouter);
 apiRouter.use("/maillot", maillotRouter);
@@ -55,27 +51,28 @@ apiRouter.use("/lignecommande", ligneCommandeRouter);
 apiRouter.use("/commande", monMiddlewareBearer, commandeRouter);
 apiRouter.use("/reduction", reductionRouter);
 apiRouter.use("/tva", tvaRouter);
-apiRouter.use("/role",monMiddlewareBearer,isAdmin, roleRouter);
+apiRouter.use("/role", monMiddlewareBearer, isAdmin, roleRouter);
 apiRouter.use("/personnalisation", personnalisationRouter);
-
-apiRouter.use("/livraison",monMiddlewareBearer, livraisonRouter);
+apiRouter.use("/livraison", monMiddlewareBearer, livraisonRouter);
 apiRouter.use("/livreur", livreurRouter);
 apiRouter.use("/lieu-livraison", lieuLivraisonRouter);
 apiRouter.use("/methode-livraison", methodeLivraisonRouter);
-apiRouter.use('/stock', stockRouter);
+apiRouter.use("/stock", stockRouter);
 apiRouter.use("/stockmaillot", stockmaillotRouter);
 apiRouter.use("/stripe", stripeRouter);
 apiRouter.use("/facture", factureRouter);
 apiRouter.use("/retour", retourRouter);
 apiRouter.use("/avoir", monMiddlewareBearer, isAdmin, avoirRouter);
 
-
-const server = app.listen(process.env.PORT, () => {
-  console.log(`Server listening on ${process.env.PORT}`);
+// Lecture du port et démarrage
+const port = Number(process.env.PORT) || 1992;
+const server = app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
 });
 
-process.once('SIGTERM', () => {
+// Gestion du SIGTERM pour arrêt propre
+process.once("SIGTERM", () => {
   server.close(() => {
-    console.log('HTTP server closed');
+    console.log("HTTP server closed");
   });
 });

@@ -10,6 +10,7 @@ import {
 } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Client } from '../../models/client.model';
+import { environment } from '../../../environments/environment';
 
 interface ChangePasswordPayload {
   oldPassword: string;
@@ -18,8 +19,9 @@ interface ChangePasswordPayload {
 
 @Injectable({ providedIn: 'root' })
 export class AuthLoginService {
-  private authUrl   = 'http://localhost:1992/api/auth';
-  private clientUrl = 'http://localhost:1992/api/client';
+  private readonly authUrl = `${environment.apiUrl}/auth`;
+  private readonly clientUrl = `${environment.apiUrl}/client`;
+
   private tokenKey  = 'authToken';
 
   public clientSubject = new BehaviorSubject<Client | null>(null);
