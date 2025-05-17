@@ -47,6 +47,7 @@ authRouter.post("/register-client", async (req: Request, res: Response) => {
     });
     const prenom = clientData.prenom_client || clientData.nom_client;
     const { html, text } = templateActivationCompte(prenom, activationToken);
+    console.log("DEBUG lien activation :", text); 
     await sendMail({
       to: clientData.adresse_mail_client,
       subject: "🎉 Bienvenue chez UrbanHeritage - Activez votre compte",
