@@ -34,12 +34,13 @@ export const prisma = new PrismaClient();
 
 const app = express();
 app.use(cors({
-  origin: [
-    "http://localhost:4200",                            
-    "https://urban-heritage-project.vercel.app"       
-  ],
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","Authorization"],
+  origin: (origin, callback) => {
+    // autorise localhost et tout *.vercel.app
+    if (!origin || origin.endsWith(".vercel.app") || origin.startsWith("http://localhost")) {
+      return callback(null, true);
+    }
+    callback(new Error("Not allowed by CORS"));
+  },
   credentials: true
 }));
 
