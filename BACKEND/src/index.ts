@@ -39,17 +39,23 @@ app.use(cors({
     if (!origin || origin.endsWith(".vercel.app") || origin.startsWith("http://localhost")) {
       return callback(null, true);
     }
-    callback(new Error("Not allowed by CORS"));
+    // sinon on refuse proprement (le header CORS ne sera pas renvoyé)
+    return callback(null, false);
   },
-  credentials: true
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"],
+  credentials: true,
+  optionsSuccessStatus: 204    // s’assure qu’OPTIONS renvoie 204
 }));
 
 app.options("*", cors());
-app.use(express.json());
 
-// Router principal
+
+app.use(express.json());
 const apiRouter = express.Router();
+
 app.use("/api", apiRouter);
+
 
 // Montage des sous‐routes
 apiRouter.use("/auth", authRouter);
@@ -87,3 +93,5 @@ process.once("SIGTERM", () => {
     console.log("HTTP server closed");
   });
 });
+
+app.listen(port, () => console.log(`Server on ${port}`));
