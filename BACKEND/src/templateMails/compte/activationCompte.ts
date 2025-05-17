@@ -2,13 +2,11 @@
 
 /**
  * Template pour l'email d'activation de compte.
- * Retourne à la fois le HTML (avec bouton) et le texte brut (lien) pour les clients mail en plain-text.
+ * Le front est hard-codé ici pour éviter tout undefined.
  */
 export function templateActivationCompte(prenom: string, token: string) {
-  // FRONTEND_URL défini sur Render → sinon on retombe sur ton domaine prod en dur
-  const frontendUrl =
-    process.env.FRONTEND_URL ||
-    "https://urban-heritage-project.vercel.app";
+  // 💥 on met directement l'URL de prod
+  const frontendUrl = "https://urban-heritage-project.vercel.app";
 
   const html = `
     <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
@@ -48,7 +46,7 @@ export function templateActivationCompte(prenom: string, token: string) {
     </div>
   `;
 
-  const text = `Activez votre compte en cliquant sur ce lien :\n\n${frontendUrl}/activation?token=${token}`;
+  const text = `Activez votre compte :\n\n${frontendUrl}/activation?token=${token}`;
 
   return { html, text };
 }
