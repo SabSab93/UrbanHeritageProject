@@ -36,6 +36,7 @@ const app = express();
 app.use(cors({
   origin: (origin, callback) => {
     // autorise localhost et tout *.vercel.app
+    console.log("CORS Origin reçu →", origin);
     if (!origin || origin.endsWith(".vercel.app") || origin.startsWith("http://localhost")) {
       return callback(null, true);
     }
