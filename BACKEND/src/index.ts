@@ -61,7 +61,7 @@ app.use(cors({
     return callback(null, false);
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  allowedHeaders: ['Content-Type','Authorization','X-Requested-With','ngsw-bypass'],
   credentials: true,
   optionsSuccessStatus: 204
 }));
