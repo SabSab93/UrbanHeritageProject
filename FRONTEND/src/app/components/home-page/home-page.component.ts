@@ -7,11 +7,12 @@ import { SectionAProposComponent } from './sections/section-a-propos/section-a-p
 import { HeaderComponent } from './shared/header/header.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { AuthUiService } from '../../services/auth-service/auth-sidebar.service';
+import { BannerComponent } from './banner/banner.component';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, SectionEngagementsComponent,SectionIntroductionComponent,SectionAProposComponent, FooterComponent,],
+  imports: [CommonModule, RouterModule, HeaderComponent, BannerComponent, SectionEngagementsComponent,SectionIntroductionComponent,SectionAProposComponent, FooterComponent],
   templateUrl: './home-page.component.html'
 })
 export class HomePageComponent {
