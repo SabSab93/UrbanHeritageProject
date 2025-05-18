@@ -1,13 +1,9 @@
 // src/templateMails/compte/activationCompte.ts
 
-/**
- * Template pour l'email d'activation de compte.
- * Le front est hard-codé ici pour éviter tout undefined.
- */
-export function templateActivationCompte(prenom: string, token: string) {
-  // 💥 on met directement l'URL de prod
-  const frontendUrl = "https://urban-heritage-project.vercel.app";
+import { FRONTEND_URL } from "../../config"
 
+export function templateActivationCompte(prenom: string, token: string) {
+  const frontendUrl = FRONTEND_URL;
   const html = `
     <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
       <div style="max-width: 600px; margin: auto; background-color: #ffffff;
@@ -23,7 +19,7 @@ export function templateActivationCompte(prenom: string, token: string) {
         </p>
         <div style="text-align: center; margin: 30px 0;">
           <a
-            href="${frontendUrl}/activation?token=${token}"
+             href="${frontendUrl}/activation?token=${token}"
             style="
               padding: 12px 24px;
               background-color: #ff6600;

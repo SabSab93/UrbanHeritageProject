@@ -2,16 +2,16 @@
   "name": "ts-setup",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
-"scripts": {
-  "dev":       "dotenv -e .env.dev -- ts-node-dev --respawn --transpile-only src/server.ts",
-  "dev:prod":  "dotenv -e .env.prod -- ts-node-dev --respawn --transpile-only src/server.ts",
-  "build":     "tsc",
-  "start":     "node dist/src/server.js",
-  "migrate:deploy:prod": "dotenv -e .env.prod -- prisma migrate deploy",
-  "seed:prod": "dotenv -e .env.prod -- ts-node --transpile-only prisma/seed.ts",
-   "dev:prod:full": "npm run migrate:deploy:prod && npm run seed:prod && npm run dev:prod"
-},
+  "main": "dist/src/server.js",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development dotenv -e .env.dev -- ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev:prod": "cross-env NODE_ENV=production dotenv -e .env.prod -- ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "rimraf dist && tsc",
+    "start": "cross-env NODE_ENV=production node dist/src/server.js",
+    "migrate:deploy:prod": "cross-env NODE_ENV=production dotenv -e .env.prod -- prisma migrate deploy",
+    "seed:prod": "cross-env NODE_ENV=production dotenv -e .env.prod -- ts-node --transpile-only prisma/seed.ts",
+    "dev:prod:full": "npm run migrate:deploy:prod && npm run seed:prod && npm run dev:prod"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -32,7 +32,8 @@
     "prisma": "^6.5.0",
     "rimraf": "^6.0.1",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "cross-env": "^7.0.3"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",

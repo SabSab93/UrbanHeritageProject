@@ -10,7 +10,10 @@ export class AuthRegisterService {
   constructor(private http: HttpClient) {}
 
   registerClient(data: any) {
-    console.log('📡 Envoi POST à :', `${this.baseUrl}/register-client`, 'avec data :', data);
-    return this.http.post<{ message: string }>(`${this.baseUrl}/register-client`, { data });
+    console.log('📡 Envoi POST à :', `${this.baseUrl}/register-client`, 'avec', data);
+    return this.http.post<{ message: string }>(
+      `${this.baseUrl}/register-client`,
+      data               
+    );
   }
 }

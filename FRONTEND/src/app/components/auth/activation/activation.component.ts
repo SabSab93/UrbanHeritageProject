@@ -1,43 +1,77 @@
+// src/app/components/auth/activation/activation.component.ts
+
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { AuthLoginService } from '../../../services/auth-service/auth-login.service'; 
-import { Client } from '../../../models/client.model';
-import { environment } from '../../../../environments/environment';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { AuthLoginService } from '../../../services/auth-service/auth-login.service';
 
 @Component({
   selector: 'app-activation',
-  template: `<div class="text-center p-5">Activation de compte en cours...</div>`,
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
+    <div class="activation-page text-center p-5">
+      <ng-container *ngIf="loading">
+        Activation en cours…
+      </ng-container>
+      <ng-container *ngIf="!loading && success">
+        <h3 class="text-success">✅ {{ message }}</h3>
+        <!-- On redirige vers la page de connexion au lieu d'auto-login -->
+        <button class="btn btn-primary mt-3" (click)="goToLogin()">
+          Se connecter
+        </button>
+      </ng-container>
+      <ng-container *ngIf="!loading && !success">
+        <h3 class="text-danger">❌ {{ message }}</h3>
+        <button class="btn btn-secondary mt-3" (click)="goToRegister()">
+          Réessayer l’inscription
+        </button>
+      </ng-container>
+    </div>
+  `,
+  styles: [`
+    .activation-page { max-width: 400px; margin: auto; }
+  `]
 })
 export class ActivationComponent implements OnInit {
+  loading = true;
+  success = false;
+  message = '';
+
   constructor(
     private route: ActivatedRoute,
-    private http: HttpClient,
-    private router: Router,
-    private authLoginService: AuthLoginService // pour login auto
+    private auth: AuthLoginService,
+    private router: Router
   ) {}
 
-   ngOnInit(): void {
+  ngOnInit(): void {
     const token = this.route.snapshot.queryParamMap.get('token');
     if (!token) {
-      return ;
+      this.loading = false;
+      this.success = false;
+      this.message = 'Aucun token fourni.';
+      return;
     }
 
-    const url = `${environment.apiUrl}/auth/activate/${token}`;
-    this.http.post<{ message: string; token: string; client: Client }>(url, {})
-      .subscribe({
-        next: ({ token, client }) => {
-          this.authLoginService.loginManuel(token, client);
-          this.router.navigate(['/'], { queryParams: { activated: '1' } });
-        },
-        error: (err) => {
-          this.router.navigate(['/'], {
-            queryParams: {
-              activated: '0',
-              error: err?.error?.message ?? 'Erreur inconnue'
-            }
-          });
-        }
-      });
+    this.auth.activateAccount(token).subscribe({
+      next: res => {
+        this.loading = false;
+        this.success = true;
+        this.message = res.message;
+      },
+      error: err => {
+        this.loading = false;
+        this.success = false;
+        this.message = err.error?.message || 'Échec de l’activation';
+      }
+    });
+  }
+
+  goToLogin() {
+    this.router.navigate(['/connexion']);
+  }
+
+  goToRegister() {
+    this.router.navigate(['/inscription']);
   }
 }

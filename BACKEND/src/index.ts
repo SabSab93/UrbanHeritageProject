@@ -29,7 +29,11 @@ import { isAdmin } from "./middleware/isAdmin";
 import { avoirRouter } from "./router/avoirs";
 import { clientRouter } from "./router/clients";
 
-dotenv.config();
+dotenv.config({
+  path: process.env.NODE_ENV === 'production'
+    ? '.env.prod'
+    : '.env.dev'
+});
 
 export const prisma = new PrismaClient();
 
@@ -38,33 +42,36 @@ export const app = express();
 
 app.use(cors({
   origin: (incomingOrigin, callback) => {
-    console.log("CORS Origin reçu →", incomingOrigin);
-
-    // 1) Pas d’origin => autorisé (Postman, CURL…)
     if (!incomingOrigin) {
       return callback(null, true);
     }
-
-    // 2) Match par hostname *.vercel.app
     let hostname: string;
     try {
       hostname = new URL(incomingOrigin).hostname;
     } catch {
-      // Si ce n’est pas une URL valide, on refuse
-      return callback(null, false);
+      return callback(new Error("Origin invalide"), false);
     }
+
+    // 1) toujours autoriser en local (dev)
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+      return callback(null, true);
+    }
+
+    // 2) autoriser Vercel
     if (hostname.endsWith(".vercel.app")) {
       return callback(null, true);
     }
 
-    // 3) Sinon on refuse proprement
+    // 3) sinon, refuser
     return callback(null, false);
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ['Content-Type','Authorization','X-Requested-With','ngsw-bypass'],
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization","X-Requested-With","ngsw-bypass"],
   credentials: true,
   optionsSuccessStatus: 204
 }));
+
+
 app.options("*", cors());
 app.use(express.json());
 

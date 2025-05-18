@@ -46,6 +46,7 @@ export class AuthLoginService {
         map(({ token }) => token)
       );
   }
+  
 
   /** Déconnexion */
   logout(): void {
@@ -71,6 +72,7 @@ export class AuthLoginService {
         map(res => res.client)
       );
   }
+  
 
   /** Suppression/anonymisation RGPD */
   deleteAccount(id: number): Observable<any> {
@@ -132,6 +134,12 @@ export class AuthLoginService {
       )
       .subscribe();
   }
+  resendActivation(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${environment.apiUrl}/auth/resend-activation`,
+      { email }
+    );
+  }
 
   /** Force un rechargement manuel du client */
   reloadClient(): void {
@@ -150,5 +158,12 @@ export class AuthLoginService {
   }
   get currentClientId(): number | null {
     return this.clientSubject.value?.id_client ?? null;
+  }
+  activateAccount(token: string): Observable<{ message: string }> {
+    // on envoie un corps vide {} car le back attend un POST
+    return this.http.post<{ message: string }>(
+      `${environment.apiUrl}/auth/activate/${token}`,
+      {}
+    );
   }
 }

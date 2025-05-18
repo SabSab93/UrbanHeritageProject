@@ -13,31 +13,58 @@ import { AuthLoginService } from '../../../services/auth-service/auth-login.serv
 })
 export class AuthLoginComponent {
   loginForm: FormGroup;
-  errorMessage = '';
+  errorMessage   = '';
+
+  // ← Nouveaux états pour le resend
+  showResend     = false;
+  resendMessage  = '';
 
   constructor(
     private fb: FormBuilder,
-    private authLoginService: AuthLoginService, // ✅ utilise le service centralisé
+    private authLoginService: AuthLoginService,
     private router: Router
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email:    ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
     });
   }
 
-  onSubmit(): void {
-    if (this.loginForm.invalid) return;
+onSubmit(): void {
+  this.showResend = false;
+  this.resendMessage = '';
+  this.errorMessage = '';
 
-    const { email, password } = this.loginForm.value;
+  if (this.loginForm.invalid) return;
+  const { email, password } = this.loginForm.value;
 
-    this.authLoginService.login(email, password).subscribe({
-      next: () => {
-        this.authLoginService.reloadClient();; // 🔁 met à jour le client$
-        this.router.navigate(['/']); // ✅ redirection après succès
+  this.authLoginService.login(email, password).subscribe({
+    next: () => {
+      this.router.navigate(['/']);
+    },
+    error: err => {
+      const msg = err.error?.message || 'Erreur de connexion';
+      this.errorMessage = msg;
+
+      // si c'est notre 403 "Compte non activé", on affiche le bouton
+      if (err.status === 403 && msg === 'Compte non activé') {
+        this.showResend = true;
+      }
+    }
+  });
+}
+
+
+  /** Lance la requête resend-activation */
+  onResend(): void {
+    const email = this.loginForm.get('email')?.value;
+    this.authLoginService.resendActivation(email).subscribe({
+      next: res => {
+        this.resendMessage = res.message;
+        this.showResend   = false;
       },
-      error: (err) => {
-        this.errorMessage = err?.error?.message || 'Erreur de connexion';
+      error: err => {
+        this.resendMessage = err.error?.message || 'Impossible de renvoyer le lien';
       }
     });
   }
