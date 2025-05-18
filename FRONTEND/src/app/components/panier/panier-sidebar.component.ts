@@ -54,9 +54,31 @@ export class PanierSidebarComponent implements OnInit {
 
     // 4) lignes du panier
     this.lignes$ = trigger$.pipe(
-      withLatestFrom(clientId$),
-      switchMap(([_, id]) => this.panierSrv.getCartLines(id))
-    );
+        withLatestFrom(clientId$),
+        switchMap(([_, id]) => this.panierSrv.getCartLines(id)),
+        // ** Regroupement ici **
+        map(lines => {
+          const grouped: {[key: string]: typeof lines[0]} = {};
+          for (const l of lines) {
+            // clé unique par id_maillot + taille + id_personnalisation + valeur + couleur
+            const key = [
+              l.id_maillot,
+              l.taille_maillot,
+              l.id_personnalisation ?? 'none',
+              l.valeur_personnalisation ?? '',
+              l.couleur_personnalisation ?? ''
+            ].join('|');
+            if (!grouped[key]) {
+              grouped[key] = { ...l };
+            } else {
+              grouped[key].quantite += l.quantite;
+              // on met à jour le prix HT cumulatif
+              grouped[key].prix_ht += l.prix_ht;
+            }
+          }
+          return Object.values(grouped);
+        })
+      );
 
     // 5) total du panier
     this.total$ = trigger$.pipe(

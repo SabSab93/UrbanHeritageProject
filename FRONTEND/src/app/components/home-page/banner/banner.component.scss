@@ -6,7 +6,7 @@
   width: 100vw;
 
   /* on réduit la hauteur par le padding et on décale le contenu */
-  padding: 2rem 0 0.6rem;
+  padding: 2rem 0 0.4rem;
   overflow: hidden;
 
   background: rgba(0, 0, 0, 0.2);
@@ -30,14 +30,14 @@
   white-space: nowrap;
 
   /* on descend encore un peu */
-  margin-top: 0.4rem;
+  margin-top: 0.5rem;
 
   /* défilement plus rapide, et on démarre déjà à -10s */
   animation: slide 30s linear infinite;
   animation-delay: -s;
 
-  font-size: 1.4rem;
-  font-weight: 700;
+  font-size: 1.3rem;
+  font-weight: 600;
 }
 
 .item {

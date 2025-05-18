@@ -1,3 +1,10 @@
+export interface PersonnalisationInLigne {
+  id_personnalisation: number;
+  type_personnalisation: 'name' | 'name_color';
+  prix_ht: string;
+  description: string;
+}
+
 export interface LignePanier {
   id_lignecommande: number;
   id_client: number | null;
@@ -5,6 +12,12 @@ export interface LignePanier {
   taille_maillot: string;
   quantite: number;
   prix_ht: number;
+
+  // Ajouts pour la perso
+  id_personnalisation?: number;
+  valeur_personnalisation?: string;
+  couleur_personnalisation?: string;
+  Personnalisation?: PersonnalisationInLigne;
 
   TVA: { taux_tva: number };
 

@@ -1,65 +1,56 @@
-<!-- src/app/components/panier/panier-sidebar.component.html -->
 <div class="cart-sidebar" [class.open]="isOpen$ | async">
-  <button class="close-btn" type="button" (click)="close()">×</button>
-
+  <button class="close-btn" (click)="close()">×</button>
   <h2>Panier</h2>
 
   <ng-container *ngIf="(lignes$ | async) as lignes; else empty">
-    <!-- Bloc scrollable -->
     <div class="cart-lines">
       <div class="cart-line" *ngFor="let ligne of lignes">
-        <img
-          [src]="ligne.Maillot.url_image_maillot_1"
-          [alt]="ligne.Maillot.nom_maillot"
-        />
+        <img [src]="ligne.Maillot.url_image_maillot_1"
+             [alt]="ligne.Maillot.nom_maillot" />
+
         <div class="info">
           <h4>{{ ligne.Maillot.nom_maillot }}</h4>
-          <p>Taille : {{ ligne.taille_maillot }} × {{ ligne.quantite }}</p>
-          <p>
-            HT : {{ ligne.prix_ht | currency:'EUR':'symbol':'1.2-2' }}<br />
-            TTC :
-            {{
-              (ligne.prix_ht *
-                (1 + ligne.TVA.taux_tva / 100) *
-                ligne.quantite)
-                | currency:'EUR':'symbol':'1.2-2'
+          <p class="small mb-1">
+            Taille : {{ ligne.taille_maillot }}
+            <span class="badge bg-secondary ms-1">×{{ ligne.quantite }}</span>
+          </p>
+          <p class="small mb-1">
+            HT {{ ligne.prix_ht | currency:'EUR':'symbol':'1.2-2' }}
+            &nbsp;|&nbsp;
+            TTC {{
+              ligne.prix_ht * (1 + ligne.TVA.taux_tva/100) * ligne.quantite
+              | currency:'EUR':'symbol':'1.2-2'
             }}
           </p>
+
+          <div *ngIf="ligne.id_personnalisation" class="perso-info text-sm text-muted">
+            <div><strong>{{ ligne.Personnalisation?.description }}</strong></div>
+            <div *ngIf="ligne.valeur_personnalisation">
+              “{{ ligne.valeur_personnalisation }}”
+            </div>
+            <div *ngIf="ligne.couleur_personnalisation">
+              Couleur : {{ ligne.couleur_personnalisation | titlecase }}
+            </div>
+          </div>
         </div>
-        <button
-          class="remove-btn"
-          type="button"
-          (click)="
-            $event.stopPropagation();
-            $event.preventDefault();
-            removeLine(ligne.id_lignecommande)
-          "
-        >
+
+        <button class="remove-btn" (click)="removeLine(ligne.id_lignecommande)">
           &times;
         </button>
       </div>
     </div>
 
-    <!-- Footer toujours visible -->
     <div class="cart-footer">
       <p>Total : {{ (total$ | async)?.total }}</p>
-      <button class="btn btn-primary w-100">
-        Valider ma commande
-      </button>
+      <button class="btn btn-primary w-100">Valider ma commande</button>
     </div>
   </ng-container>
 
-  <!-- Cas panier vide -->
   <ng-template #empty>
     <div class="empty">
       <img src="assets/icons/empty-cart.png" alt="Panier vide" />
       <h3>Panier vide</h3>
-      <p>Ton panier est encore vide, découvre tout ce que nous avons pour toi</p>
-      <button
-        class="btn btn-dark"
-        routerLink="/collection"
-        (click)="close()"
-      >
+      <button class="btn btn-dark" routerLink="/collection" (click)="close()">
         DÉCOUVRIR
       </button>
     </div>
