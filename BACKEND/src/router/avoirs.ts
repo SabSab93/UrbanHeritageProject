@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import { isAdmin } from "../../middleware/isAdmin";
+import { isAdmin } from "../middleware/isAdmin";
 import { creerAvoirDepuisRetour } from "../utils/creerAvoirDepuisRetour";
-import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { monMiddlewareBearer } from "../middleware/checkToken";
 
 export const avoirRouter = Router();
 const prisma = new PrismaClient();

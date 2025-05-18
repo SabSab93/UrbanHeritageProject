@@ -13,15 +13,15 @@ export const creerAvoirDepuisRetour = async (id_commande_retour: number) => {
     include: {
       Commande: {
         include: {
-          Client          : true,
+          Client           : true,
           CommandeReduction: { include: { Reduction: true } },
-          LigneCommande   : { include: { LigneCommandePersonnalisation: true } },
+          LigneCommande    : { include: { Maillot: true, Personnalisation: true } },
         },
       },
       RetourLigneCommande: {
         include: {
           LigneCommande: {
-            include: { Maillot: true, LigneCommandePersonnalisation: true },
+            include: { Maillot: true, Personnalisation: true },
           },
         },
       },
@@ -32,47 +32,48 @@ export const creerAvoirDepuisRetour = async (id_commande_retour: number) => {
     throw new Error("Retour ou commande introuvable.");
   }
 
-  /* 2️⃣  Infos de la remise globale (si existe) */
+  /* 2️⃣  Infos de la remise globale */
   const remiseGlobale = retour.Commande.CommandeReduction?.Reduction;
   const valeurRemise  = remiseGlobale ? remiseGlobale.valeur_reduction.toNumber() : 0;
 
   /* 3️⃣  Total HT brut de la commande (avant remise) */
-  const totalHTBrutCommande = retour.Commande.LigneCommande.reduce((acc, l) => {
-    const prixBase = Number(l.prix_ht);
-    const totalPerso = l.LigneCommandePersonnalisation
-        .reduce((a, p) => a + Number(p.prix_personnalisation_ht), 0);
-    return acc + (prixBase + totalPerso) * l.quantite;
-  }, 0);
+const totalHTBrutCommande = retour.Commande.LigneCommande.reduce((acc, l) => {
+  const prixBase  = l.prix_ht.toNumber();
+  const prixPerso = l.Personnalisation
+    ? l.Personnalisation.prix_ht.toNumber()
+    : 0;
+  return acc + (prixBase + prixPerso) * l.quantite;
+}, 0);
 
-  /* 4️⃣  Construire les lignes remboursées avec prorata remise */
-  const lignesAvoir = retour.RetourLigneCommande.map((r) => {
-    const l          = r.LigneCommande;
-    const prixBase   = Number(l.prix_ht);
-    const totalPerso = l.LigneCommandePersonnalisation
-        .reduce((a, p) => a + Number(p.prix_personnalisation_ht), 0);
+/* 4️⃣  Construire les lignes remboursées */
+const lignesAvoir = retour.RetourLigneCommande.map((r) => {
+  const l              = r.LigneCommande;
+  const prixBase       = l.prix_ht.toNumber();
+  const prixPerso      = l.Personnalisation
+    ? l.Personnalisation.prix_ht.toNumber()
+    : 0;
+  const montantLigneHT = (prixBase + prixPerso) * l.quantite;
 
-    const montantHTLigne = (prixBase + totalPerso) * l.quantite;
+  // prorata de la remise globale sur cette ligne
+  const partRemise     = valeurRemise > 0
+    ? (montantLigneHT / totalHTBrutCommande) * valeurRemise
+    : 0;
 
-    // prorata de la remise globale sur cette ligne
-    const partRemise     = valeurRemise > 0
-        ? (montantHTLigne / totalHTBrutCommande) * valeurRemise
-        : 0;
+  const montantRembourseHT = montantLigneHT - partRemise;
 
-    const montantRembourseHT = montantHTLigne - partRemise;
-
-    return {
-      description      : l.Maillot.nom_maillot,
-      quantite         : l.quantite,
-      prixUnitaireHT   : prixBase + totalPerso,  // sans remise
-      montantHT        : montantRembourseHT,     // après remise
-    };
-  });
+  return {
+    description      : l.Maillot.nom_maillot,
+    quantite         : l.quantite,
+    prixUnitaireHT   : prixBase + prixPerso,
+    montantHT        : montantRembourseHT,
+  };
+});
 
   /* 5️⃣  Totaux de l’avoir */
-  const totalHT = lignesAvoir.reduce((a, line) => a + line.montantHT, 0);
-  const horsUE  = retour.Commande.Client.pays_client.toLowerCase() === "suisse";
-  const tva     = horsUE ? 0 : 20;
-  const totalTTC= totalHT * (1 + tva / 100);
+  const totalHT  = lignesAvoir.reduce((sum, line) => sum + line.montantHT, 0);
+  const horsUE   = retour.Commande.Client.pays_client.toLowerCase() === "suisse";
+  const tvaRate  = horsUE ? 0 : 20;
+  const totalTTC = totalHT * (1 + tvaRate / 100);
 
   /* 6️⃣  Créer l’avoir en base */
   const numeroAvoir = `AVR-${id_commande_retour}-${Date.now()}`;
@@ -81,7 +82,7 @@ export const creerAvoirDepuisRetour = async (id_commande_retour: number) => {
       numero_avoir       : numeroAvoir,
       date_avoir         : new Date(),
       avoir_hors_ue      : horsUE,
-      id_commande_retour : id_commande_retour,  
+      id_commande_retour : id_commande_retour,
     },
   });
 
@@ -96,7 +97,7 @@ export const creerAvoirDepuisRetour = async (id_commande_retour: number) => {
     },
     articles   : lignesAvoir,
     totalHT,
-    tva,
+    tva: tvaRate,
     totalTTC,
   };
 
@@ -107,9 +108,10 @@ export const creerAvoirDepuisRetour = async (id_commande_retour: number) => {
     to             : retour.Commande.Client.adresse_mail_client,
     subject        : "💸 Votre avoir UrbanHeritage",
     html           : templateAvoirCreation(
-                      retour.Commande.Client.prenom_client
-                      || retour.Commande.Client.nom_client,
-                      numeroAvoir),
+                        retour.Commande.Client.prenom_client
+                        || retour.Commande.Client.nom_client,
+                        numeroAvoir
+                    ),
     attachmentPath : pdfPath,
   });
 

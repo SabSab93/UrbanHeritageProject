@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { generateFacturePDF } from "../utils/generateFacturePDF";
-import { monMiddlewareBearer } from "../../middleware/checkToken";
-import { isAdmin } from "../../middleware/isAdmin";
+import { monMiddlewareBearer } from "../middleware/checkToken";
+import { isAdmin } from "../middleware/isAdmin";
 import { downloadFacture } from "../utils/downloadFacture"; 
 import { regenerateFacturePDF } from "../utils/regenerateFacturePDF";
 

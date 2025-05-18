@@ -1,31 +1,48 @@
-
 <div class="auth-login-page container-fluid">
-    <div class="row justify-content-center align-items-center min-vh-100">
-      <div class="col-lg-5 text-center left-side">
-        <img src="assets/images/logo/logo.png" alt="UrbanHeritage Logo" />
-        <p class="slogan">Le monde est à vous</p>
+  <div class="row justify-content-center align-items-center min-vh-100">
+    <div class="col-lg-5 text-center left-side">
+      <img src="assets/images/logo/logo.png" alt="UrbanHeritage Logo" />
+    </div>
+    <div class="col-lg-5 right-side">
+      <h2>Connexion</h2>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <input formControlName="email"
+               class="form-control"
+               placeholder="Adresse e-mail *" />
+        <input type="password"
+               formControlName="password"
+               class="form-control"
+               placeholder="Mot de passe *" />
+
+        <div class="text-end mb-3">
+          <a routerLink="/forgot-password">Mot de passe oublié ?</a>
+        </div>
+
+        <button type="submit" class="btn btn-dark w-100">
+          Se connecter
+        </button>
+      </form>
+
+      <div *ngIf="errorMessage" class="text-danger mt-3 text-center">
+        {{ errorMessage }}
       </div>
-  
-      <div class="col-lg-5 right-side">
-        <h2>Connexion</h2>
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-          <input type="email" class="form-control" formControlName="email" placeholder="Adresse e‑mail *" />
-          <input type="password" class="form-control" formControlName="password" placeholder="Mot de passe *" />
-  
-          <div class="text-end mb-3">
-            <a routerLink="/forgot-password">Mot de passe oublié ?</a>
-          </div>
-  
-          <button type="submit" class="btn btn-dark">Se connecter</button>
-  
-          <div *ngIf="errorMessage" class="text-danger mt-3 text-center">
-            {{ errorMessage }}
-          </div>
-  
-          <div class="already mt-3">
-            Pas encore de compte ? <a routerLink="/inscription">Inscris-toi</a>
-          </div>
-        </form>
+
+      <!-- Bouton pour renvoyer le lien d'activation -->
+      <div *ngIf="showResend" class="text-center mt-3">
+        <button class="btn btn-link" (click)="onResend()">
+          Renvoyer le lien d’activation
+        </button>
+      </div>
+
+      <!-- Message de confirmation du renvoi -->
+      <div *ngIf="resendMessage" class="text-success mt-3 text-center">
+        {{ resendMessage }}
+      </div>
+
+      <div class="already mt-3 text-center">
+        Pas encore de compte ? <a routerLink="/inscription">Inscris-toi</a>
       </div>
     </div>
   </div>
+</div>

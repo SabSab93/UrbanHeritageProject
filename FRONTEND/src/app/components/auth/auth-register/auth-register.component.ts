@@ -46,27 +46,28 @@ export class AuthRegisterComponent {
   }
   
   onSubmit() {
-    console.log('Formulaire valide ? =>', this.registerForm.valid);
-    console.log(this.registerForm.value);
-    if (this.registerForm.invalid) {
-      console.warn('⚠️ Formulaire invalide', this.registerForm.errors, this.registerForm.value);
-      return;
-    }
+    if (this.registerForm.invalid) return;
 
-    this.registerService.registerClient(this.registerForm.value).subscribe({
-      next: () => {
-        this.successMessage = 'Inscription réussie ! Vérifie ton e-mail pour activer ton compte.';
-        this.errorMessage = '';
-        this.registerForm.reset();
+    this.registerService.registerClient(this.registerForm.value)
+      .subscribe({
+        next: (res) => {
+          // Affiche le message renvoyé : 
+          // - "Inscription réussie ! …" 
+          // - "Un nouveau lien d'activation …" 
+          // - "Ton compte est déjà activé …"
+          this.successMessage = res.message;
+          this.errorMessage = '';
+          this.registerForm.reset();
 
-        setTimeout(() => {
-          this.router.navigate(['/']);
-        }, 2000);
-      },
-      error: (err: { error: { message: string; }; }) => {
-        this.successMessage = '';
-        this.errorMessage = err?.error?.message || 'Erreur inconnue';
-      }
-    });
+          // Si c'est bien une première inscription, on peut rediriger
+          if (res.message.startsWith('Inscription réussie')) {
+            setTimeout(() => this.router.navigate(['/']), 2000);
+          }
+        },
+        error: (err) => {
+          this.successMessage = '';
+          this.errorMessage = err.error?.message || 'Erreur inconnue';
+        }
+      });
   }
 }

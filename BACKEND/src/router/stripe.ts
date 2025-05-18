@@ -1,8 +1,9 @@
 import { Router } from "express";
 import Stripe from "stripe";
-import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
-import { monMiddlewareBearer } from "../../middleware/checkToken";
+import { monMiddlewareBearer } from "../middleware/checkToken";
+import dotenv from 'dotenv';
+dotenv.config({ path: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev' });
 
 dotenv.config();
 export const stripeRouter = Router();

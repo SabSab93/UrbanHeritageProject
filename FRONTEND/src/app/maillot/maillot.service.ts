@@ -3,23 +3,24 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Maillot } from '../models/maillot.model';
+import { environment } from '../../environments/environment';
 
 
 @Injectable({ providedIn: 'root' })
 export class MaillotService {
-  private apiUrl = 'http://localhost:1992/api/maillot';
+  private readonly baseUrl = `${environment.apiUrl}/maillot`;
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Maillot[]> {
-    return this.http.get<Maillot[]>(`${this.apiUrl}`);
+    return this.http.get<Maillot[]>(`${this.baseUrl}`);
   }
   getBestSellers(limit = 8): Observable<Maillot[]> {
-    return this.http.get<Maillot[]>(`${this.apiUrl}/coup-de-coeur?limit=${limit}`);
+    return this.http.get<Maillot[]>(`${this.baseUrl}/coup-de-coeur?limit=${limit}`);
   }
   getNewArrivals(limit = 8): Observable<Maillot[]> {
-    return this.http.get<Maillot[]>(`${this.apiUrl}/nouveautes?limit=${limit}`);
+    return this.http.get<Maillot[]>(`${this.baseUrl}/nouveautes?limit=${limit}`);
   }
   getById(id: number): Observable<Maillot> {
-    return this.http.get<Maillot>(`${this.apiUrl}/${id}`);
+    return this.http.get<Maillot>(`${this.baseUrl}/${id}`);
   }
 }

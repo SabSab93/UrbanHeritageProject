@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { moveSyntheticComments } from "typescript";
-import { monMiddlewareBearer } from "../../middleware/checkToken";
-import { isAdmin } from "../../middleware/isAdmin";
+import { monMiddlewareBearer } from "../middleware/checkToken";
+import { isAdmin } from "../middleware/isAdmin";
 
 export const livreurRouter = Router();
 const prisma = new PrismaClient();

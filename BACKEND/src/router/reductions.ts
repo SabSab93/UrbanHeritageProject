@@ -4,8 +4,8 @@ import {
   statut_reduction_type_enum,
   type_reduction_enum,
 } from "@prisma/client";
-import { monMiddlewareBearer } from "../../middleware/checkToken";
-import { isAdmin } from "../../middleware/isAdmin";
+import { monMiddlewareBearer } from "../middleware/checkToken";
+import { isAdmin } from "../middleware/isAdmin";
 
 export const reductionRouter = Router();
 const prisma = new PrismaClient();

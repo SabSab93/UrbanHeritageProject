@@ -3,10 +3,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { LignePanier } from '../../models/ligne-panier.model';
 import { Client } from '../../models/client.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class PanierService {
-  private apiUrl = 'http://localhost:1992/api/lignecommande';
+  private readonly baseUrl = `${environment.apiUrl}/lignecommande`;
   private GUEST_KEY = 'panier_guest';
 
 
@@ -33,7 +34,7 @@ export class PanierService {
   /** GET lignes du panier */
   getCartLines(idClient: number | null): Observable<LignePanier[]> {
     if (idClient !== null) {
-      return this.http.get<LignePanier[]>(`${this.apiUrl}/client/${idClient}/panier`, this.authOptions());
+      return this.http.get<LignePanier[]>(`${this.baseUrl}/client/${idClient}/panier`, this.authOptions());
     } else {
       return this.guestLines$.asObservable();
     }
@@ -42,7 +43,7 @@ export class PanierService {
   /** GET total TTC */
   getCartTotal(idClient: number | null): Observable<{ total: string }> {
     if (idClient !== null) {
-      return this.http.get<{ total: string }>(`${this.apiUrl}/client/${idClient}/total`, this.authOptions());
+      return this.http.get<{ total: string }>(`${this.baseUrl}/client/${idClient}/total`, this.authOptions());
     } else {
       const lines = this.guestLines$.value;
       const total = lines
@@ -56,7 +57,7 @@ export class PanierService {
 removeLine(idLigne: number, idClient: number | null): Observable<void> {
   if (idClient !== null) {
     // suppression côté serveur
-    return this.http.delete<void>(`${this.apiUrl}/${idLigne}/client`, this.authOptions());
+    return this.http.delete<void>(`${this.baseUrl}/${idLigne}/client`, this.authOptions());
   } else {
     // suppression côté invité (localStorage)
     const updated = this.guestLines$.value.filter(l => l.id_lignecommande !== idLigne);
@@ -77,7 +78,7 @@ removeLine(idLigne: number, idClient: number | null): Observable<void> {
     Maillot?: { nom_maillot: string; url_image_maillot_1: string };
   }): Observable<LignePanier> {
     if (payload.id_client !== undefined && payload.id_client !== null) {
-      return this.http.post<LignePanier>(`${this.apiUrl}/create`, { data: payload }, this.authOptions());
+      return this.http.post<LignePanier>(`${this.baseUrl}/create`, { data: payload }, this.authOptions());
     } else {
       const ligne: LignePanier = {
         id_lignecommande: Date.now(),
@@ -106,7 +107,7 @@ removeLine(idLigne: number, idClient: number | null): Observable<void> {
     idClient: number | null
   ): Observable<LignePanier> {
     if (idClient !== null) {
-      return this.http.put<LignePanier>(`${this.apiUrl}/${idLigne}`, { data }, this.authOptions());
+      return this.http.put<LignePanier>(`${this.baseUrl}/${idLigne}`, { data }, this.authOptions());
     } else {
       const updated = this.guestLines$.value.map(l =>
         l.id_lignecommande === idLigne ? { ...l, ...data } : l

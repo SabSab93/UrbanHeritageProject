@@ -2,9 +2,15 @@
   "name": "ts-setup",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/src/server.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts"
+    "dev": "cross-env NODE_ENV=development dotenv -e .env.dev -- ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev:prod": "cross-env NODE_ENV=production dotenv -e .env.prod -- ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "rimraf dist && tsc",
+    "start": "cross-env NODE_ENV=production node dist/src/server.js",
+    "migrate:deploy:prod": "cross-env NODE_ENV=production dotenv -e .env.prod -- prisma migrate deploy",
+    "seed:prod": "cross-env NODE_ENV=production dotenv -e .env.prod -- ts-node --transpile-only prisma/seed.ts",
+    "dev:prod:full": "npm run migrate:deploy:prod && npm run seed:prod && npm run dev:prod"
   },
   "keywords": [],
   "author": "",
@@ -21,11 +27,13 @@
     "@types/nodemailer": "^6.4.17",
     "@types/pdfkit": "^0.13.9",
     "concurrently": "^8.2.0",
+    "dotenv-cli": "^8.0.0",
     "nodemon": "^3.1.9",
     "prisma": "^6.5.0",
     "rimraf": "^6.0.1",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "cross-env": "^7.0.3"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",

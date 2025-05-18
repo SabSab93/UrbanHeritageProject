@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import { monMiddlewareBearer } from "../../middleware/checkToken";
-import { isAdmin } from "../../middleware/isAdmin";
-import { authOptional } from '../../middleware/authOptional';
+import { monMiddlewareBearer } from "../middleware/checkToken";
+import { isAdmin } from "../middleware/isAdmin";
+import { authOptional } from '../middleware/authOptional';
 
 export const ligneCommandeRouter = Router();
 const prisma = new PrismaClient();

@@ -1,16 +1,20 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "esModuleInterop": true,
-    "outDir": "dist",
     "target": "es6",
+    "esModuleInterop": true,
     "strict": true,
-    "types": ["node"],
+    "rootDir": "src",
+    "outDir": "dist",
     "typeRoots": ["./types", "./node_modules/@types"]
   },
   "include": [
     "src/**/*",
-    "prisma/**/*",
-    "types/**/*"
-, "middleware/isAdmin.ts", "middleware/checkToken.ts"  ]
+    "types/**/*.d.ts"    
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "prisma/seed"    
+  ]
 }
