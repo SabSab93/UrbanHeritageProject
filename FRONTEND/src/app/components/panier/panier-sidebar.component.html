@@ -3,54 +3,69 @@
   <button class="close-btn" (click)="close()">×</button>
   <h2>Panier</h2>
 
-  <ng-container *ngIf="(lignes$ | async) as lignes; else empty">
-    <div class="cart-lines">
-      <div class="cart-line" *ngFor="let ligne of lignes">
-        <img
-          class="cart-thumb"
-          [src]="ligne.Maillot.url_image_maillot_1"
-          [alt]="ligne.Maillot.nom_maillot"
-        />
-        <div class="info">
-          <h4>{{ ligne.Maillot.nom_maillot }}</h4>
-          <p class="small mb-1">
-            Taille : {{ ligne.taille_maillot }}
-            <span class="badge bg-secondary ms-1">×{{ ligne.quantite }}</span>
-          </p>
+  <ng-container *ngIf="lignes$ | async as lignes">
+    <ng-container *ngIf="lignes.length > 0; else empty">
+      <div class="cart-lines">
+        <div class="cart-line" *ngFor="let ligne of lignes">
+          <img
+            class="cart-thumb"
+            [src]="ligne.Maillot.url_image_maillot_1"
+            [alt]="ligne.Maillot.nom_maillot"
+          />
 
-          <!-- Prix unité HT & Total HT -->
-          <p class="small mb-1">
-            Prix unité HT :
-            {{ ligne.prix_ht | currency:'EUR':'symbol':'1.2-2' }}
-            &nbsp;|&nbsp;
-            Total HT :
-            {{ (ligne.prix_ht * ligne.quantite) | currency:'EUR':'symbol':'1.2-2' }}
-          </p>
+          <div class="info">
+            <h4>{{ ligne.Maillot.nom_maillot }}</h4>
+            <p class="small mb-1">
+              Taille : {{ ligne.taille_maillot }}
+              <span class="badge bg-secondary ms-1">×{{ ligne.quantite }}</span>
+            </p>
 
-          <!-- Total TTC ligne -->
-          <p class="small mb-2">
-            Total TTC :
-            {{
-              (ligne.prix_ht * ligne.quantite * (1 + ligne.TVA.taux_tva/100))
-              | currency:'EUR':'symbol':'1.2-2'
-            }}
-          </p>
+            <p class="small mb-1">
+              Prix unité HT :
+              {{ ligne.prix_ht | currency:'EUR':'symbol':'1.2-2' }}
+              &nbsp;|&nbsp;
+              Total HT :
+              {{ (ligne.prix_ht * ligne.quantite) | currency:'EUR':'symbol':'1.2-2' }}
+            </p>
+
+            <p class="small mb-1">
+              Total TTC :
+              {{
+                (ligne.prix_ht * ligne.quantite * (1 + ligne.TVA.taux_tva/100))
+                | currency:'EUR':'symbol':'1.2-2'
+              }}
+            </p>
+
+            <!-- AFFICHAGE PERSONNALISATION -->
+            <p *ngIf="ligne.id_personnalisation" class="perso-info">
+              <strong>{{ ligne.Personnalisation?.description }}</strong>
+              <ng-container *ngIf="ligne.valeur_personnalisation">
+                : “{{ ligne.valeur_personnalisation }}”
+              </ng-container>
+              <ng-container *ngIf="ligne.couleur_personnalisation">
+                ({{ ligne.couleur_personnalisation | titlecase }})
+              </ng-container>
+            </p>
+          </div>
+
+          <button
+            class="remove-btn"
+            (click)="removeLine(ligne.id_lignecommande)"
+          >
+            &times;
+          </button>
         </div>
-        <button class="remove-btn" (click)="removeLine(ligne.id_lignecommande)">
-          &times;
+      </div>
+
+      <div class="cart-footer">
+        <p class="text-end">
+          Total TTC : {{ total$ | async | currency:'EUR':'symbol':'1.2-2' }}
+        </p>
+        <button class="btn btn-primary w-100" (click)="onCheckout()">
+          Valider ma commande
         </button>
       </div>
-    </div>
-
-    <div class="cart-footer">
-      <!-- un seul async ici -->
-      <p class="text-end">
-        Total TTC : {{ total$ | async | currency:'EUR':'symbol':'1.2-2' }}
-      </p>
-      <button class="btn btn-primary w-100" (click)="onCheckout()">
-        Valider ma commande
-      </button>
-    </div>
+    </ng-container>
   </ng-container>
 
   <ng-template #empty>
