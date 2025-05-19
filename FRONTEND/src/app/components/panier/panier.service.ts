@@ -1,15 +1,15 @@
+// src/app/components/panier/panier.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { LignePanier } from '../../models/ligne-panier.model';
-import { Client } from '../../models/client.model';
 import { environment } from '../../../environments/environment';
+import { map } from 'rxjs/operators'; 
 
 @Injectable({ providedIn: 'root' })
 export class PanierService {
   private readonly baseUrl = `${environment.apiUrl}/lignecommande`;
   private GUEST_KEY = 'panier_guest';
-
 
   private guestLines$ = new BehaviorSubject<LignePanier[]>(this.loadGuest());
 
@@ -31,6 +31,16 @@ export class PanierService {
     this.guestLines$.next(lines);
   }
 
+  /** Récupère synchroniquement les lignes invitées */
+  getGuestLines(): LignePanier[] {
+    return this.guestLines$.value;
+  }
+
+  /** Vide le panier invité */
+  clearGuest(): void {
+    this.saveGuest([]);
+  }
+
   /** GET lignes du panier */
   getCartLines(idClient: number | null): Observable<LignePanier[]> {
     if (idClient !== null) {
@@ -41,64 +51,82 @@ export class PanierService {
   }
 
   /** GET total TTC */
-  getCartTotal(idClient: number | null): Observable<{ total: string }> {
+  getCartTotal(idClient: number | null): Observable<{ total: number }> {
     if (idClient !== null) {
-      return this.http.get<{ total: string }>(`${this.baseUrl}/client/${idClient}/total`, this.authOptions());
+      return this.http
+        .get<{ total: string }>(`${this.baseUrl}/client/${idClient}/total`, this.authOptions())
+        .pipe(
+          map(r => {
+            // on enlève tout ce qui n'est pas un chiffre ou un point
+            const cleaned = r.total.replace(/[^\d\.]/g, '');
+            return { total: parseFloat(cleaned) };
+          })
+        );
     } else {
+      // invitation : on renvoie directement un nombre
       const lines = this.guestLines$.value;
-      const total = lines
-        .reduce((sum, l) => sum + l.prix_ht * (1 + l.TVA.taux_tva / 100) * l.quantite, 0)
-        .toFixed(2);
-      return of({ total });
+      const totalNum = lines.reduce(
+        (sum, l) => sum + l.prix_ht * (1 + l.TVA.taux_tva / 100) * l.quantite,
+        0
+      );
+      return of({ total: totalNum });
     }
   }
 
   /** DELETE une ligne du panier */
-removeLine(idLigne: number, idClient: number | null): Observable<void> {
-  if (idClient !== null) {
-    // suppression côté serveur
-    return this.http.delete<void>(`${this.baseUrl}/${idLigne}/client`, this.authOptions());
-  } else {
-    // suppression côté invité (localStorage)
-    const updated = this.guestLines$.value.filter(l => l.id_lignecommande !== idLigne);
-    this.saveGuest(updated);
-    return of(undefined);
+  removeLine(idLigne: number, idClient: number | null): Observable<void> {
+    if (idClient !== null) {
+      return this.http.delete<void>(`${this.baseUrl}/${idLigne}/client`, this.authOptions());
+    } else {
+      const updated = this.guestLines$.value.filter(l => l.id_lignecommande !== idLigne);
+      this.saveGuest(updated);
+      return of(undefined);
+    }
   }
-}
-
 
   /** POST ajout d’une ligne */
   addLine(payload: {
-    id_client?: number;
-    id_maillot: number;
-    taille_maillot: string;
-    quantite: number;
-    id_tva?: number;
-    prix_ht?: number;
-    Maillot?: { nom_maillot: string; url_image_maillot_1: string };
-  }): Observable<LignePanier> {
-    if (payload.id_client !== undefined && payload.id_client !== null) {
-      return this.http.post<LignePanier>(`${this.baseUrl}/create`, { data: payload }, this.authOptions());
-    } else {
-      const ligne: LignePanier = {
-        id_lignecommande: Date.now(),
-        id_client: null,
+  id_client?: number;
+  id_maillot: number;
+  taille_maillot: string;
+  quantite: number;
+  id_tva?: number;
+  prix_ht?: number;
+  Maillot?: { nom_maillot: string; url_image_maillot_1: string };
+  id_personnalisation?: number | null;
+  valeur_personnalisation?: string | null;
+  couleur_personnalisation?: string | null;
+}): Observable<LignePanier> {
+  if (payload.id_client != null) {
+    return this.http.post<LignePanier>(
+      `${this.baseUrl}/create`,
+      { data: payload },
+      this.authOptions()
+    );
+  } else {
+    const ligne: LignePanier = {
+      id_lignecommande: Date.now(),
+      id_client: null,
+      id_maillot: payload.id_maillot,
+      taille_maillot: payload.taille_maillot,
+      quantite: payload.quantite,
+      prix_ht: payload.prix_ht || 0,
+      TVA: { taux_tva: 20 },
+      Maillot: {
+        // On réinjecte l'id ici
         id_maillot: payload.id_maillot,
-        taille_maillot: payload.taille_maillot,
-        quantite: payload.quantite,
-        prix_ht: payload.prix_ht || 0,
-        TVA: { taux_tva: 20 },
-        Maillot: {
-          id_maillot: payload.id_maillot,
-          nom_maillot: payload.Maillot?.nom_maillot || 'Maillot invité',
-          url_image_maillot_1: payload.Maillot?.url_image_maillot_1 || ''
-        }
-      };
-      const updated = [...this.guestLines$.value, ligne];
-      this.saveGuest(updated);
-      return of(ligne);
-    }
+        nom_maillot: payload.Maillot?.nom_maillot || 'Maillot invité',
+        url_image_maillot_1: payload.Maillot?.url_image_maillot_1 || ''
+      },
+      id_personnalisation: payload.id_personnalisation ?? undefined,
+      valeur_personnalisation: payload.valeur_personnalisation ?? undefined,
+      couleur_personnalisation: payload.couleur_personnalisation ?? undefined
+    };
+    const updated = [...this.guestLines$.value, ligne];
+    this.saveGuest(updated);
+    return of(ligne);
   }
+}
 
   /** PUT mise à jour d’une ligne */
   updateLine(
@@ -107,7 +135,11 @@ removeLine(idLigne: number, idClient: number | null): Observable<void> {
     idClient: number | null
   ): Observable<LignePanier> {
     if (idClient !== null) {
-      return this.http.put<LignePanier>(`${this.baseUrl}/${idLigne}`, { data }, this.authOptions());
+      return this.http.put<LignePanier>(
+        `${this.baseUrl}/${idLigne}`,
+        { data },
+        this.authOptions()
+      );
     } else {
       const updated = this.guestLines$.value.map(l =>
         l.id_lignecommande === idLigne ? { ...l, ...data } : l

@@ -94,33 +94,37 @@ export class DetailComponent implements OnInit {
   }
 
   addToCart(): void {
-    if (!this.selectedSize) {
-      this.errorMessage = 'Merci de sélectionner une taille.';
-      return;
-    }
-    if (this.selectedPersoId && !this.valeur_personnalisation) {
-      this.errorMessage = 'Merci de saisir le texte de personnalisation.';
-      return;
-    }
-    if (!this.maillot) return;
-
-    const id_client = this.authLogin.currentClientId;
-    const payload: any = {
-      id_client:                id_client ?? undefined,
-      id_maillot:               this.maillot.id_maillot,
-      taille_maillot:           this.selectedSize,
-      quantite:                 1,
-      id_personnalisation:      this.selectedPersoId,
-      valeur_personnalisation:  this.valeur_personnalisation || null,
-      couleur_personnalisation: this.selectedPersoId ? this.couleur_personnalisation : null
-    };
-
-    this.panierSrv.addLine(payload).subscribe({
-      next: () => {
-        this.errorMessage = null;
-        this.panierUi.toggleSidebar();
-      },
-      error: err => console.error('Erreur addLine :', err)
-    });
+  if (!this.selectedSize) {
+    this.errorMessage = 'Merci de sélectionner une taille.';
+    return;
   }
+  if (this.selectedPersoId && !this.valeur_personnalisation) {
+    this.errorMessage = 'Merci de saisir le texte de personnalisation.';
+    return;
+  }
+  if (!this.maillot) return;
+
+  const id_client = this.authLogin.currentClientId;
+  const payload: any = {
+    id_client:                id_client ?? undefined,
+    id_maillot:               this.maillot.id_maillot,
+    taille_maillot:           this.selectedSize,
+    quantite:                 1,
+    prix_ht:                  this.displayedPrice,      // <-- ajouté
+    Maillot: {
+      id_maillot:             this.maillot.id_maillot,  // <-- ajouté
+      nom_maillot:            this.maillot.nom_maillot,
+      url_image_maillot_1:    this.maillot.url_image_maillot_1
+    },
+    id_personnalisation:      this.selectedPersoId,
+    valeur_personnalisation:  this.valeur_personnalisation || null,
+    couleur_personnalisation: this.selectedPersoId ? this.couleur_personnalisation : null
+  };
+
+  this.panierSrv.addLine(payload).subscribe(() => {
+    this.errorMessage = null;
+    this.panierUi.toggleSidebar();
+  }, err => console.error('Erreur addLine :', err));
+}
+
 }
