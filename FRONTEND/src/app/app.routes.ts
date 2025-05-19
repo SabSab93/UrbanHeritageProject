@@ -18,11 +18,17 @@ export const routes: Routes = [
   { path: 'inscription', component: AuthRegisterComponent },
   { path: 'connexion', component: AuthLoginComponent },
   {
-    path: 'activation',
+    path: 'confirmation',
     loadComponent: () =>
-      import('./components/auth/activation/activation.component').then(
-        (m) => m.ActivationComponent
-      ),
+      import('./components/confirmation/confirmation.component')
+        .then(m => m.ConfirmationComponent),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'confirmation',
+    loadComponent: () => import('./components/confirmation/confirmation.component')
+      .then(m => m.ConfirmationComponent),
+    canActivate: [AuthGuard]
   },
   { path: 'collection', component: CollectionComponent },
   {
