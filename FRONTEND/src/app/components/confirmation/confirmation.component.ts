@@ -170,7 +170,7 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     // Vérification stock
     const checks = this.panier.map(item => {
       const idMaillot = item.Maillot.id_maillot;
-      const taille    = item.taille;
+      const taille = item.taille_maillot;
       return this.stockSrv.getDisponibilitePublic(idMaillot).pipe(
         map((list: Disponibilite[]) => {
           const dispo = list.find(d => d.taille_maillot === taille)?.quantite_disponible ?? 0;

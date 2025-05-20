@@ -39,9 +39,9 @@
                 <div class="item-details">
                   <h4>{{ item.Maillot.nom_maillot }}</h4>
                   <p>
-                    Quantité : {{ item.quantite }}<br />
-                    Prix unité HT :
-                    {{ item.prix_ht | currency : 'EUR' : 'symbol' }}<br />
+                    Taille&nbsp;: {{ item.taille_maillot }}<br />
+                    Quantité&nbsp;: {{ item.quantite }}<br />
+                    Prix unité HT&nbsp;: {{ item.prix_ht | number:'1.2-2' }} €
                   </p>
                   <p *ngIf="stockErrors[i]" class="error">
                     {{ stockErrors[i] }}
@@ -133,7 +133,7 @@
               >
                 <option [ngValue]="null">— Choisir une méthode —</option>
                 <option *ngFor="let m of methodes" [ngValue]="m">
-                  {{ m.nom_methode }} — {{ m.prix_methode | currency }}
+                  {{ m.nom_methode }} — {{ m.prix_methode | number:'1.2-2' }} €
                 </option>
               </select>
               <div
@@ -157,7 +157,7 @@
               >
                 <option [ngValue]="null">— Choisir un lieu —</option>
                 <option *ngFor="let l of lieux" [ngValue]="l">
-                  {{ l.nom_lieu }} — {{ l.prix_lieu | currency }}
+                  {{ l.nom_lieu }} — {{ l.prix_lieu | number:'1.2-2' }} €
                 </option>
               </select>
               <div
@@ -195,23 +195,23 @@
           <!-- 5. Récapitulatif des prix -->
           <section class="summary">
             <h2>Récapitulatif des prix</h2>
-            <p>Total HT : {{ totalHt | currency }}</p>
+            <p>Total HT : {{ totalHt | number:'1.2-2' }} €</p>
             <p>TVA : 20 %</p>
             <p>
               Produits TTC net promo :
-              {{ (totalTtc - discount) | currency }}
+              {{ (totalTtc - discount) | number:'1.2-2' }} €
             </p>
             <p>
               Livraison TTC :
-              {{ shippingCostTtc | currency }}
+              {{ shippingCostTtc | number:'1.2-2' }} €
             </p>
             <p *ngIf="discount > 0">
-              Réduction : -{{ discount | currency }}
+              Réduction : -{{ discount | number:'1.2-2' }} €
             </p>
             <p>
               <strong>
                 Total à payer :
-                {{ finalTotal | currency }}
+                {{ finalTotal | number:'1.2-2' }} €
               </strong>
             </p>
           </section>

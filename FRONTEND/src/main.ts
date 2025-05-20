@@ -19,7 +19,7 @@ bootstrapApplication(AppComponent, {
       withInterceptors([ authTokenInterceptor ])
     ),
     provideRouter(routes),
-    { provide: LOCALE_ID, useValue: 'fr' }
+    { provide: LOCALE_ID, useValue: 'fr-FR' }
   ]
 })
 .catch(err => console.error(err));
