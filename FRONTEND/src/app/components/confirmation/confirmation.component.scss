@@ -113,6 +113,29 @@ button[type="submit"] {
   border-radius:4px; font-size:1.1rem; cursor:pointer; transition: filter .2s;
   &:hover{ filter:brightness(0.9) }
 }
+.stock-warning {
+  background: #ffe6e6;
+  color: #a94442;
+  border: 1px solid #a94442;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  white-space: pre-wrap;
+}
+
+/* ligne en rupture */
+.out-of-stock {
+  background: #f9e6e6;
+  border: 2px solid #a94442;
+}
+.remove-line {
+  background: transparent;
+  border: none;
+  color: #a94442;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-left: 1rem;
+}
 
 /* ─── 8) Responsive ─── */
 @media (max-width: 600px) {

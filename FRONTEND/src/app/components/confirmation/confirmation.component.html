@@ -16,32 +16,48 @@
     <div class="content-panel">
       <div class="container">
         <h1>Confirmation de la commande</h1>
+        
+        <div *ngIf="stockWarning" class="stock-warning">
+          {{ stockWarning }}
+        </div>
+
 
         <form [formGroup]="confirmForm" (ngSubmit)="onSubmit()">
 
           <!-- 1. Panier -->
           <section class="cart-section">
-            <h2>Votre panier</h2>
-            <div class="cart-items">
-              <div *ngFor="let item of panier" class="item-recap">
-                <img class="maillot-thumb"
-                     [src]="item.Maillot.url_image_maillot_1"
-                     [alt]="item.Maillot.nom_maillot" />
-                <div class="item-details">
-                  <h4>{{ item.Maillot.nom_maillot }}</h4>
-                  <p>
-                    Quantité : {{ item.quantite }}<br>
-                    Prix unité HT : {{ item.prix_ht | currency:'EUR':'symbol' }}<br>
-                    Total HT : {{ (item.prix_ht*item.quantite) | currency:'EUR':'symbol' }}<br>
-                    Total TTC :
-                      {{ (item.prix_ht*item.quantite*(1+item.TVA.taux_tva/100))
-                         | currency:'EUR':'symbol' }}
-                  </p>
-                </div>
+          <h2>Votre panier</h2>
+          <div class="cart-items">
+            <div *ngFor="let item of panier; let i = index"
+                class="item-recap"
+                [ngClass]="{'out-of-stock': stockErrors[i]}">
+
+              <!-- miniature + détails existants -->
+              <img class="maillot-thumb"
+                  [src]="item.Maillot.url_image_maillot_1"
+                  [alt]="item.Maillot.nom_maillot" />
+              <div class="item-details">
+                <h4>{{ item.Maillot.nom_maillot }}</h4>
+                <p>
+                  Quantité : {{ item.quantite }}<br>
+                  Prix unité HT : {{ item.prix_ht | currency:'EUR':'symbol' }}<br>
+                  <!-- … -->
+                </p>
+                <!-- 3) message d’erreur stock spécifique -->
+                <p *ngIf="stockErrors[i]"
+                  class="error">
+                  {{ stockErrors[i] }}
+                  <!-- ou bien un bouton pour retirer l’article : -->
+                <button type="button"
+                        (click)="removeLine(item.id)"
+                        class="remove-line">
+                  Retirer du panier
+                </button>
+                </p>
               </div>
             </div>
-          </section>
-
+          </div>
+        </section>
           <!-- 2. Code promo -->
           <div class="promo-group form-group">
             <label for="reduction">Code promo</label>
