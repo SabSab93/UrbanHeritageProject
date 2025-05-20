@@ -32,6 +32,25 @@
           {{ displayedPrice | currency:'EUR':'symbol':'1.2-2' }}
         </h3>
 
+        <!-- Rupture totale -->
+        <div *ngIf="maillot?.allOutOfStock" class="text-danger mb-3">
+          Rupture de stock
+        </div>
+
+        <!-- Message « Vite…, reste moins de stockThreshold » -->
+        <div
+          *ngIf="
+            selectedSize
+            && (maillot?.sizeQuantities?.[selectedSize] ?? 0) < stockThreshold
+            && (maillot?.sizeQuantities?.[selectedSize] ?? 0) > 0
+          "
+          class="text-warning mb-2"
+        >
+          Vite ! Il ne reste plus que
+          {{ maillot?.sizeQuantities?.[selectedSize] }}
+          {{ (maillot?.sizeQuantities?.[selectedSize] ?? 0) > 1 ? 'maillots' : 'maillot' }} !
+        </div>
+
         <!-- Sélecteur de taille -->
         <div class="mb-4">
           <p class="mb-2 fw-semibold">Sélectionner une taille</p>
@@ -40,6 +59,14 @@
               *ngFor="let s of ['S','M','L','XL']"
               class="btn btn-outline-secondary size-pill"
               [class.active]="selectedSize === s"
+              [class.unavailable]="
+                maillot?.allOutOfStock ||
+                !((maillot?.availableSizes || []).includes(s))
+              "
+              [disabled]="
+                maillot?.allOutOfStock ||
+                !((maillot?.availableSizes || []).includes(s))
+              "
               (click)="selectSize(s)"
             >
               {{ s }}
@@ -144,7 +171,8 @@
               <div class="accordion-body">
                 <b>Composition :</b> {{ maillot?.composition_maillot }}<br />
                 <b>Entretien :</b> {{ maillot?.entretien }}<br />
-                <b>Origine :</b> {{ maillot?.origine }} – {{ maillot?.tracabilite }}
+                <b>Origine :</b> {{ maillot?.origine }} –
+                {{ maillot?.tracabilite }}
               </div>
             </div>
           </div>
