@@ -1,13 +1,14 @@
+<!-- Mise à jour de la banner de réductions -->
 <div *ngIf="reductions.length" class="banner">
   <div class="banner-content">
     <div class="marquee">
       <span *ngFor="let r of reductions" class="item">
-        Profitez dès maintenant de notre offre exceptionnelle :
-        {{ r.description || r.code_reduction }}
-        — Bénéficiez de {{ r.valeur_reduction }}€
-        de réduction
-        (valable du {{ r.date_debut_reduction | date:'dd/MM/yyyy' }}
-         au {{ r.date_fin_reduction   | date:'dd/MM/yyyy' }})
+        Profitez dès maintenant de notre offre exceptionnelle&nbsp;:
+        <strong>{{ r.description || r.code_reduction }}</strong>
+        — avec le code <em>{{ r.code_reduction }}</em>
+        (valable du
+        {{ r.date_debut_reduction | date:'dd/MM/yyyy' }} au
+        {{ r.date_fin_reduction   | date:'dd/MM/yyyy' }})
       </span>
     </div>
   </div>
