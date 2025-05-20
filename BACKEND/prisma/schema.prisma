@@ -113,6 +113,8 @@ model Client {
   Avis                  Avis[]
   Commande              Commande[]
   LigneCommande         LigneCommande[]
+
+  Livraison Livraison[]
 }
 
 model Commande {
@@ -168,6 +170,7 @@ model Livraison {
   id_methode_livraison  Int
   id_lieu_livraison     Int
   id_livreur            Int
+  id_adresse_client     Int?   
   date_livraison        DateTime?        @db.Timestamp(6)
   adresse_livraison     String           @default("") @db.VarChar(500)
   code_postal_livraison String?          @db.VarChar(5)
@@ -178,6 +181,9 @@ model Livraison {
   LieuLivraison    LieuLivraison    @relation(fields: [id_lieu_livraison], references: [id_lieu_livraison])
   Livreur          Livreur          @relation(fields: [id_livreur], references: [id_livreur])
   Commande         Commande         @relation(fields: [id_commande], references: [id_commande])
+  adresseClient      Client?          @relation(fields: [id_adresse_client],     references: [id_client])
+
+  @@index([id_adresse_client])
 }
 
 model MethodeLivraison {
