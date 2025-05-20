@@ -1,25 +1,27 @@
 /* src/app/components/confirmation/confirmation.component.scss */
 
-/* hauteur de votre banner (à ajuster) */
+/* Hauteurs à ajuster selon ton header + banner */
+$header-height: 60px;
 $banner-height: 40px;
+$total-offset: $header-height + $banner-height;
 
-/* ─── 1) On enlève tout décalage global (puisqu’on ne décale plus l’image) ─── */
+/* Wrapper général (reset margin) */
 .confirmation-wrapper {
-  margin: 0;           /* plus de margin-top ici */
+  margin: 0;
+  padding: 0;
   height: auto;
 }
 
-/* ─── 2) Container flex full viewport-height sous le header ─── */
+/* Conteneur flex qui occupe tout l’écran sous header+banner */
 .confirmation-page {
   display: flex;
+  width: 100%;
+  min-height: calc(100vh - #{$total-offset});
   gap: 2rem;
   align-items: stretch;
-  /* si votre header est fixe et fait Xpx de haut, ajoutez-le ici : */
-  /* height: calc(100vh - Xpx); */
-  height: 100vh;
 }
 
-/* ─── 3) Image-panel : flush contre le haut, plein 40% largeur, full height ─── */
+/* Panneau image : 40% fixe */
 .image-panel {
   flex: 0 0 40%;
   margin: 0;
@@ -35,29 +37,27 @@ $banner-height: 40px;
   }
 }
 
-/* ─── 4) Content-panel : on le décale SOUS la banner, et on lui donne son scroll ─── */
+/* Panneau contenu : prend le reste et ne rétrécit pas trop */
 .content-panel {
-  flex: 1;
-  margin: 0; 
-  /* on pousse le formulaire vers le bas pour ne pas recouvrir la banner */
-  margin-top: $banner-height;
-  /* sa hauteur = tout l’espace restant après la banner */
-  height: calc(100% - #{$banner-height});
-  overflow-y: auto;
-  background: #fff;
+  flex: 1 1 auto;
+  min-width: 300px;               /* largeur minimale */
   padding: 2rem;
+  padding-top: calc(2rem + #{$banner-height}); /* on décale sous la banner */
+  background: #fff;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
-/* ─── 5) On limite le panier à 3 lignes avec scroll interne ─── */
+/* Limiter la taille du récap panier à 3 lignes scrolables */
 .cart-section {
   .cart-items {
-    max-height: calc(3 * 100px); /* ajustez 100px à la hauteur de votre .item-recap */
+    max-height: calc(3 * 100px); /* ajuster la hauteur unitaire si besoin */
     overflow-y: auto;
     margin-bottom: 1.5rem;
   }
 }
 
-/* ─── 6) Lignes de panier ─── */
+/* Style des lignes de panier */
 .item-recap {
   display: flex;
   align-items: flex-start;
@@ -80,39 +80,81 @@ $banner-height: 40px;
   p  { margin: 0.25rem 0; }
 }
 
-/* ─── 7) Form et boutons ─── */
+/* Formulaires et boutons */
 .form-group {
   margin-bottom: 1rem;
-  label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+  }
   input, select {
-    width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;
-    &:focus { outline: none; border-color: #007bff; }
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    &:focus {
+      outline: none;
+      border-color: #007bff;
+    }
   }
 }
 
 .radio-group {
-  display: flex; gap: 1rem; margin-bottom: 1rem;
-  label { display: flex; align-items: center; input { margin-right: 0.5rem; } }
-}
-
-.promo-group .promo-input {
-  display: flex; gap: 0.5rem; margin-bottom: 0.5rem;
-  input { flex:1; }
-  button {
-    background:#28a745; color:#fff; border:none; border-radius:4px; padding:0 1rem;
-    cursor:pointer; transition: filter .2s;
-    &:hover{ filter:brightness(0.9) }
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  label {
+    display: flex;
+    align-items: center;
+    input { margin-right: 0.5rem; }
   }
 }
 
-.promo-message { color: #d9534f; font-size: .9rem; margin-top:.25rem; }
-.error         { color: #d9534f; font-size:.85rem; margin-top:.25rem; }
-
-button[type="submit"] {
-  width:100%; padding:.75rem; background:#007bff; color:#fff; border:none;
-  border-radius:4px; font-size:1.1rem; cursor:pointer; transition: filter .2s;
-  &:hover{ filter:brightness(0.9) }
+.promo-group .promo-input {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  input { flex: 1; }
+  button {
+    background: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0 1rem;
+    cursor: pointer;
+    transition: filter .2s;
+    &:hover { filter: brightness(0.9); }
+  }
 }
+
+.promo-message {
+  color: #d9534f;
+  font-size: .9rem;
+  margin-top: .25rem;
+}
+
+.error {
+  color: #d9534f;
+  font-size: .85rem;
+  margin-top: .25rem;
+}
+
+/* Bouton principal */
+button[type="submit"] {
+  width: 100%;
+  padding: .75rem;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: filter .2s;
+  &:hover { filter: brightness(0.9); }
+}
+
+/* Alerte rupture de stock */
 .stock-warning {
   background: #ffe6e6;
   color: #a94442;
@@ -123,11 +165,12 @@ button[type="submit"] {
   white-space: pre-wrap;
 }
 
-/* ligne en rupture */
+/* Ligne de panier en rupture */
 .out-of-stock {
   background: #f9e6e6;
   border: 2px solid #a94442;
 }
+
 .remove-line {
   background: transparent;
   border: none;
@@ -137,15 +180,25 @@ button[type="submit"] {
   margin-left: 1rem;
 }
 
-/* ─── 8) Responsive ─── */
+/* Responsive pour petits écrans */
 @media (max-width: 600px) {
   .confirmation-page {
     flex-direction: column;
-    .image-panel { height: 200px; }
-    .content-panel { height: auto; margin-top:0; }
+  }
+  .image-panel {
+    height: 200px;
+  }
+  .content-panel {
+    height: auto;
+    min-width: auto;
+    padding-top: 2rem; /* pas de banner sur mobile */
   }
   .item-recap {
-    flex-direction: column; align-items:center;
-    .maillot-thumb { margin-bottom:1rem; max-height:10rem; }
+    flex-direction: column;
+    align-items: center;
+    .maillot-thumb {
+      margin-bottom: 1rem;
+      max-height: 10rem;
+    }
   }
 }

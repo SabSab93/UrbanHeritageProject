@@ -7,12 +7,14 @@ import {
   Validators
 } from '@angular/forms';
 import { Subscription, forkJoin, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, switchMap } from 'rxjs/operators';
 
 import { PanierService }   from '../panier/panier.service';
 import { CommandeService } from '../../services/commande.service';
 import { StockService, Disponibilite } from '../../services/stock.service';
 import { AuthLoginService } from '../../services/auth-service/auth-login.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 import { MethodeLivraison } from '../../models/methode-livraison.model';
 import { LieuLivraison }    from '../../models/lieu-livraison.model';
@@ -54,10 +56,7 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
   lieux:    LieuLivraison[]    = [];
   livreurs: Livreur[]          = [];
 
-  /** form */
   confirmForm: FormGroup;
-
-  /** pour le check stock */
   stockWarning = '';
   rupturedLines = new Set<number>();
 
@@ -69,7 +68,8 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     private panierSrv: PanierService,
     private cmdSrv: CommandeService,
     private stockSrv: StockService,
-    private auth: AuthLoginService
+    private auth: AuthLoginService,
+    private http: HttpClient
   ) {
     this.confirmForm = this.fb.group({
       reduction:             [''],
@@ -85,29 +85,22 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // On force l'assertion non-nulle pour idClient
     this.idClient = this.auth.currentClientId!;
     this.loadCart();
 
-    // Réductions actives
     this.subs.add(
       this.cmdSrv.getActiveReductions().subscribe(list => {
         this.activeReductions = list;
       })
     );
-
-    // Options de livraison
     this.subs.add(
-      this.cmdSrv.getMethodesLivraison()
-        .subscribe(m => this.methodes = m)
+      this.cmdSrv.getMethodesLivraison().subscribe(m => this.methodes = m)
     );
     this.subs.add(
-      this.cmdSrv.getLieuxLivraison()
-        .subscribe(l => this.lieux = l)
+      this.cmdSrv.getLieuxLivraison().subscribe(l => this.lieux = l)
     );
     this.subs.add(
-      this.cmdSrv.getLivreurs()
-        .subscribe(r => this.livreurs = r)
+      this.cmdSrv.getLivreurs().subscribe(r => this.livreurs = r)
     );
   }
 
@@ -115,7 +108,6 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     this.subs.unsubscribe();
   }
 
-  /** Charge le panier et recalcule */
   private loadCart(): void {
     this.subs.add(
       this.panierSrv.getCartLines(this.idClient).subscribe(lines => {
@@ -130,7 +122,6 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     );
   }
 
-  /** Supprime une ligne du panier puis recharge */
   public removeLine(itemId: number): void {
     this.subs.add(
       this.panierSrv.removeLine(this.idClient, itemId).subscribe({
@@ -140,7 +131,6 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     );
   }
 
-  /** recalcul des totaux HT/TTC + livraison */
   public recalculate(): void {
     const produitsNetTtc = Math.max(0, this.totalTtc - this.discount);
     const m = this.confirmForm.value.methode as MethodeLivraison | null;
@@ -152,14 +142,12 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     this.finalTotal         = produitsNetTtc + this.shippingCostTtc;
   }
 
-  /** application du code promo */
   public applyPromo(): void {
     const code = (this.confirmForm.value.reduction || '').trim().toUpperCase();
     const now  = new Date();
     const red = this.activeReductions.find(r => {
       if (!r.date_debut_reduction || !r.date_fin_reduction) return false;
-      const start = new Date(r.date_debut_reduction),
-            end   = new Date(r.date_fin_reduction);
+      const start = new Date(r.date_debut_reduction), end = new Date(r.date_fin_reduction);
       return r.code_reduction.toUpperCase() === code && start <= now && end >= now;
     });
     if (!red) {
@@ -175,22 +163,20 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     this.recalculate();
   }
 
-  /** Soumission : d'abord check stock, puis finalisation si OK */
   public onSubmit(): void {
     this.confirmForm.markAllAsTouched();
     if (this.confirmForm.invalid) return;
 
+    // Vérification stock
     const checks = this.panier.map(item => {
       const idMaillot = item.Maillot.id_maillot;
       const taille    = item.taille;
       return this.stockSrv.getDisponibilitePublic(idMaillot).pipe(
         map((list: Disponibilite[]) => {
-          const dispo = list.find(d => d.taille_maillot === taille);
-          const qtyOk = dispo?.quantite_disponible ?? 0;
-          if (qtyOk < item.quantite) {
-            return `${item.Maillot.nom_maillot} (taille ${taille}) : il reste ${qtyOk}`;
-          }
-          return null;
+          const dispo = list.find(d => d.taille_maillot === taille)?.quantite_disponible ?? 0;
+          return dispo < item.quantite
+            ? `${item.Maillot.nom_maillot} (taille ${taille}) : il reste ${dispo}`
+            : null;
         }),
         catchError(() => of(
           `Impossible de vérifier le stock pour ${item.Maillot.nom_maillot}`
@@ -198,32 +184,35 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
       );
     });
 
-    forkJoin(checks).subscribe(results => {
-      this.stockErrors = results;
-      const errors = results.filter(r => !!r) as string[];
-
-      if (errors.length > 0) {
-        this.stockWarning =
-          '⚠️ Il semble qu’il y ait une rupture de stock sur certains articles de votre panier.'
-        return;
-      }
-
-      this.stockWarning = '';
-      this.rupturedLines.clear();
-
-      const { methode, lieu, ...rest } = this.confirmForm.value;
-      const payload = {
-        ...rest,
-        id_methode_livraison: methode!.id_methode_livraison,
-        id_lieu_livraison:    lieu!.id_lieu_livraison,
-        reduction: this.discount > 0 ? rest.reduction : null,
-        useClientAddress: rest.useClientAddress
-      };
-
-      this.cmdSrv.finaliserCommande(payload).subscribe({
-        next: res  => console.log('✔️ Commande finalisée', res),
-        error: err => console.error('❌ Erreur finalisation', err)
-      });
+    forkJoin(checks).pipe(
+      switchMap(results => {
+        this.stockErrors = results;
+        const errors = results.filter(r => !!r) as string[];
+        if (errors.length) {
+          this.stockWarning = '⚠️ Il y a une rupture de stock sur certains articles.';
+          return of(null);
+        }
+        this.stockWarning = '';
+        // Finaliser commande puis redirection Stripe
+        return this.cmdSrv.finaliserCommande({
+          ...this.confirmForm.value,
+          id_methode_livraison: this.confirmForm.value.methode.id_methode_livraison,
+          id_lieu_livraison:    this.confirmForm.value.lieu.id_lieu_livraison,
+          id_livreur:           this.confirmForm.value.id_livreur,
+          reduction: this.discount > 0 ? this.confirmForm.value.reduction : null
+        });
+      })
+    ).subscribe(res => {
+      if (!res) return;
+      const orderId = res.commande.id_commande;
+      // Appel Stripe
+      this.http.post<{ url: string }>(
+        `${environment.apiUrl}/stripe/create-checkout-session/${orderId}`,
+        {}
+      ).subscribe(
+        ({ url }) => window.location.href = url,
+        err => console.error('Erreur session Stripe', err)
+      );
     });
   }
 }
