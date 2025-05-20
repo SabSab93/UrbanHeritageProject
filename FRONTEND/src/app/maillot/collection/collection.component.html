@@ -17,70 +17,61 @@
         </button>
       </li>
     </ul>
-  
 
     <div class="view-actions btn-group mb-2">
-      <button class="btn icon-btn">
-        <i class="bi bi-grid-3x3-gap-fill"></i>
-      </button>
-      <button class="btn icon-btn">
-        <i class="bi bi-list"></i>
-      </button>
-      <button class="btn icon-btn">
-        <i class="bi bi-funnel"></i>
-      </button>
+      <button class="btn icon-btn"><i class="bi bi-grid-3x3-gap-fill"></i></button>
+      <button class="btn icon-btn"><i class="bi bi-list"></i></button>
+      <button class="btn icon-btn"><i class="bi bi-funnel"></i></button>
     </div>
   </div>
 
   <div class="row g-3 gallery" *ngIf="!loading && !error">
-    <div
-      class="col-12 col-sm-6 col-md-4 col-lg-3"
-      *ngFor="let m of maillots"
-    >
-      <figure class="product">
-        <!-- On transforme l'image en lien -->
-        <a 
-          [routerLink]="['/collection/maillot', m.id_maillot]" 
-          class="d-block text-decoration-none text-reset"
-        >
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3"
+         *ngFor="let m of maillots">
+
+      <figure class="product"
+              [class.out-of-stock]="m.outOfStock">
+
+        <a [routerLink]="['/collection/maillot', m.id_maillot]"
+           class="d-block text-decoration-none text-reset">
+
           <div class="img-wrapper position-relative">
-            <img
-              [src]="m.url_image_maillot_1"
-              [alt]="m.nom_maillot"
-              class="product-img primary"
-            />
-            <img
-              [src]="m.url_image_maillot_2"
-              [alt]="m.nom_maillot + ' vue arrière'"
-              class="product-img secondary"
-            />
-        
+            <img class="product-img primary"
+                 [src]="m.url_image_maillot_1"
+                 [alt]="m.nom_maillot" />
+            <img class="product-img secondary"
+                 [src]="m.url_image_maillot_2"
+                 [alt]="m.nom_maillot + ' vue arrière'" />
+
+            <!-- Bannière affichée pour rupture totale -->
+            <div *ngIf="m.outOfStock" class="sold-out-banner">
+              Victime de son succès
+            </div>
+
+            <!-- Overlay de sélection de taille -->
             <div class="size-overlay">
               <p class="overlay-text">Sélectionne une taille</p>
               <div class="sizes">
-                <span
-                  *ngFor="let t of ['S','M','L','XL']"
-                  (click)="addToCart(m, t);
-                          $event.preventDefault();
-                          $event.stopImmediatePropagation()">
+                <span *ngFor="let t of ['S','M','L','XL']"
+                      [class.unavailable]="m.outOfStock || !m.availableSizes.includes(t)"
+                      (click)="!m.outOfStock && m.availableSizes.includes(t) && addToCart(m, t); $event.stopPropagation(); $event.preventDefault()">
                   {{ t }}
                 </span>
               </div>
             </div>
+
           </div>
         </a>
 
-        <!-- Légende hors lien, ou incluse si tu veux cliquer dessus aussi -->
         <figcaption class="pt-2">
           <h6 class="prod-title mb-1">{{ m.nom_maillot }}</h6>
           <p class="prod-price mb-0 fw-bold">
             {{ m.prix_ht_maillot | currency:'EUR':'symbol':'1.0-0' }}
           </p>
         </figcaption>
+
       </figure>
     </div>
-
-
   </div>
 </section>
 

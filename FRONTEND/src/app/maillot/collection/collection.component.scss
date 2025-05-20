@@ -1,7 +1,7 @@
 /* SECTION GÉNÉRALE -------------------------------------------------------- */
 .collection-wrapper {
-  padding: 5rem 1.5rem;     // marge intérieure globale
-  min-height: calc(100vh - 80px); // si ton header ≈ 80 px
+  padding: 5rem 1.5rem;
+  min-height: calc(100vh - 80px);
 }
 
 .section-title {
@@ -16,13 +16,12 @@
   --bs-btn-padding-x: .9rem;
   --bs-btn-bg: #fff;
   --bs-btn-border-color: #d1d1d1;
-  --bs-btn-border-radius: 50rem; /* pill */
+  --bs-btn-border-radius: 50rem;
   --bs-btn-hover-bg: #000;
   --bs-btn-hover-color: #fff;
   margin-right: .5rem;
   font-size: .875rem;
 }
-
 .filters .pill.active {
   background-color: #000;
   color: #fff;
@@ -39,37 +38,39 @@
 }
 
 /* PRODUITS ---------------------------------------------------------------- */
-.gallery {
-}
-
-/* Superposition des deux images */
 .product {
   border: 1px solid rgba(0,0,0,0.2);
   margin: 0;
-  
+
   .img-wrapper {
+    position: relative;
     overflow: hidden;
 
-    .product-img {
+    .primary {
       width: 100%;
       aspect-ratio: 3/4;
       object-fit: cover;
       transition: opacity .3s ease;
       display: block;
       border-bottom: 1px solid rgba(0,0,0,0.2);
-   
     }
     .secondary {
       position: absolute;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
       opacity: 0;
-    }
-    &:hover {
-      .primary { opacity: 0; }
-      .secondary { opacity: 1; }
-      .size-overlay { display: block; }
+      transition: opacity .3s ease;
     }
 
+    /* -- disponible : swap images au hover -- */
+    &:not(.out-of-stock):hover .primary   { opacity: 0; }
+    &:not(.out-of-stock):hover .secondary { opacity: 1; }
+    &:not(.out-of-stock):hover .size-overlay { display: block; }
+
+    /* overlay tailles */
     .size-overlay {
       position: absolute;
       bottom: 0;
@@ -77,67 +78,76 @@
       width: 100%;
       padding: .75rem 0;
       text-align: center;
-      display: none;     // caché par défaut
+      background: rgba(255,255,255,0.9);
+      display: none;
       z-index: 2;
-      border-bottom: 1px solid rgba(0,0,0,0.2);
       border-top: 1px solid rgba(0,0,0,0.2);
     }
   }
 
-  &:hover .size-overlay {
-    display: block;
+  /* Sélecteurs de taille en carrés */
+  .sizes span {
+    display: inline-block;
+    min-width: 2.5rem;
+    padding: 0.25rem 0;
+    margin: 0 0.25rem;
+    text-align: center;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    border: 1px solid #333;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background .2s, color .2s, border-color .2s;
+  }
+  .sizes span:hover {
+    background: #333;
+    color: #fff;
+  }
+  /* tailles indisponibles */
+  .sizes span.unavailable {
+    border-color: #ccc;
+    color: #ccc;
+    background: transparent;
+    text-decoration: line-through;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 }
 
-/* Texte et tailles */
-.overlay-text {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #333;
-}
+/* -- rupture totale -- */
+.product.out-of-stock {
+  .img-wrapper {
+    /* on affiche quand même image2 au hover */
+    &:hover .primary   { opacity: 0; }
+    &:hover .secondary { opacity: 1; }
 
-.sizes {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: .5rem;
+    /* on masque l’overlay de taille */
+    .size-overlay { display: none !important; }
 
-  span {
-    cursor: pointer;
-    font-size: .9rem;
-    color: #333;
-    padding: .25rem .5rem;
-    border: 1px solid #333;
-    border-radius: .25rem;
-    transition: background .2s, color .2s;
+    /* bannière cachée par défaut */
+    .sold-out-banner {
+      display: none;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      background: rgba(255,255,255,0.95);
+      color: #000;
+      font-weight: bold;
+      text-align: center;
+      padding: .75rem 0;
+      border-radius: 4px;
+      z-index: 4;
+    }
 
-    &:hover {
-      background: #333;
-      color: #fff;
+    /* on affiche la bannière uniquement au survol */
+    &:hover .sold-out-banner {
+      display: block;
     }
   }
 }
 
-
-.new-badge {
-  position: absolute;
-  top: .4rem;
-  left: .4rem;
-  font-size: .65rem;
-  padding: .25rem .45rem;
-  letter-spacing: .02em;
-}
-
-.prod-title {
-  font-size: 1.2rem;
-  font-weight: 500;
-}
-
-.prod-price {
-  font-size: 1.2rem;
-}
-
 /* Colonnes vides (fillers) ------------------------------------------------ */
 .empty-col {
-  height: 0;   /* invisible mais réserve la place */
+  height: 0;
 }
