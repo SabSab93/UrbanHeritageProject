@@ -17,13 +17,16 @@ import { MethodeLivraison } from '../../models/methode-livraison.model';
 import { LieuLivraison }    from '../../models/lieu-livraison.model';
 import { Livreur }          from '../../models/livreur.model';
 import { Reduction }        from '../../models/reduction.model';
+import { HeaderComponent } from '../home-page/shared/header/header.component';
+import { BannerComponent } from '../home-page/banner/banner.component';
+import { FooterComponent } from '../home-page/shared/footer/footer.component';
 
 @Component({
   selector: 'app-confirmation',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, HeaderComponent, BannerComponent,FooterComponent],
   templateUrl: './confirmation.component.html',
-  styleUrls: ['./confirmation.component.scss'],
+  styleUrls: ['./confirmation.component.scss'], 
 })
 export class ConfirmationComponent implements OnInit, OnDestroy {
   panier: any[] = [];
