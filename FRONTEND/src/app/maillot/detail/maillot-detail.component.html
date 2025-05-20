@@ -251,6 +251,56 @@
       <p class="artist-bio">
         <!-- {{ maillot?.artiste?.bio_courte }} -->
       </p>
+      <div class="reviews-section mt-5">
+        <h3>Avis clients</h3>
+
+        <!-- Statistiques globales -->
+        <div *ngIf="!loadingAvis && nombreAvis > 0" class="mb-3">
+          <strong>{{ moyenneAvis }}/5</strong>
+          ({{ nombreAvis }} {{ nombreAvis > 1 ? 'avis' : 'avis' }})
+        </div>
+
+        <!-- Chargement -->
+        <div *ngIf="loadingAvis" class="text-muted">
+          Chargement des avis…
+        </div>
+        <div *ngIf="errorAvis" class="text-danger">
+          {{ errorAvis }}
+        </div>
+
+        <!-- Liste des avis -->
+        <ul class="list-unstyled" *ngIf="!loadingAvis && avisList.length">
+          <li *ngFor="let a of avisList" class="mb-4 border-bottom pb-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span class="fw-bold">{{ a.titre_avis }}</span>
+                <small class="text-muted ms-2">
+                  – {{ a.Client?.prenom_client || 'Anonyme' }}
+                </small>
+              </div>
+              <div>
+                <!-- Affiche des étoiles selon classement_avis -->
+                <ng-container *ngFor="let star of [1,2,3,4,5]">
+                  <i
+                    class="bi"
+                    [class.bi-star-fill]="star <= a.classement_avis"
+                    [class.bi-star]="star > a.classement_avis"
+                  ></i>
+                </ng-container>
+              </div>
+            </div>
+            <p class="mt-2 mb-1">{{ a.description_avis }}</p>
+            <small class="text-muted">
+              {{ a.date_avis | date:'longDate'}}
+            </small>
+          </li>
+        </ul>
+
+        <!-- Aucun avis -->
+        <div *ngIf="!loadingAvis && avisList.length === 0" class="text-muted">
+          Aucun avis pour ce maillot.
+        </div>
+      </div>
       <ul class="artist-stats list-unstyled d-flex flex-wrap gap-3 mt-3">
         <!-- Statistiques artiste -->
       </ul>
