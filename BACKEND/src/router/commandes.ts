@@ -215,18 +215,38 @@ commandeRouter.delete("/:id", isAdmin, async (req, res) => {
 commandeRouter.post("/finaliser", async (req: any, res) => {
   try {
     const idClient = req.decoded.id_client;
-    const livraisonData = req.body.livraison;
-    if (!livraisonData)
-      return res.status(400).json({ message: "Livraison manquante" });
+    const { useClientAddress, adresse_livraison, code_postal_livraison, ville_livraison, pays_livraison, id_methode_livraison, id_lieu_livraison, id_livreur } = req.body.livraison;
+    if (useClientAddress == null || id_methode_livraison == null || id_lieu_livraison == null || id_livreur == null) {
+      return res.status(400).json({ message: "Données de livraison incomplètes" });
+    }
+    // crée la commande + rattache les lignes comme avant
+    const order = await checkCommandeTransaction(idClient, req.body.livraison);
 
-    const order = await checkCommandeTransaction(idClient, livraisonData);
-    res.status(201).json({ message: "Commande finalisée 🚀", commande: order });
+    // crée l’enregistrement Livraison
+    const liv = await prisma.livraison.create({
+      data: {
+        id_commande: order.id_commande,
+        id_methode_livraison,
+        id_lieu_livraison,
+        id_livreur,
+        // soit on stocke l’ID du client, soit on remplit à la main
+        ...(useClientAddress
+          ? { id_adresse_client: idClient }
+          : {
+              adresse_livraison,
+              code_postal_livraison,
+              ville_livraison,
+              pays_livraison,
+            }),
+      },
+    });
+
+    res.status(201).json({ message: "Commande finalisée 🚀", commande: order, livraison: liv });
   } catch (error: any) {
     console.error("/finaliser", error);
     res.status(500).json({ message: "Erreur serveur", details: error.message });
   }
 });
-
 /*** 6. Ajouter une réduction à une commande *********************************/
 commandeRouter.post(
   "/:id_commande/reduction",

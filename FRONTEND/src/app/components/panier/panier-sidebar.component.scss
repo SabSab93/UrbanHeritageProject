@@ -1,3 +1,4 @@
+/* src/app/components/panier/panier-sidebar.component.scss */
 .cart-sidebar {
   position: fixed;
   top: 0;
@@ -33,11 +34,10 @@
     text-align: center;
   }
 
-  // Conteneur scrollable pour les lignes du panier
   .cart-lines {
     flex: 1 1 auto;
     overflow-y: auto;
-    padding-right: 0.5rem; // espace pour éviter d'avoir le scroll collé
+    padding-right: 0.5rem;
   }
 
   .cart-line {
@@ -45,7 +45,7 @@
     align-items: center;
     margin-bottom: 1rem;
 
-    img {
+    img.cart-thumb {
       width: 60px;
       height: 60px;
       object-fit: cover;
@@ -65,6 +65,15 @@
         margin: 0;
         font-size: 0.85rem;
         color: #555;
+      }
+
+      /* Style discret pour la personnalisation */
+      .perso-info {
+        font-size: 0.75rem;
+        color: #777;
+        margin-top: 0.25rem;
+        line-height: 1.2;
+        overflow-wrap: break-word;
       }
     }
 

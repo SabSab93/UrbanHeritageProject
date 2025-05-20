@@ -1,46 +1,56 @@
+/* src/app/shared/footer/footer.component.scss */
+
 .footer {
-    border-top: 1px solid black;
-    background-color: white;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.2rem;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
+  border-top: 1px solid black;
+  background-color: white;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.2rem;
+
+  /* hauteur fixe comme le header */
+  height: 40px;
+  /* on ne veut plus de padding vertical, seulement horizontal */
+  padding: 0 2rem;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* plus de wrapping */
+  flex-wrap: nowrap;
+  box-sizing: border-box; /* pour que padding soit inclus dans la hauteur */
+}
+
+.footer-links {
+  display: flex;
+  gap: 1.5rem;
+  /* plus de flex-wrap */
+  flex-wrap: nowrap;
+}
+
+.footer-link {
+  text-decoration: none;
+  color: black;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 1;
+    font-weight: bold;
   }
-  
-  .footer-links {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
+}
+
+.footer-social {
+  display: flex;
+  gap: 1rem;
+  /* on supprime le margin-top pour tout aligner sur une ligne */
+  margin-top: 0;
+}
+
+.social-icon img {
+  width: 25px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease-in-out;
+
+  &:hover {
+    opacity: 1;
   }
-  
-  .footer-link {
-    text-decoration: none;
-    color: black;
-    opacity: 0.6;
-    transition: opacity 0.2s;
-  
-    &:hover {
-      opacity: 1;
-      font-weight: bold;
-    }
-  }
-  
-  .footer-social {
-    display: flex;
-    gap: 1rem;
-    margin-top: 0.5rem;
-  }
-  
-  .social-icon img {
-    width: 25px;
-    opacity: 0.6;
-    transition: opacity 0.2s ease-in-out;
-  
-    &:hover {
-      opacity: 1;
-    }
-  }
-  
+}

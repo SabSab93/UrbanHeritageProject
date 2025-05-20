@@ -13,16 +13,22 @@ import { ForgotPasswordComponent } from './components/auth/auth-forgot-password/
 import { ResetPasswordComponent } from './components/auth/auth-reset-pasword/auth-reset-password.component';
 
 export const routes: Routes = [
-  { path: '', component: HomePageComponent },
+  // {path: 'admin',canActivate: [AuthGuard] , children: import('./ADMIN/index.router').then(m => m.ADMIN_ROUTES)},
   { path: 'profil', component: ProfilComponent, canActivate: [AuthGuard] },
   { path: 'inscription', component: AuthRegisterComponent },
   { path: 'connexion', component: AuthLoginComponent },
   {
-    path: 'activation',
+    path: 'confirmation',
     loadComponent: () =>
-      import('./components/auth/activation/activation.component').then(
-        (m) => m.ActivationComponent
-      ),
+      import('./components/confirmation/confirmation.component')
+        .then(m => m.ConfirmationComponent),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'confirmation',
+    loadComponent: () => import('./components/confirmation/confirmation.component')
+      .then(m => m.ConfirmationComponent),
+    canActivate: [AuthGuard]
   },
   { path: 'collection', component: CollectionComponent },
   {
@@ -37,4 +43,5 @@ export const routes: Routes = [
   { path: 'association/:id', component: AssociationDetailComponent },
   { path: 'forgot-password',  component: ForgotPasswordComponent },
   { path: 'reset-password',   component: ResetPasswordComponent },
+  { path: '', component: HomePageComponent }
 ];
