@@ -1,0 +1,110 @@
+<!-- src/app/components/confirmation/confirmation.component.html -->
+<div class="container">
+  <h1>Confirmation de la commande</h1>
+  <form [formGroup]="confirmForm" (ngSubmit)="onSubmit()">
+
+    <!-- 1. Articles -->
+    <section>
+      <h2>Votre panier</h2>
+      <div *ngFor="let item of panier" class="item-recap">
+        <img class="maillot-thumb"
+             [src]="item.Maillot.url_image_maillot_1"
+             [alt]="item.Maillot.nom_maillot" />
+        <div class="item-details">
+          <h4>{{ item.Maillot.nom_maillot }}</h4>
+          <p>
+            Quantité&nbsp;: {{ item.quantite }}<br>
+            Prix unité&nbsp;HT&nbsp;: {{ item.prix_ht | currency:'EUR':'symbol' }}<br>
+            Total&nbsp;HT&nbsp;: {{ (item.prix_ht * item.quantite) | currency:'EUR':'symbol' }}<br>
+            Total&nbsp;TTC&nbsp;: {{
+              (item.prix_ht * item.quantite * (1 + item.TVA.taux_tva/100))
+              | currency:'EUR':'symbol'
+            }}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Code promo -->
+    <div class="promo-group form-group">
+      <label for="reduction">Code promo</label>
+      <div class="promo-input">
+        <input id="reduction"
+               formControlName="reduction"
+               placeholder="Entrez un code" />
+        <button type="button" (click)="applyPromo()">Appliquer</button>
+      </div>
+      <p *ngIf="promoMessage" class="promo-message">{{ promoMessage }}</p>
+    </div>
+
+    <!-- 3. Adresse -->
+    <!-- 4. Méthode / Lieu / Transporteur -->
+    <section>
+      <h2>Méthode de livraison</h2>
+      <div class="form-group">
+        <label for="methode">Méthode</label>
+        <select id="methode"
+                formControlName="methode"
+                (change)="recalculate()">
+          <option [ngValue]="null">— Choisir une méthode —</option>
+          <option *ngFor="let m of methodes" [ngValue]="m">
+            {{ m.nom_methode }} — {{ m.prix_methode | currency:'EUR':'symbol' }}
+          </option>
+        </select>
+        <div class="error"
+             *ngIf="confirmForm.get('methode')!.touched && confirmForm.get('methode')!.invalid">
+          Veuillez choisir une méthode de livraison.
+        </div>
+      </div>
+
+      <h2>Lieu de livraison</h2>
+      <div class="form-group">
+        <label for="lieu">Lieu</label>
+        <select id="lieu"
+                formControlName="lieu"
+                (change)="recalculate()">
+          <option [ngValue]="null">— Choisir un lieu —</option>
+          <option *ngFor="let l of lieux" [ngValue]="l">
+            {{ l.nom_lieu }} — {{ l.prix_lieu | currency:'EUR':'symbol' }}
+          </option>
+        </select>
+        <div class="error"
+             *ngIf="confirmForm.get('lieu')!.touched && confirmForm.get('lieu')!.invalid">
+          Veuillez choisir un lieu de livraison.
+        </div>
+      </div>
+
+      <h2>Transporteur</h2>
+      <div class="form-group">
+        <label for="id_livreur">Livreur</label>
+        <select id="id_livreur" formControlName="id_livreur">
+          <option [value]="null">— Choisir un transporteur —</option>
+          <option *ngFor="let r of livreurs" [value]="r.id_livreur">
+            {{ r.nom_livreur }}
+          </option>
+        </select>
+        <div class="error"
+             *ngIf="confirmForm.get('id_livreur')!.touched && confirmForm.get('id_livreur')!.invalid">
+          Veuillez choisir un transporteur.
+        </div>
+      </div>
+    </section>
+    <!-- 5. Récapitulatif des prix -->
+    <section class="summary">
+      <h2>Récapitulatif des prix</h2>
+      <p>Total&nbsp;HT&nbsp;: {{ totalHt | currency:'EUR':'symbol' }}</p>
+      <p>TVA&nbsp;: 20&nbsp;%</p>
+      <p>Produits&nbsp;TTC&nbsp;net&nbsp;promo&nbsp;:
+        {{ (totalTtc - discount) | currency:'EUR':'symbol' }}
+      </p>
+      <p>Livraison&nbsp;TTC&nbsp;: {{ shippingCostTtc | currency:'EUR':'symbol' }}</p>
+      <p *ngIf="discount > 0">Réduction&nbsp;: -{{ discount | currency:'EUR':'symbol' }}</p>
+      <p><strong>Total&nbsp;à&nbsp;payer&nbsp;: {{ finalTotal | currency:'EUR':'symbol' }}</strong></p>
+    </section>
+
+    <button type="submit">
+      Valider ma commande
+    </button>
+
+  </form>
+</div>
