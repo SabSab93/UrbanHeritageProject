@@ -3,20 +3,23 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { MaillotService } from '../maillot.service';
-import { Maillot }        from '../../models/maillot.model';
+import { Maillot } from '../../models/maillot.model';
 
-import { HeaderComponent }  from '../../components/home-page/shared/header/header.component';
-import { FooterComponent }  from '../../components/home-page/shared/footer/footer.component';
+import { AvisService } from '../../services/avis.service';
+import { Avis } from '../../models/avis.model';
 
-import { PanierService }    from '../../components/panier/panier.service';
-import { PanierUiService }  from '../../components/panier/panier-sidebar.service';
+import { HeaderComponent } from '../../components/home-page/shared/header/header.component';
+import { FooterComponent } from '../../components/home-page/shared/footer/footer.component';
+
+import { PanierService } from '../../components/panier/panier.service';
+import { PanierUiService } from '../../components/panier/panier-sidebar.service';
 import { AuthLoginService } from '../../services/auth-service/auth-login.service';
 
 import { PersonnalisationService } from '../../services/personnalisation.service';
-import { Personnalisation }        from '../../models/personnalisation.model';
+import { Personnalisation } from '../../models/personnalisation.model';
 
 import { StockService, Disponibilite } from '../../services/stock.service';
-import { map }                         from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 type Couleur = 'ROUGE' | 'VERT' | 'NOIR' | 'BLANC';
 
@@ -37,7 +40,7 @@ export class DetailComponent implements OnInit {
   loading = true;
   error = '';
 
-  // UI
+  // UI selections
   selectedSize: string | null = null;
   errorMessage: string | null = null;
 
@@ -50,9 +53,17 @@ export class DetailComponent implements OnInit {
   displayedPrice!: number;
   stockThreshold = 30;
 
+  // Avis
+  avisList: Avis[] = [];
+  moyenneAvis: number | null = null;
+  nombreAvis = 0;
+  loadingAvis = true;
+  errorAvis = '';
+
   constructor(
     private route: ActivatedRoute,
     private svc: MaillotService,
+    private avisSrv: AvisService,
     private panierSrv: PanierService,
     private panierUi: PanierUiService,
     private authLogin: AuthLoginService,
@@ -62,25 +73,18 @@ export class DetailComponent implements OnInit {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
+
+    // Charger les détails du maillot
     this.svc.getById(id).subscribe({
       next: m => {
-        // initialisation du maillot étendu
-        this.maillot = {
-          ...m,
-          availableSizes: [],
-          sizeQuantities: {},
-          allOutOfStock: false
-        };
+        this.maillot = { ...m, availableSizes: [], sizeQuantities: {}, allOutOfStock: false };
         this.displayedPrice = Number(m.prix_ht_maillot);
 
-        // appel du service stock
         this.stockSrv.getDisponibilitePublic(id).pipe(
           map((liste: Disponibilite[]) => {
             const quantities: Record<string, number> = {};
-            liste.forEach(d => quantities[d.taille_maillot] = d.quantite_disponible);
-            const availableSizes = liste
-              .filter(d => d.quantite_disponible > 0)
-              .map(d => d.taille_maillot);
+            liste.forEach(d => (quantities[d.taille_maillot] = d.quantite_disponible));
+            const availableSizes = liste.filter(d => d.quantite_disponible > 0).map(d => d.taille_maillot);
             const allOut = availableSizes.length === 0;
             return { availableSizes, sizeQuantities: quantities, allOutOfStock: allOut };
           })
@@ -90,14 +94,30 @@ export class DetailComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.error = 'Impossible de charger ce maillot';
+        this.error = 'Impossible de charger ce maillot.';
         this.loading = false;
       }
     });
 
+    // Charger les personnalisations
     this.persoSvc.getAll().subscribe({
       next: list => this.personalisations = list,
       error: err => console.error('Erreur perso :', err)
+    });
+
+    // Charger les avis et statistiques
+    this.avisSrv.getStats(id).subscribe({
+      next: stats => {
+        this.nombreAvis = stats.nombreAvis;
+        this.moyenneAvis = +stats.noteMoyenne;
+        this.avisList = stats.avis;
+        this.loadingAvis = false;
+      },
+      error: err => {
+        console.error('Erreur chargement avis :', err);
+        this.errorAvis = 'Impossible de charger les avis pour ce maillot.';
+        this.loadingAvis = false;
+      }
     });
   }
 
@@ -126,8 +146,7 @@ export class DetailComponent implements OnInit {
       this.errorMessage = 'Produit introuvable.';
       return;
     }
-    if (this.maillot.allOutOfStock
-        || !(this.maillot.availableSizes.includes(this.selectedSize))) {
+    if (this.maillot.allOutOfStock || !this.maillot.availableSizes.includes(this.selectedSize)) {
       this.errorMessage = 'Taille indisponible.';
       return;
     }
@@ -162,4 +181,3 @@ export class DetailComponent implements OnInit {
     });
   }
 }
-
