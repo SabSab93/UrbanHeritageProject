@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/src/server.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development dotenv -e .env.dev -- ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "cross-env NODE_ENV=development nodemon --watch src --ext ts --exec \"ts-node -r dotenv/config --transpile-only src/index.ts\"",
     "dev:prod": "cross-env NODE_ENV=production dotenv -e .env.prod -- ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "rimraf dist && tsc",
     "start": "cross-env NODE_ENV=production node dist/src/server.js",
@@ -27,13 +27,14 @@
     "@types/nodemailer": "^6.4.17",
     "@types/pdfkit": "^0.13.9",
     "concurrently": "^8.2.0",
+    "cross-env": "^7.0.3",
     "dotenv-cli": "^8.0.0",
-    "nodemon": "^3.1.9",
+    "nodemon": "^3.1.10",
     "prisma": "^6.5.0",
     "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.1.6",
-    "cross-env": "^7.0.3"
+    "typescript": "^5.1.6"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
@@ -51,8 +52,7 @@
     "nodemailer": "^6.10.1",
     "pdfkit": "^0.17.0",
     "sequelize": "^6.35.1",
-    "stripe": "^18.0.0",
-    "ts-node": "^10.9.2"
+    "stripe": "^18.0.0"
   },
   "prisma": {
     "seed": "ts-node ./prisma/seed.ts"
