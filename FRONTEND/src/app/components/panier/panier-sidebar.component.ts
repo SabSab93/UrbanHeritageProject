@@ -40,25 +40,26 @@ export class PanierSidebarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // 1) ouverture sidebar
+    /* 1️⃣  ouverture/fermeture sidebar */
     this.isOpen$ = this.panierUi.isSidebarOpen$;
 
-    // 2) récupère id_client (number) ou null
+    /* 2️⃣  id_client courant (null si invité) */
     const clientId$ = this.authLogin.client$.pipe(
       map(c => c?.id_client ?? null),
       shareReplay(1)
     );
 
-    // 3) triggers : ouverture OU reload
-    const open$ = this.isOpen$.pipe(filter(open => open), mapTo(undefined));
+    /* 3️⃣  déclencheurs : ouverture ou demande reload() */
+    const open$    = this.isOpen$.pipe(filter(o => o), mapTo(undefined));
     const trigger$ = merge(open$, this.reload$);
 
-    // 4) lignes du panier
+    /* 4️⃣  lignes du panier */
     this.lignes$ = trigger$.pipe(
       withLatestFrom(clientId$),
       switchMap(([_, id]) => this.panierSrv.getCartLines(id)),
       map(lines => {
-        const grouped: { [key: string]: LignePanier } = {};
+        /* regrouper mêmes articles + perso + taille */
+        const grouped: Record<string,LignePanier> = {};
         for (const l of lines) {
           const key = [
             l.id_maillot,
@@ -68,48 +69,43 @@ export class PanierSidebarComponent implements OnInit {
             l.couleur_personnalisation ?? ''
           ].join('|');
           if (!grouped[key]) {
-            grouped[key] = { ...l };  // clone l avec son prix_ht unitaire et sa quantite initiale
+            grouped[key] = { ...l };
           } else {
             grouped[key].quantite += l.quantite;
-            // on NE CHANGE PAS grouped[key].prix_ht : c'est le prix unitaire HT
           }
         }
         return Object.values(grouped);
       })
     );
 
-    // 5) total du panier
+    /* 5️⃣  total TTC du panier */
     this.total$ = trigger$.pipe(
-          withLatestFrom(clientId$),
-          switchMap(([_, id]) => this.panierSrv.getCartTotal(id)),
-          map(res => {
-            console.log('DEBUG total panier', res); // <— un petit log pour vérifier
-            return res.total;
-          })
-        );
-      }
+      withLatestFrom(clientId$),
+      switchMap(([_, id]) => this.panierSrv.getCartTotal(id)),
+      map(res => res.total)
+    );
+  }
 
+  /* ---------- actions ---------- */
   close(): void {
     this.panierUi.closeSidebar();
   }
 
-  removeLine(id: number): void {
-    const idClient = this.authLogin.clientSubject?.value?.id_client ?? null;
-    this.panierSrv.removeLine(id, idClient).subscribe({
+  removeLine(idLigne: number): void {
+    const idClient = this.authLogin.currentClientId;
+    /* nouvelle signature : (idClient, idLigne) */
+    this.panierSrv.removeLine(idClient, idLigne).subscribe({
       next: () => this.reload$.next(),
       error: err => console.error('❌ Erreur suppression ligne', err)
     });
   }
+
   onCheckout(): void {
-    // Si connecté, on va directement à la confirmation
     const clientId = this.authLogin.currentClientId;
+    this.close();
     if (clientId) {
-      this.close();
       this.router.navigate(['/confirmation']);
     } else {
-      // Sinon, on ferme la sidebar et on redirige vers connexion
-      // avec un returnUrl pour revenir après login
-      this.close();
       this.router.navigate(['/connexion'], {
         queryParams: { returnUrl: '/confirmation' }
       });
