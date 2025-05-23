@@ -19,7 +19,7 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 /** Génère un JWT valable 24 h pour le client donné. */
 const generateJwt = (idClient: number, idRole: number | null) =>
   jwt.sign({ id_client: idClient, id_role: idRole }, process.env.JWT_SECRET!, {
-    expiresIn: "24h",
+    expiresIn: "18h",
   });
 /*** Inscription locale (client) *******************************************/
 authRouter.post('/register-client', async (req, res) => {

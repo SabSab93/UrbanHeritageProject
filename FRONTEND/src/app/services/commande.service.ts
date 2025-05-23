@@ -1,4 +1,3 @@
-// src/app/services/commande.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -8,13 +7,28 @@ import { MethodeLivraison } from '../models/methode-livraison.model';
 import { LieuLivraison }   from '../models/lieu-livraison.model';
 import { Livreur }         from '../models/livreur.model';
 import { Reduction }       from '../models/reduction.model';
+import { Commande }        from '../models/commande.model';   // si vous l'avez
+
+/*─────────────────────────────────────────────────────────────*/
+/*  Réponse minimale retournée par la route publique Stripe    */
+export interface PublicCheckoutSession {
+  id_commande   : string;
+  amount_total ?: number;
+  currency     ?: string;
+  payment_status?: string;
+}
+/*─────────────────────────────────────────────────────────────*/
 
 @Injectable({ providedIn: 'root' })
 export class CommandeService {
-  private readonly baseUrl = `${environment.apiUrl}/commande`;
+  private readonly baseUrl   = `${environment.apiUrl}/commande`;
+  private readonly stripeUrl = `${environment.apiUrl}/stripe`;
 
   constructor(private http: HttpClient) {}
 
+  /*----------------------------------*/
+  /* Utilitaire pour les en-têtes JWT */
+  /*----------------------------------*/
   private authHeaders() {
     const token = localStorage.getItem('authToken');
     return token
@@ -22,14 +36,20 @@ export class CommandeService {
       : {};
   }
 
+  /*----------------------------------*/
+  /*           Commandes              */
+  /*----------------------------------*/
   getMesCommandes(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}`, this.authHeaders());
   }
 
-  getCommande(id: number): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/${id}`, this.authHeaders());
+  getCommande(id: number): Observable<Commande> {
+    return this.http.get<Commande>(`${this.baseUrl}/${id}`, this.authHeaders());
   }
 
+  /*----------------------------------*/
+  /*      Livraisons / Réductions     */
+  /*----------------------------------*/
   getMethodesLivraison(): Observable<MethodeLivraison[]> {
     return this.http.get<MethodeLivraison[]>(
       `${environment.apiUrl}/methode-livraison`,
@@ -58,6 +78,9 @@ export class CommandeService {
     );
   }
 
+  /*----------------------------------*/
+  /*   Finalisation de la commande    */
+  /*----------------------------------*/
   finaliserCommande(payload: {
     useClientAddress: boolean;
     adresse_livraison?: string;
@@ -67,12 +90,7 @@ export class CommandeService {
     id_methode_livraison: number;
     id_lieu_livraison: number;
     id_livreur: number;
-    reduction?: string | null;
-  }): Observable<{
-    message: string;
-    commande: any;
-    livraison: any;
-  }> {
+  }): Observable<{ message: string; commande: any; livraison: any }> {
     return this.http.post<{
       message: string;
       commande: any;
@@ -84,6 +102,56 @@ export class CommandeService {
     );
   }
 
+  /*----------------------------------*/
+  /*         Stripe – Checkout        */
+  /*----------------------------------*/
+
+  /** Création classique (panier) : POST /stripe/create-checkout-session */
+  createCheckoutSession(payload: {
+    methode: number;
+    lieu: number;
+    livreur: number;
+    useClientAddress: boolean;
+    adresse?: string | null;
+    code_postal?: string | null;
+    ville?: string | null;
+    pays?: string | null;
+  }): Observable<{ url: string }> {
+    return this.http.post<{ url: string }>(
+      `${this.stripeUrl}/create-checkout-session`,
+      payload,
+      this.authHeaders()
+    );
+  }
+
+  /** Création par id_commande déjà existant */
+  createCheckoutSessionByOrder(idCommande: number): Observable<{ url: string }> {
+    return this.http.post<{ url: string }>(
+      `${this.stripeUrl}/create-checkout-session/${idCommande}`,
+      {},
+      this.authHeaders()
+    );
+  }
+
+  /** (🆕) Récupère la session Stripe SANS authentification */
+  getCheckoutSessionPublic(sessionId: string): Observable<PublicCheckoutSession> {
+    return this.http.get<PublicCheckoutSession>(
+      `${environment.apiUrl}/stripe/public/session/${sessionId}`
+    );
+  }
+
+  /** Validation manuelle (le plus souvent inutile) */
+  validerPaiement(idCommande: number): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/valider-paiement/${idCommande}`,
+      {},
+      this.authHeaders()
+    );
+  }
+
+  /*----------------------------------*/
+  /*        Réduction commande        */
+  /*----------------------------------*/
   applyReduction(
     idCommande: number,
     idReduction: number

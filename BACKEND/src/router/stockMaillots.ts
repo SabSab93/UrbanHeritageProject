@@ -140,6 +140,9 @@ stockmaillotRouter.post("/create",monMiddlewareBearer, async (req, res) => {
   }
 });
 
+
+
+
 /*** Suppression ***********************************************************/
 
 // Suppression : supprimer un mouvement (sans mise à jour des champs obsolètes)

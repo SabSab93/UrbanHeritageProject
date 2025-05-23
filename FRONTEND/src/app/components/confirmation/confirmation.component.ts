@@ -1,23 +1,22 @@
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  ReactiveFormsModule,
-  FormBuilder,
-  FormGroup,
-  Validators
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Subscription, forkJoin, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
+
 
 import { PanierService }   from '../panier/panier.service';
 import { CommandeService } from '../../services/commande.service';
 import { StockService, Disponibilite } from '../../services/stock.service';
 import { AuthLoginService } from '../../services/auth-service/auth-login.service';
 
+
 import { MethodeLivraison } from '../../models/methode-livraison.model';
 import { LieuLivraison }    from '../../models/lieu-livraison.model';
 import { Livreur }          from '../../models/livreur.model';
 import { Reduction }        from '../../models/reduction.model';
+
 
 import { HeaderComponent } from '../home-page/shared/header/header.component';
 import { BannerComponent } from '../home-page/banner/banner.component';
@@ -31,37 +30,39 @@ import { FooterComponent } from '../home-page/shared/footer/footer.component';
     ReactiveFormsModule,
     HeaderComponent,
     BannerComponent,
-    FooterComponent
+    FooterComponent,
   ],
   templateUrl: './confirmation.component.html',
   styleUrls: ['./confirmation.component.scss'],
 })
 export class ConfirmationComponent implements OnInit, OnDestroy {
+  /* ---------- état panier ---------- */
   panier: any[] = [];
   private idClient!: number;
-  stockErrors: (string | null)[] = [];
+
+  /* ---------- totaux ---------- */
   totalHt = 0;
   totalTtc = 0;
   discount = 0;
   promoMessage = '';
-
   shippingMethodCost = 0;
   shippingLieuCost   = 0;
   shippingCostTtc    = 0;
   finalTotal = 0;
 
-  methodes: MethodeLivraison[] = [];
-  lieux:    LieuLivraison[]    = [];
-  livreurs: Livreur[]          = [];
+  /* ---------- référentiels ---------- */
+  methodes:  MethodeLivraison[] = [];
+  lieux:     LieuLivraison[]    = [];
+  livreurs:  Livreur[]          = [];
+  activeReductions: Reduction[] = [];
 
-  /** form */
+  /* ---------- stock ---------- */
+  stockErrors: (string|null)[] = [];
+  stockWarning = '';
+
+  /* ---------- formulaire ---------- */
   confirmForm: FormGroup;
 
-  /** pour le check stock */
-  stockWarning = '';
-  rupturedLines = new Set<number>();
-
-  private activeReductions: Reduction[] = [];
   private subs = new Subscription();
 
   constructor(
@@ -69,45 +70,45 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     private panierSrv: PanierService,
     private cmdSrv: CommandeService,
     private stockSrv: StockService,
-    private auth: AuthLoginService
+    private auth: AuthLoginService,
   ) {
+    /* un seul FormGroup */
     this.confirmForm = this.fb.group({
-      reduction:             [''],
       useClientAddress:      [true, Validators.required],
       adresse_livraison:     [''],
       code_postal_livraison: [''],
       ville_livraison:       [''],
       pays_livraison:        [''],
-      methode:               [null as MethodeLivraison | null, Validators.required],
-      lieu:                  [null as LieuLivraison    | null, Validators.required],
+      methode:               [null as MethodeLivraison|null, Validators.required],
+      lieu:                  [null as LieuLivraison   |null, Validators.required],
       id_livreur:            [null, Validators.required],
+      reduction:             [''],
     });
   }
 
+  /* =======================================================
+     1. Init + destruction
+     ======================================================= */
   ngOnInit(): void {
-    // On force l'assertion non-nulle pour idClient
-    this.idClient = this.auth.currentClientId!;
+    /* ID client depuis le service d’auth */
+    this.idClient = this.auth.currentClientId ?? 0;
+
+    /* panier */
     this.loadCart();
 
-    // Réductions actives
+    /* référentiels livraison + réductions */
     this.subs.add(
-      this.cmdSrv.getActiveReductions().subscribe(list => {
-        this.activeReductions = list;
+      forkJoin({
+        m: this.cmdSrv.getMethodesLivraison(),
+        l: this.cmdSrv.getLieuxLivraison(),
+        v: this.cmdSrv.getLivreurs(),
+        r: this.cmdSrv.getActiveReductions(),
+      }).subscribe(({ m, l, v, r }) => {
+        this.methodes        = m;
+        this.lieux           = l;
+        this.livreurs        = v;
+        this.activeReductions = r;
       })
-    );
-
-    // Options de livraison
-    this.subs.add(
-      this.cmdSrv.getMethodesLivraison()
-        .subscribe(m => this.methodes = m)
-    );
-    this.subs.add(
-      this.cmdSrv.getLieuxLivraison()
-        .subscribe(l => this.lieux = l)
-    );
-    this.subs.add(
-      this.cmdSrv.getLivreurs()
-        .subscribe(r => this.livreurs = r)
     );
   }
 
@@ -115,53 +116,56 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     this.subs.unsubscribe();
   }
 
-  /** Charge le panier et recalcule */
+  /* =======================================================
+     2. Panier & totaux
+     ======================================================= */
   private loadCart(): void {
     this.subs.add(
       this.panierSrv.getCartLines(this.idClient).subscribe(lines => {
         this.panier = lines;
-        this.totalHt  = lines.reduce((s, l) => s + l.prix_ht * l.quantite, 0);
-        this.totalTtc = lines.reduce(
-          (s, l) => s + l.prix_ht * l.quantite * (1 + l.TVA.taux_tva / 100),
-          0
-        );
+        this.totalHt  = lines.reduce((s,l) => s + l.prix_ht * l.quantite, 0);
+        this.totalTtc = lines.reduce((s,l) => s + l.prix_ht * l.quantite * (1 + l.TVA.taux_tva/100), 0);
         this.recalculate();
       })
     );
   }
 
-  /** Supprime une ligne du panier puis recharge */
-  public removeLine(itemId: number): void {
+  removeLine(itemId: number): void {
     this.subs.add(
       this.panierSrv.removeLine(this.idClient, itemId).subscribe({
         next: () => this.loadCart(),
-        error: err => console.error('Erreur suppression ligne', err)
+        error: err => console.error('Erreur suppression ligne', err),
       })
     );
   }
 
-  /** recalcul des totaux HT/TTC + livraison */
-  public recalculate(): void {
-    const produitsNetTtc = Math.max(0, this.totalTtc - this.discount);
+  recalculate(): void {
+    const netProduitsTtc = Math.max(0, this.totalTtc - this.discount);
     const m = this.confirmForm.value.methode as MethodeLivraison | null;
     const l = this.confirmForm.value.lieu    as LieuLivraison    | null;
 
     this.shippingMethodCost = Number(m?.prix_methode ?? 0);
     this.shippingLieuCost   = Number(l?.prix_lieu   ?? 0);
     this.shippingCostTtc    = this.shippingMethodCost + this.shippingLieuCost;
-    this.finalTotal         = produitsNetTtc + this.shippingCostTtc;
+    this.finalTotal         = netProduitsTtc + this.shippingCostTtc;
   }
 
-  /** application du code promo */
-  public applyPromo(): void {
+  /* =======================================================
+     3. Code promo
+     ======================================================= */
+  applyPromo(): void {
     const code = (this.confirmForm.value.reduction || '').trim().toUpperCase();
     const now  = new Date();
+
     const red = this.activeReductions.find(r => {
       if (!r.date_debut_reduction || !r.date_fin_reduction) return false;
-      const start = new Date(r.date_debut_reduction),
-            end   = new Date(r.date_fin_reduction);
-      return r.code_reduction.toUpperCase() === code && start <= now && end >= now;
+      return (
+        r.code_reduction.toUpperCase() === code &&
+        new Date(r.date_debut_reduction) <= now &&
+        new Date(r.date_fin_reduction)   >= now
+      );
     });
+
     if (!red) {
       this.discount = 0;
       this.promoMessage = 'Code invalide ou expiré';
@@ -175,55 +179,65 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     this.recalculate();
   }
 
-  /** Soumission : d'abord check stock, puis finalisation si OK */
-  public onSubmit(): void {
+  /* =======================================================
+     4. Validation + paiement Stripe
+     ======================================================= */
+  onSubmit(): void {
     this.confirmForm.markAllAsTouched();
     if (this.confirmForm.invalid) return;
 
-    const checks = this.panier.map(item => {
-      const idMaillot = item.Maillot.id_maillot;
-      const taille    = item.taille;
-      return this.stockSrv.getDisponibilitePublic(idMaillot).pipe(
+    /* 1️⃣ Vérifier le stock */
+    const checks = this.panier.map(item =>
+      this.stockSrv.getDisponibilitePublic(item.Maillot.id_maillot).pipe(
         map((list: Disponibilite[]) => {
-          const dispo = list.find(d => d.taille_maillot === taille);
-          const qtyOk = dispo?.quantite_disponible ?? 0;
-          if (qtyOk < item.quantite) {
-            return `${item.Maillot.nom_maillot} (taille ${taille}) : il reste ${qtyOk}`;
-          }
-          return null;
+          const dispo = list.find(d => d.taille_maillot === item.taille_maillot)?.quantite_disponible || 0;
+          return dispo < item.quantite
+            ? `${item.Maillot.nom_maillot} (taille ${item.taille_maillot}) : il reste ${dispo}`
+            : null;
         }),
-        catchError(() => of(
-          `Impossible de vérifier le stock pour ${item.Maillot.nom_maillot}`
-        ))
-      );
-    });
+        catchError(() => of(`Impossible de vérifier le stock pour ${item.Maillot.nom_maillot}`))
+      )
+    );
 
-    forkJoin(checks).subscribe(results => {
-      this.stockErrors = results;
-      const errors = results.filter(r => !!r) as string[];
+    forkJoin(checks).pipe(
+      switchMap(errs => {
+        this.stockErrors = errs;
+        if (errs.some(e => !!e)) {
+          this.stockWarning = '⚠️ Rupture de stock détectée';
+          return of(null);
+        }
+        this.stockWarning = '';
 
-      if (errors.length > 0) {
-        this.stockWarning =
-          '⚠️ Il semble qu’il y ait une rupture de stock sur certains articles de votre panier.'
-        return;
+        /* 2️⃣ Finaliser la commande — un seul appel backend */
+        const f = this.confirmForm.value;
+        return this.cmdSrv.finaliserCommande({
+          useClientAddress: f.useClientAddress,
+          adresse_livraison:       f.useClientAddress ? undefined : f.adresse_livraison,
+          code_postal_livraison:   f.useClientAddress ? undefined : f.code_postal_livraison,
+          ville_livraison:         f.useClientAddress ? undefined : f.ville_livraison,
+          pays_livraison:          f.useClientAddress ? undefined : f.pays_livraison,
+          id_methode_livraison:    f.methode!.id_methode_livraison,
+          id_lieu_livraison:       f.lieu!.id_lieu_livraison,
+          id_livreur:              Number(f.id_livreur),
+        });
+      }),
+      /* 3️⃣ Créer la session Stripe */
+      switchMap(resp => {
+        if (!resp) return of(null);
+        const idCommande = resp.commande.id_commande;
+        return this.cmdSrv.createCheckoutSessionByOrder(idCommande);
+      })
+    ).subscribe({
+      next: stripeRes => {
+        if (stripeRes) {
+          /* redirection Stripe */
+          window.location.href = stripeRes.url;
+        }
+      },
+      error: err => {
+        console.error('Impossible de lancer le paiement Stripe.', err);
+        this.stockWarning = err.error?.details || 'Erreur lors de la création de la commande.';
       }
-
-      this.stockWarning = '';
-      this.rupturedLines.clear();
-
-      const { methode, lieu, ...rest } = this.confirmForm.value;
-      const payload = {
-        ...rest,
-        id_methode_livraison: methode!.id_methode_livraison,
-        id_lieu_livraison:    lieu!.id_lieu_livraison,
-        reduction: this.discount > 0 ? rest.reduction : null,
-        useClientAddress: rest.useClientAddress
-      };
-
-      this.cmdSrv.finaliserCommande(payload).subscribe({
-        next: res  => console.log('✔️ Commande finalisée', res),
-        error: err => console.error('❌ Erreur finalisation', err)
-      });
     });
   }
 }

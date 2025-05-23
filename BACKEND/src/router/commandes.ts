@@ -212,41 +212,85 @@ commandeRouter.delete("/:id", isAdmin, async (req, res) => {
 });
 
 /*** 5. Finaliser une commande (client) **************************************/
-commandeRouter.post("/finaliser", async (req: any, res) => {
-  try {
-    const idClient = req.decoded.id_client;
-    const { useClientAddress, adresse_livraison, code_postal_livraison, ville_livraison, pays_livraison, id_methode_livraison, id_lieu_livraison, id_livreur } = req.body.livraison;
-    if (useClientAddress == null || id_methode_livraison == null || id_lieu_livraison == null || id_livreur == null) {
-      return res.status(400).json({ message: "Données de livraison incomplètes" });
-    }
-    // crée la commande + rattache les lignes comme avant
-    const order = await checkCommandeTransaction(idClient, req.body.livraison);
+/********************************************************************************
+ * 5. Finaliser une commande (client) – crée la commande + livraison + retourne
+ *    l’objet `commande` pour que le front obtienne `id_commande`.
+ *******************************************************************************/
+commandeRouter.post(
+  '/finaliser',
+  monMiddlewareBearer,
+  async (req: any, res: Response) => {
+    try {
+      const idClient = req.decoded.id_client;
 
-    // crée l’enregistrement Livraison
-    const liv = await prisma.livraison.create({
-      data: {
-        id_commande: order.id_commande,
+      const {
+        useClientAddress,
+        adresse_livraison,
+        code_postal_livraison,
+        ville_livraison,
+        pays_livraison,
+        id_methode_livraison,
+        id_lieu_livraison,
+        id_livreur
+      } = req.body.livraison;
+
+      /* 1️⃣  vérifs basiques */
+      if (
+        useClientAddress == null ||
+        id_methode_livraison == null ||
+        id_lieu_livraison == null ||
+        id_livreur == null
+      ) {
+        return res.status(400).json({ message: 'Données de livraison incomplètes' });
+      }
+
+      /* 2️⃣  crée la commande + rattache les lignes 📦 */
+      const livraisonPayload = {
         id_methode_livraison,
         id_lieu_livraison,
         id_livreur,
-        // soit on stocke l’ID du client, soit on remplit à la main
-        ...(useClientAddress
-          ? { id_adresse_client: idClient }
-          : {
-              adresse_livraison,
-              code_postal_livraison,
-              ville_livraison,
-              pays_livraison,
-            }),
-      },
-    });
+        ...(useClientAddress === false && {
+          adresse_livraison,
+          code_postal_livraison,
+          ville_livraison,
+          pays_livraison
+        })
+      };
 
-    res.status(201).json({ message: "Commande finalisée 🚀", commande: order, livraison: liv });
-  } catch (error: any) {
-    console.error("/finaliser", error);
-    res.status(500).json({ message: "Erreur serveur", details: error.message });
+      /* 👉 checkCommandeTransaction crée la commande, règle le stock, etc. */
+      const commande = await checkCommandeTransaction(idClient, livraisonPayload);
+
+      /* 3️⃣  enregistre la livraison réelle (adresse client ou manuelle) */
+      const client = await prisma.client.findUnique({ where: { id_client: idClient } });
+
+      await prisma.livraison.create({
+        data: {
+          id_commande:        commande.id_commande,
+          id_methode_livraison,
+          id_lieu_livraison,
+          id_livreur,
+          date_livraison:     null,
+          adresse_livraison:  useClientAddress ? client!.adresse_client        : adresse_livraison,
+          code_postal_livraison: useClientAddress ? client!.code_postal_client : code_postal_livraison,
+          ville_livraison:    useClientAddress ? client!.ville_client          : ville_livraison,
+          pays_livraison:     useClientAddress ? client!.pays_client           : pays_livraison
+        }
+      });
+
+      /* 4️⃣  réponse => le front récupère id_commande */
+      return res.status(201).json({
+        message: 'Commande finalisée 🚀',
+        commande,               // contient id_commande
+      });
+
+    } catch (err: any) {
+      console.error('POST /commande/finaliser', err);
+      return res.status(500).json({ message: 'Erreur serveur', details: err.message });
+    }
   }
-});
+);
+
+
 /*** 6. Ajouter une réduction à une commande *********************************/
 commandeRouter.post(
   "/:id_commande/reduction",
@@ -276,13 +320,16 @@ commandeRouter.post(
 );
 
 /*** 7. Valider paiement ******************************************************/
-commandeRouter.post("/valider-paiement/:id", async (req, res) => {
-  try {
-    const idCommande = parseId(req.params.id);
-    const result = await validerPaiementTransaction(idCommande);
-    res.json({ message: "Paiement validé 🎉", details: result });
-  } catch (error: any) {
-    const status = error.message.includes("ID") ? 400 : 500;
-    res.status(status).json({ message: error.message ?? "Erreur serveur" });
+commandeRouter.post(
+  '/valider-paiement/:id',
+  async (req: any, res: Response) => {
+    try {
+      const idCommande = parseId(req.params.id, 'id_commande');
+      const result = await validerPaiementTransaction(idCommande);
+      res.json({ message: 'Paiement validé 🎉', details: result });
+    } catch (error: any) {
+      const status = error.message.includes('ID') ? 400 : 500;
+      res.status(status).json({ message: error.message ?? 'Erreur serveur' });
+    }
   }
-});
+);

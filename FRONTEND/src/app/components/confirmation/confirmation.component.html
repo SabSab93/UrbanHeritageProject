@@ -1,9 +1,9 @@
 <app-header></app-header>
 <app-banner></app-banner>
 
-
 <div class="confirmation-wrapper">
   <div class="confirmation-page">
+
     <!-- 1) panneau image -->
     <div class="image-panel">
       <img
@@ -16,58 +16,62 @@
     <div class="content-panel">
       <div class="container">
         <h1>Confirmation de la commande</h1>
-        
+
         <div *ngIf="stockWarning" class="stock-warning">
           {{ stockWarning }}
         </div>
 
-
         <form [formGroup]="confirmForm" (ngSubmit)="onSubmit()">
-
           <!-- 1. Panier -->
           <section class="cart-section">
-          <h2>Votre panier</h2>
-          <div class="cart-items">
-            <div *ngFor="let item of panier; let i = index"
+            <h2>Votre panier</h2>
+            <div class="cart-items">
+              <div
+                *ngFor="let item of panier; let i = index"
                 class="item-recap"
-                [ngClass]="{'out-of-stock': stockErrors[i]}">
-
-              <!-- miniature + détails existants -->
-              <img class="maillot-thumb"
+                [ngClass]="{ 'out-of-stock': stockErrors[i] }"
+              >
+                <img
+                  class="maillot-thumb"
                   [src]="item.Maillot.url_image_maillot_1"
-                  [alt]="item.Maillot.nom_maillot" />
-              <div class="item-details">
-                <h4>{{ item.Maillot.nom_maillot }}</h4>
-                <p>
-                  Quantité : {{ item.quantite }}<br>
-                  Prix unité HT : {{ item.prix_ht | currency:'EUR':'symbol' }}<br>
-                  <!-- … -->
-                </p>
-                <!-- 3) message d’erreur stock spécifique -->
-                <p *ngIf="stockErrors[i]"
-                  class="error">
-                  {{ stockErrors[i] }}
-                  <!-- ou bien un bouton pour retirer l’article : -->
-                <button type="button"
-                        (click)="removeLine(item.id)"
-                        class="remove-line">
-                  Retirer du panier
-                </button>
-                </p>
+                  [alt]="item.Maillot.nom_maillot"
+                />
+                <div class="item-details">
+                  <h4>{{ item.Maillot.nom_maillot }}</h4>
+                  <p>
+                    Taille : {{ item.taille_maillot }}<br />
+                    Quantité : {{ item.quantite }}<br />
+                    Prix unité HT : {{ item.prix_ht | number:'1.2-2' }} €
+                  </p>
+                  <p *ngIf="stockErrors[i]" class="error">
+                    {{ stockErrors[i] }}
+                    <button
+                      type="button"
+                      (click)="removeLine(item.id)"
+                      class="remove-line"
+                    >
+                      Retirer du panier
+                    </button>
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+
           <!-- 2. Code promo -->
           <div class="promo-group form-group">
             <label for="reduction">Code promo</label>
             <div class="promo-input">
-              <input id="reduction"
-                     formControlName="reduction"
-                     placeholder="Entrez un code" />
+              <input
+                id="reduction"
+                formControlName="reduction"
+                placeholder="Entrez un code"
+              />
               <button type="button" (click)="applyPromo()">Appliquer</button>
             </div>
-            <p *ngIf="promoMessage" class="promo-message">{{ promoMessage }}</p>
+            <p *ngIf="promoMessage" class="promo-message">
+              {{ promoMessage }}
+            </p>
           </div>
 
           <!-- 3. Adresse de livraison -->
@@ -75,57 +79,78 @@
             <h2>Adresse de livraison</h2>
             <div class="radio-group">
               <label>
-                <input type="radio"
-                       formControlName="useClientAddress"
-                       [value]="true" />
+                <input
+                  type="radio"
+                  [checked]="confirmForm.value.useClientAddress === true"
+                  (change)="confirmForm.get('useClientAddress')?.setValue(true)"
+                />
                 Utiliser mon adresse principale
               </label>
               <label>
-                <input type="radio"
-                       formControlName="useClientAddress"
-                       [value]="false" />
+                <input
+                  type="radio"
+                  [checked]="confirmForm.value.useClientAddress === false"
+                  (change)="confirmForm.get('useClientAddress')?.setValue(false)"
+                />
                 Saisir une autre adresse
               </label>
             </div>
+
             <div *ngIf="!confirmForm.value.useClientAddress">
               <div class="form-group">
                 <label for="adresse_livraison">Adresse</label>
-                <input id="adresse_livraison"
-                       formControlName="adresse_livraison" />
+                <input
+                  id="adresse_livraison"
+                  formControlName="adresse_livraison"
+                />
               </div>
               <div class="form-group">
                 <label for="code_postal_livraison">Code postal</label>
-                <input id="code_postal_livraison"
-                       formControlName="code_postal_livraison" />
+                <input
+                  id="code_postal_livraison"
+                  formControlName="code_postal_livraison"
+                />
               </div>
               <div class="form-group">
                 <label for="ville_livraison">Ville</label>
-                <input id="ville_livraison"
-                       formControlName="ville_livraison" />
+                <input
+                  id="ville_livraison"
+                  formControlName="ville_livraison"
+                />
               </div>
               <div class="form-group">
                 <label for="pays_livraison">Pays</label>
-                <input id="pays_livraison"
-                       formControlName="pays_livraison" />
+                <input
+                  id="pays_livraison"
+                  formControlName="pays_livraison"
+                />
               </div>
             </div>
           </section>
+
 
           <!-- 4. Méthode / Lieu / Transporteur -->
           <section>
             <h2>Méthode de livraison</h2>
             <div class="form-group">
               <label for="methode">Méthode</label>
-              <select id="methode"
-                      formControlName="methode"
-                      (change)="recalculate()">
+              <select
+                id="methode"
+                formControlName="methode"
+                (change)="recalculate()"
+              >
                 <option [ngValue]="null">— Choisir une méthode —</option>
                 <option *ngFor="let m of methodes" [ngValue]="m">
-                  {{ m.nom_methode }} — {{ m.prix_methode | currency:'EUR':'symbol' }}
+                  {{ m.nom_methode }} — {{ m.prix_methode | number:'1.2-2' }} €
                 </option>
               </select>
-              <div class="error"
-                   *ngIf="confirmForm.get('methode')!.touched && confirmForm.get('methode')!.invalid">
+              <div
+                class="error"
+                *ngIf="
+                  confirmForm.get('methode')!.touched &&
+                  confirmForm.get('methode')!.invalid
+                "
+              >
                 Veuillez choisir une méthode de livraison.
               </div>
             </div>
@@ -133,32 +158,43 @@
             <h2>Lieu de livraison</h2>
             <div class="form-group">
               <label for="lieu">Lieu</label>
-              <select id="lieu"
-                      formControlName="lieu"
-                      (change)="recalculate()">
+              <select
+                id="lieu"
+                formControlName="lieu"
+                (change)="recalculate()"
+              >
                 <option [ngValue]="null">— Choisir un lieu —</option>
                 <option *ngFor="let l of lieux" [ngValue]="l">
-                  {{ l.nom_lieu }} — {{ l.prix_lieu | currency:'EUR':'symbol' }}
+                  {{ l.nom_lieu }} — {{ l.prix_lieu | number:'1.2-2' }} €
                 </option>
               </select>
-              <div class="error"
-                   *ngIf="confirmForm.get('lieu')!.touched && confirmForm.get('lieu')!.invalid">
+              <div
+                class="error"
+                *ngIf="
+                  confirmForm.get('lieu')!.touched &&
+                  confirmForm.get('lieu')!.invalid
+                "
+              >
                 Veuillez choisir un lieu de livraison.
               </div>
             </div>
 
             <h2>Transporteur</h2>
             <div class="form-group">
-              <label for="id_livreur">Livreur</label>
-              <select id="id_livreur"
-                      formControlName="id_livreur">
-                <option [value]="null">— Choisir un transporteur —</option>
-                <option *ngFor="let r of livreurs" [value]="r.id_livreur">
-                  {{ r.nom_livreur }}
-                </option>
-              </select>
-              <div class="error"
-                   *ngIf="confirmForm.get('id_livreur')!.touched && confirmForm.get('id_livreur')!.invalid">
+            <label for="id_livreur">Livreur</label>
+            <select id="id_livreur" formControlName="id_livreur">
+              <option [ngValue]="null">— Choisir un transporteur —</option>
+              <option *ngFor="let r of livreurs" [ngValue]="r.id_livreur">
+                {{ r.nom_livreur }}
+              </option>
+            </select>
+              <div
+                class="error"
+                *ngIf="
+                  confirmForm.get('id_livreur')!.touched &&
+                  confirmForm.get('id_livreur')!.invalid
+                "
+              >
                 Veuillez choisir un transporteur.
               </div>
             </div>
@@ -167,23 +203,37 @@
           <!-- 5. Récapitulatif des prix -->
           <section class="summary">
             <h2>Récapitulatif des prix</h2>
-            <p>Total HT : {{ totalHt | currency:'EUR':'symbol' }}</p>
+            <p>Total HT : {{ totalHt | number:'1.2-2' }} €</p>
             <p>TVA : 20 %</p>
-            <p>Produits TTC net promo :
-              {{ (totalTtc - discount) | currency:'EUR':'symbol' }}
+            <p>
+              Produits TTC net promo :
+              {{ (totalTtc - discount) | number:'1.2-2' }} €
             </p>
-            <p>Livraison TTC :
-              {{ shippingCostTtc | currency:'EUR':'symbol' }}
+            <p>
+              Livraison TTC :
+              {{ shippingCostTtc | number:'1.2-2' }} €
             </p>
-            <p *ngIf="discount>0">Réduction :
-              -{{ discount | currency:'EUR':'symbol' }}
+            <p *ngIf="discount > 0">
+              Réduction : -{{ discount | number:'1.2-2' }} €
             </p>
-            <p><strong>Total à payer :
-              {{ finalTotal | currency:'EUR':'symbol' }}
-            </strong></p>
+            <p>
+              <strong>
+                Total à payer :
+                {{ finalTotal | number:'1.2-2' }} €
+              </strong>
+            </p>
           </section>
 
-          <button type="submit">Valider ma commande</button>
+          <!-- Bouton Payer -->
+          <div class="form-group text-end mt-4">
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg"
+              [disabled]="confirmForm.invalid"
+            >
+              Payer la commande
+            </button>
+          </div>
         </form>
       </div>
     </div>

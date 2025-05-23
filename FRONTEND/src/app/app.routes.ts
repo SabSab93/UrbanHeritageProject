@@ -11,6 +11,8 @@ import { AssociationComponent } from './association/list/list-association.compon
 import { AssociationDetailComponent } from './association/detail/association-detail.component';
 import { ForgotPasswordComponent } from './components/auth/auth-forgot-password/auth-forgot-password.component';
 import { ResetPasswordComponent } from './components/auth/auth-reset-pasword/auth-reset-password.component';
+import { PaymentCancelComponent } from './components/paiement/payment-cancel.component';
+import { PaymentSuccessComponent } from './components/paiement/payment-success.component';
 
 export const routes: Routes = [
   // {path: 'admin',canActivate: [AuthGuard] , children: import('./ADMIN/index.router').then(m => m.ADMIN_ROUTES)},
@@ -43,5 +45,7 @@ export const routes: Routes = [
   { path: 'association/:id', component: AssociationDetailComponent },
   { path: 'forgot-password',  component: ForgotPasswordComponent },
   { path: 'reset-password',   component: ResetPasswordComponent },
+  { path: 'paiement/success', component: PaymentSuccessComponent },
+  { path: 'paiement/cancel',  component: PaymentCancelComponent },
   { path: '', component: HomePageComponent }
 ];
