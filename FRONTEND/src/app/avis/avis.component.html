@@ -1,0 +1,33 @@
+<div class="avis-container" *ngIf="maillot">
+  <h2>Laissez votre avis</h2>
+
+  <div class="maillot">
+    <img [src]="maillot.url_image_maillot_1" [alt]="maillot.nom_maillot" />
+    <h3>{{ maillot.nom_maillot }}</h3>
+  </div>
+
+  <form [formGroup]="reviewForm" (ngSubmit)="submitAvis()">
+    <div class="stars">
+      <ng-container *ngFor="let s of [1,2,3,4,5]">
+        <span
+          class="star"
+          [class.filled]="s <= reviewForm.value.note"
+          (click)="setRating(s)"
+          >&#9733;</span
+        >
+      </ng-container>
+    </div>
+
+    <textarea
+      formControlName="commentaire"
+      placeholder="Votre commentaire..."
+      rows="4"
+    ></textarea>
+
+    <button type="submit" [disabled]="reviewForm.invalid || loading">
+      {{ loading ? 'Envoi…' : 'Laisser mon avis' }}
+    </button>
+  </form>
+
+  <p class="feedback" *ngIf="feedback">{{ feedback }}</p>
+</div>
