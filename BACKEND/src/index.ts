@@ -1,14 +1,13 @@
-
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 
+// Routers
 import { authRouter } from "./router/auth";
 import { maillotRouter } from "./router/maillots";
 import { artisteRouter } from "./router/artistes";
 import { associationRouter } from "./router/associations";
-import { monMiddlewareBearer } from "./middleware/checkToken";
 import { avisRouter } from "./router/avis";
 import { ligneCommandeRouter } from "./router/lignecommandes";
 import { commandeRouter } from "./router/commandes";
@@ -22,82 +21,84 @@ import { lieuLivraisonRouter } from "./router/lieuLivraisons";
 import { methodeLivraisonRouter } from "./router/methodeLivraisons";
 import { stockRouter } from "./router/stocks";
 import { stockmaillotRouter } from "./router/stockMaillots";
-import { stripeRouter } from "./router/stripe";
 import { factureRouter } from "./router/factures";
 import { retourRouter } from "./router/retours";
-import { isAdmin } from "./middleware/isAdmin";
 import { avoirRouter } from "./router/avoirs";
 import { clientRouter } from "./router/clients";
+import { stripeRouter } from "./router/stripe";
+import { stripeWebhookRouter } from "./router/stripeWebhook";
+
+// Middlewares
+import { monMiddlewareBearer } from "./middleware/checkToken";
+import { isAdmin } from "./middleware/isAdmin";
 
 dotenv.config({
-  path: process.env.NODE_ENV === 'production'
-    ? '.env.prod'
-    : '.env.dev'
+  path: process.env.NODE_ENV === "production" ? ".env.prod" : ".env.dev",
 });
 
 export const prisma = new PrismaClient();
-
-
 export const app = express();
 
-app.use(cors({
-  origin: (incomingOrigin, callback) => {
-    if (!incomingOrigin) {
-      return callback(null, true);
-    }
-    let hostname: string;
-    try {
-      hostname = new URL(incomingOrigin).hostname;
-    } catch {
-      return callback(new Error("Origin invalide"), false);
-    }
+// 🌐 CORS
+app.use(
+  cors({
+    origin: (inc, callback) => {
+      if (!inc) return callback(null, true);
+      let host: string;
+      try {
+        host = new URL(inc).hostname;
+      } catch {
+        return callback(new Error("Origin invalide"), false);
+      }
+      if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".vercel.app"))
+        return callback(null, true);
+      callback(null, false);
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "ngsw-bypass"],
+    credentials: true,
+    optionsSuccessStatus: 204,
+  })
+);
 
-    // 1) toujours autoriser en local (dev)
-    if (hostname === "localhost" || hostname === "127.0.0.1") {
-      return callback(null, true);
-    }
+// ⚠️ Webhook Stripe — AVANT express.json()
+app.use(
+  '/api/stripe/webhook',
+  express.raw({ type: 'application/json' }), // doit rester AVANT toute autre
+  stripeWebhookRouter                        // router qui contient ses propres .post()
+);
 
-    // 2) autoriser Vercel
-    if (hostname.endsWith(".vercel.app")) {
-      return callback(null, true);
-    }
-
-    // 3) sinon, refuser
-    return callback(null, false);
-  },
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","Authorization","X-Requested-With","ngsw-bypass"],
-  credentials: true,
-  optionsSuccessStatus: 204
-}));
-
-
-app.options("*", cors());
+// 🧩 JSON parser pour le reste
 app.use(express.json());
 
-const apiRouter = express.Router();
-app.use("/api", apiRouter);
+// 🧭 Routing API
+const api = express.Router();
+app.use("/api", api);
 
-// Montage des sous‐routes
-apiRouter.use("/auth", authRouter);
-apiRouter.use("/client", clientRouter);
-apiRouter.use("/maillot", maillotRouter);
-apiRouter.use("/artiste", artisteRouter);
-apiRouter.use("/association", associationRouter);
-apiRouter.use("/avis", avisRouter);
-apiRouter.use("/lignecommande", ligneCommandeRouter);
-apiRouter.use("/commande", monMiddlewareBearer, commandeRouter);
-apiRouter.use("/reduction", reductionRouter);
-apiRouter.use("/tva", tvaRouter);
-apiRouter.use("/role", monMiddlewareBearer, isAdmin, roleRouter);
-apiRouter.use("/personnalisation", personnalisationRouter);
-apiRouter.use("/livraison", monMiddlewareBearer, livraisonRouter);
-apiRouter.use("/livreur", livreurRouter);
-apiRouter.use("/lieu-livraison", lieuLivraisonRouter);
-apiRouter.use("/methode-livraison", methodeLivraisonRouter);
-apiRouter.use("/stock", stockRouter);
-apiRouter.use("/stockmaillot", stockmaillotRouter);
-apiRouter.use("/stripe", stripeRouter);
-apiRouter.use("/facture", factureRouter);
-apiRouter.use("/retour", retourRouter);
-apiRouter.use("/avoir", monMiddlewareBearer, isAdmin, avoirRouter);
+// Routes publiques ou sécurisées
+api.use("/auth", authRouter);
+api.use("/client", clientRouter);
+api.use("/maillot", maillotRouter);
+api.use("/artiste", artisteRouter);
+api.use("/association", associationRouter);
+api.use("/avis", avisRouter);
+api.use("/lignecommande", ligneCommandeRouter);
+api.use("/commande", monMiddlewareBearer, commandeRouter);
+api.use("/reduction", reductionRouter);
+api.use("/tva", tvaRouter);
+api.use("/role", monMiddlewareBearer, isAdmin, roleRouter);
+api.use("/personnalisation", personnalisationRouter);
+api.use("/livraison", monMiddlewareBearer, livraisonRouter);
+api.use("/livreur", livreurRouter);
+api.use("/lieu-livraison", lieuLivraisonRouter);
+api.use("/methode-livraison", methodeLivraisonRouter);
+api.use("/stock", stockRouter);
+api.use("/stockmaillot", stockmaillotRouter);
+api.use("/facture", factureRouter);
+api.use("/retour", retourRouter);
+api.use("/avoir", monMiddlewareBearer, isAdmin, avoirRouter);
+api.use("/stripe", stripeRouter);
+
+// 🚀 Démarrage
+const port = +process.env.PORT! || 1993;
+app.listen(port, () => console.log(`✅ Serveur démarré sur http://localhost:${port}`));
