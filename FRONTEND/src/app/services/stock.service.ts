@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Observable } from 'rxjs';
+
 
 export interface Disponibilite {
   taille_maillot: string;
@@ -15,7 +15,7 @@ export class StockService {
   constructor(private http: HttpClient) {}
 
   /** Renvoie la dispo par taille pour un maillot (front) */
-  getDisponibilitePublic(idMaillot: number): Observable<Disponibilite[]> {
+  getDisponibilitePublic(idMaillot: number) {
     return this.http.get<Disponibilite[]>(
       `${environment.apiUrl}/stock/public/disponibilite/${idMaillot}`
     );

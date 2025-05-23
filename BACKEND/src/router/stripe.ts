@@ -124,3 +124,16 @@ stripeRouter.get(
   }
 );
 
+stripeRouter.get('/public/session/:sid', async (req, res) => {
+  try {
+    const sess = await stripe.checkout.sessions.retrieve(req.params.sid);
+    res.json({
+      id_commande : sess.metadata?.id_commande,
+      amount_total: sess.amount_total,
+      currency    : sess.currency,
+      payment_status: sess.payment_status,
+    });
+  } catch (e:any) {
+    res.status(400).json({ message: e.message });
+  }
+});

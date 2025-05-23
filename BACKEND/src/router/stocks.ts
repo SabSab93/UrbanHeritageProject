@@ -220,6 +220,56 @@ stockRouter.get("/public/disponibilite/:id_maillot", async (req, res) => {
 });
 
 
+stockRouter.get('/public/disponibilite/:idMaillot', async (req, res) => {
+  const idMaillot = parseInt(req.params.idMaillot, 10);
+  if (isNaN(idMaillot)) {
+    return res.status(400).json({ message: 'id_maillot invalide' });
+  }
+
+  try {
+    // 1️⃣ Tous les stocks (une ligne par taille) du maillot
+    const stocks = await prisma.stock.findMany({
+      where: { id_maillot: idMaillot },
+      select: { id_stock: true, taille_maillot: true }
+    });
+
+    // 2️⃣ Tous les mouvements, groupés par id_stock + type_mouvement
+    const mouvements = await prisma.stockMaillot.groupBy({
+      by: ['id_stock', 'type_mouvement'],
+      where: {
+        id_stock: { in: stocks.map(s => s.id_stock) }
+      },
+      _sum: { quantite_stock: true }
+    });
+
+    // 3️⃣ On reconstitue la quantité disponible pour chaque taille
+    const dispo = stocks.map(s => {
+      const totalEntree =
+        mouvements
+          .filter(m => m.id_stock === s.id_stock && m.type_mouvement === 'entree')
+          .reduce((a, m) => a + (m._sum.quantite_stock ?? 0), 0);
+
+      const totalSortie =
+        mouvements
+          .filter(m => m.id_stock === s.id_stock && m.type_mouvement === 'sortie')
+          .reduce((a, m) => a + (m._sum.quantite_stock ?? 0), 0);
+
+      const quantite = totalEntree - totalSortie;
+
+      return {
+        taille_maillot:        s.taille_maillot,
+        quantite_disponible:   quantite,
+        statut: quantite === 0 ? 'rupture' : quantite < 5 ? 'basse' : 'ok'
+      };
+    });
+
+    res.json(dispo);
+  } catch (err) {
+    console.error('Erreur dispo stock :', err);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
 /*** Suppression ***********************************************************/
 
 // Suppression : supprimer un stock
