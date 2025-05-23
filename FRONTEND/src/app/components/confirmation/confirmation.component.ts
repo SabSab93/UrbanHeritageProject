@@ -1,23 +1,23 @@
-// src/app/components/confirmation/confirmation.component.ts
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Subscription, forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
-/* Services */
+
 import { PanierService }   from '../panier/panier.service';
 import { CommandeService } from '../../services/commande.service';
 import { StockService, Disponibilite } from '../../services/stock.service';
 import { AuthLoginService } from '../../services/auth-service/auth-login.service';
 
-/* Modèles */
+
 import { MethodeLivraison } from '../../models/methode-livraison.model';
 import { LieuLivraison }    from '../../models/lieu-livraison.model';
 import { Livreur }          from '../../models/livreur.model';
 import { Reduction }        from '../../models/reduction.model';
 
-/* Composants partagés */
+
 import { HeaderComponent } from '../home-page/shared/header/header.component';
 import { BannerComponent } from '../home-page/banner/banner.component';
 import { FooterComponent } from '../home-page/shared/footer/footer.component';
