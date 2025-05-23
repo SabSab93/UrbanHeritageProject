@@ -13,6 +13,8 @@ import { ForgotPasswordComponent } from './components/auth/auth-forgot-password/
 import { ResetPasswordComponent } from './components/auth/auth-reset-pasword/auth-reset-password.component';
 import { PaymentCancelComponent } from './components/paiement/payment-cancel.component';
 import { PaymentSuccessComponent } from './components/paiement/payment-success.component';
+import { AvisComponent } from './avis/avis.component';
+import { OrderGuard } from './guards/order-guard';
 
 export const routes: Routes = [
   // {path: 'admin',canActivate: [AuthGuard] , children: import('./ADMIN/index.router').then(m => m.ADMIN_ROUTES)},
@@ -45,7 +47,12 @@ export const routes: Routes = [
   { path: 'association/:id', component: AssociationDetailComponent },
   { path: 'forgot-password',  component: ForgotPasswordComponent },
   { path: 'reset-password',   component: ResetPasswordComponent },
-  { path: 'paiement/success', component: PaymentSuccessComponent },
-  { path: 'paiement/cancel',  component: PaymentCancelComponent },
+  { path: 'paiement/success', component: PaymentSuccessComponent, canActivate: [AuthGuard] },
+  { path: 'paiement/cancel',  component: PaymentCancelComponent, canActivate: [AuthGuard] },
+  {
+  path: 'maillot/:id/avis',
+  component: AvisComponent,
+  canActivate: [AuthGuard, OrderGuard]
+},
   { path: '', component: HomePageComponent }
 ];
