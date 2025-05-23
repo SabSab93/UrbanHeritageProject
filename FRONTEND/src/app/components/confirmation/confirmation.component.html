@@ -39,9 +39,9 @@
                 <div class="item-details">
                   <h4>{{ item.Maillot.nom_maillot }}</h4>
                   <p>
-                    Taille&nbsp;: {{ item.taille_maillot }}<br />
-                    Quantité&nbsp;: {{ item.quantite }}<br />
-                    Prix unité HT&nbsp;: {{ item.prix_ht | number:'1.2-2' }} €
+                    Taille : {{ item.taille_maillot }}<br />
+                    Quantité : {{ item.quantite }}<br />
+                    Prix unité HT : {{ item.prix_ht | number:'1.2-2' }} €
                   </p>
                   <p *ngIf="stockErrors[i]" class="error">
                     {{ stockErrors[i] }}
@@ -81,20 +81,21 @@
               <label>
                 <input
                   type="radio"
-                  formControlName="useClientAddress"
-                  [value]="true"
+                  [checked]="confirmForm.value.useClientAddress === true"
+                  (change)="confirmForm.get('useClientAddress')?.setValue(true)"
                 />
                 Utiliser mon adresse principale
               </label>
               <label>
                 <input
                   type="radio"
-                  formControlName="useClientAddress"
-                  [value]="false"
+                  [checked]="confirmForm.value.useClientAddress === false"
+                  (change)="confirmForm.get('useClientAddress')?.setValue(false)"
                 />
                 Saisir une autre adresse
               </label>
             </div>
+
             <div *ngIf="!confirmForm.value.useClientAddress">
               <div class="form-group">
                 <label for="adresse_livraison">Adresse</label>
@@ -112,14 +113,21 @@
               </div>
               <div class="form-group">
                 <label for="ville_livraison">Ville</label>
-                <input id="ville_livraison" formControlName="ville_livraison" />
+                <input
+                  id="ville_livraison"
+                  formControlName="ville_livraison"
+                />
               </div>
               <div class="form-group">
                 <label for="pays_livraison">Pays</label>
-                <input id="pays_livraison" formControlName="pays_livraison" />
+                <input
+                  id="pays_livraison"
+                  formControlName="pays_livraison"
+                />
               </div>
             </div>
           </section>
+
 
           <!-- 4. Méthode / Lieu / Transporteur -->
           <section>
@@ -173,13 +181,13 @@
 
             <h2>Transporteur</h2>
             <div class="form-group">
-              <label for="id_livreur">Livreur</label>
-              <select id="id_livreur" formControlName="id_livreur">
-                <option [value]="null">— Choisir un transporteur —</option>
-                <option *ngFor="let r of livreurs" [value]="r.id_livreur">
-                  {{ r.nom_livreur }}
-                </option>
-              </select>
+            <label for="id_livreur">Livreur</label>
+            <select id="id_livreur" formControlName="id_livreur">
+              <option [ngValue]="null">— Choisir un transporteur —</option>
+              <option *ngFor="let r of livreurs" [ngValue]="r.id_livreur">
+                {{ r.nom_livreur }}
+              </option>
+            </select>
               <div
                 class="error"
                 *ngIf="
