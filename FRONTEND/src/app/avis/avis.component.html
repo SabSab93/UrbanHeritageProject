@@ -1,33 +1,62 @@
-<div class="avis-container" *ngIf="maillot">
-  <h2>Laissez votre avis</h2>
+<app-header></app-header>
 
-  <div class="maillot">
-    <img [src]="maillot.url_image_maillot_1" [alt]="maillot.nom_maillot" />
-    <h3>{{ maillot.nom_maillot }}</h3>
-  </div>
 
-  <form [formGroup]="reviewForm" (ngSubmit)="submitAvis()">
-    <div class="stars">
-      <ng-container *ngFor="let s of [1,2,3,4,5]">
-        <span
-          class="star"
-          [class.filled]="s <= reviewForm.value.note"
-          (click)="setRating(s)"
-          >&#9733;</span
-        >
-      </ng-container>
+<div class="avis-wrapper">
+  <div class="avis-page">
+
+    <!-- Gauche : image + titre + formulaire -->
+    <div class="left-panel" *ngIf="maillot">
+      <div class="maillot-top">
+        <img
+          class="maillot-img"
+          [src]="maillot.url_image_maillot_3"
+          [alt]="maillot.nom_maillot"
+        />
+        <h3>{{ maillot.nom_maillot }}</h3>
+      </div>
+
+      <form [formGroup]="reviewForm" (ngSubmit)="submitAvis()">
+        <div class="stars">
+          <ng-container *ngFor="let s of [1,2,3,4,5]">
+            <span
+              class="star"
+              [class.filled]="s <= reviewForm.value.note"
+              (click)="setRating(s)"
+              >&#9733;</span
+            >
+          </ng-container>
+        </div>
+
+        <input
+          type="text"
+          formControlName="titre"
+          placeholder="Titre de votre avis"
+          class="input-titre"
+        />
+
+        <textarea
+          formControlName="description"
+          placeholder="Votre commentaire..."
+          rows="4"
+        ></textarea>
+
+        <button type="submit" [disabled]="reviewForm.invalid || loading">
+          {{ loading ? 'Envoi…' : 'Laisser mon avis' }}
+        </button>
+      </form>
+
+      <p class="feedback" *ngIf="feedback">{{ feedback }}</p>
     </div>
 
-    <textarea
-      formControlName="commentaire"
-      placeholder="Votre commentaire..."
-      rows="4"
-    ></textarea>
+    <!-- Droite : illustration pleine hauteur -->
+    <div class="image-panel">
+      <img
+        src="assets/images/commande/avis-page.png"
+        alt="Enfants jouant au foot en N&B"
+      />
+    </div>
 
-    <button type="submit" [disabled]="reviewForm.invalid || loading">
-      {{ loading ? 'Envoi…' : 'Laisser mon avis' }}
-    </button>
-  </form>
-
-  <p class="feedback" *ngIf="feedback">{{ feedback }}</p>
+  </div>
 </div>
+
+<app-footer></app-footer>

@@ -1,60 +1,126 @@
-.avis-container {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 1rem;
-  font-family: Arial, sans-serif;
+// Déclaration des hauteurs de header et banner
+$header-height: 60px;
+$banner-height: 40px;
+
+/* 0) reset global */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;              /* plus de scroll sur le body */
 }
 
-.maillot {
-  text-align: center;
-  margin-bottom: 1rem;
+/* header, banner, footer ne scrollent pas */
+app-header,
+app-banner,
+app-footer {
+  flex: 0 0 auto;
 }
 
-.maillot img {
-  max-width: 100%;
-  border-radius: 8px;
+/* 1) wrapper entre banner et footer */
+.avis-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - #{$header-height} - #{$banner-height});
 }
 
-.stars {
-  text-align: center;
-  margin: 0.5rem 0;
+/* 2) zone de contenu en deux colonnes */
+.avis-page {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
 }
 
-.star {
-  font-size: 2rem;
-  cursor: pointer;
-  color: lightgray;
-  transition: color 0.2s;
-}
-.star.filled {
-  color: gold;
+/* 3) colonne gauche (form + maillot) */
+.left-panel {
+  width: 50%;
+  padding: 2rem;
+  overflow-y: auto;     /* scroll uniquement ici */
+  box-sizing: border-box;
+
+  .maillot-top {
+    text-align: center;
+    margin-bottom: 1.5rem;
+
+    .maillot-img {
+      max-width: 180px;
+      max-height: 180px;
+      margin: 0 auto 1rem;
+      border: 1px solid #000;
+      object-fit: cover;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.3rem;
+    }
+  }
+
+  .stars {
+    text-align: center;
+    margin-bottom: 1rem;
+    .star {
+      font-size: 2rem;
+      cursor: pointer;
+      color: lightgray;
+      transition: color 0.2s;
+    }
+    .star.filled {
+      color: #000;
+    }
+  }
+
+  .input-titre,
+  textarea {
+    width: 100%;
+    border: 1px solid #000;
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+  }
+
+  button {
+    width: 100%;
+    padding: 0.75rem;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover:not(:disabled) {
+      background: #333;
+    }
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .feedback {
+    text-align: center;
+    margin-top: 1rem;
+    color: #000;
+  }
 }
 
-textarea {
-  width: 100%;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
-  font-size: 1rem;
-}
+/* 4) colonne droite FIXE (image enfants) */
+.image-panel {
+  position: sticky;
+  top: calc(#{$header-height} + #{$banner-height});
+  right: 0;
+  width: 50%;
+  height: calc(100vh - #{$header-height} - #{$banner-height});
+  overflow: hidden;
 
-button {
-  display: block;
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-}
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.feedback {
-  margin-top: 0.5rem;
-  color: #d9534f;
-  text-align: center;
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
 }
