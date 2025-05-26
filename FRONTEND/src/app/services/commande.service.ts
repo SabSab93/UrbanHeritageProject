@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 import { MethodeLivraison } from '../models/methode-livraison.model';
@@ -162,4 +162,25 @@ export class CommandeService {
       this.authHeaders()
     );
   }
+  hasOrderedMaillot(maillotId: number): Observable<boolean> {
+    return this.getMesCommandes().pipe(
+      map(commandes => 
+        commandes.some(cmd =>
+          // Adapte ici selon la forme de tes commandes 
+          // (par exemple cmd.items ou cmd.maillots)
+          Array.isArray(cmd.maillots)
+            ? cmd.maillots.some((m: any) => m.id === maillotId)
+            : false
+        )
+      )
+    );
+  }
+  hasReceivedMaillot(maillotId: number): Observable<boolean> {
+  return this.http.get<{ authorized: boolean }>(
+    `${this.baseUrl}/maillot/${maillotId}/authorized`,
+    this.authHeaders()
+  ).pipe(
+    map(res => res.authorized)
+  );
+}
 }

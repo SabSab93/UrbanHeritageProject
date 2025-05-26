@@ -21,6 +21,9 @@ const generateJwt = (idClient: number, idRole: number | null) =>
   jwt.sign({ id_client: idClient, id_role: idRole }, process.env.JWT_SECRET!, {
     expiresIn: "18h",
   });
+
+  const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS || "10", 10);
+
 /*** Inscription locale (client) *******************************************/
 authRouter.post('/register-client', async (req, res) => {
   const {
@@ -43,24 +46,28 @@ authRouter.post('/register-client', async (req, res) => {
     });
 
     if (existing) {
-      // 2.a) Si un token d’activation existe => compte non activé
+      // 2.a) Si un token d’activation existe → compte non activé
       if (existing.activation_token) {
         const newActivationToken = crypto.randomBytes(32).toString('hex');
         await prisma.client.update({
           where: { id_client: existing.id_client },
           data: { activation_token: newActivationToken }
         });
-
-        // Envoi du mail d’activation
         await sendMail({
           to: existing.adresse_mail_client,
           subject: '🔔 Rappel : active ton compte UrbanHeritage',
-          html: templateActivationCompte(existing.prenom_client || existing.nom_client, newActivationToken).html,
-          text: templateActivationCompte(existing.prenom_client || existing.nom_client, newActivationToken).text
+          html: templateActivationCompte(
+            existing.prenom_client || existing.nom_client,
+            newActivationToken
+          ).html,
+          text: templateActivationCompte(
+            existing.prenom_client || existing.nom_client,
+            newActivationToken
+          ).text
         });
-
         return res.status(200).json({
-          message: "Un nouveau lien d'activation vient de t'être envoyé ! Vérifie ta boîte mail."
+          message:
+            "Un nouveau lien d'activation vient de t'être envoyé ! Vérifie ta boîte mail."
         });
       }
 
@@ -75,22 +82,25 @@ authRouter.post('/register-client', async (req, res) => {
           reset_token_expiry: expiry
         }
       });
-
-      // Envoi du mail de reset
       await sendMail({
         to: existing.adresse_mail_client,
         subject: '🔑 Réinitialisation de ton mot de passe UrbanHeritage',
-        html: templateForgotPassword(existing.prenom_client || existing.nom_client, resetToken),
-        text: `Pour réinitialiser ton mot de passe, clique ici : ${(process.env.FRONTEND_URL || 'http://localhost:4200').replace(/\/$/, '')}/reset-password?token=${resetToken}`
+        html: templateForgotPassword(
+          existing.prenom_client || existing.nom_client,
+          resetToken
+        ),
+        text: `Pour réinitialiser ton mot de passe, clique ici : ${(process
+          .env.FRONTEND_URL || 'http://localhost:4200'
+        ).replace(/\/$/, '')}/reset-password?token=${resetToken}`
       });
-
       return res.status(200).json({
-        message: "Ton compte est déjà activé ; un lien de réinitialisation de mot de passe t'a été envoyé."
+        message:
+          "Ton compte est déjà activé ; un lien de réinitialisation de mot de passe t'a été envoyé."
       });
     }
 
     // 3) Nouvel utilisateur → création
-    const salt = await bcrypt.genSalt(Number(process.env.SALT_ROUNDS));
+    const salt = await bcrypt.genSalt(SALT_ROUNDS);
     const hash = await bcrypt.hash(mot_de_passe, salt);
     const activationToken = crypto.randomBytes(32).toString('hex');
 
@@ -115,8 +125,14 @@ authRouter.post('/register-client', async (req, res) => {
     await sendMail({
       to: newClient.adresse_mail_client,
       subject: '👋 Bienvenue chez UrbanHeritage ! Active ton compte',
-      html: templateActivationCompte(newClient.prenom_client || newClient.nom_client, activationToken).html,
-      text: templateActivationCompte(newClient.prenom_client || newClient.nom_client, activationToken).text
+      html: templateActivationCompte(
+        newClient.prenom_client || newClient.nom_client,
+        activationToken
+      ).html,
+      text: templateActivationCompte(
+        newClient.prenom_client || newClient.nom_client,
+        activationToken
+      ).text
     });
 
     return res.status(201).json({
@@ -127,7 +143,6 @@ authRouter.post('/register-client', async (req, res) => {
     return res.status(500).json({ message: 'Erreur serveur.' });
   }
 });
-
 
 /*** Activation via lien e‑mail ********************************************/
 authRouter.post("/activate/:token", async (req, res) => {
@@ -177,39 +192,29 @@ authRouter.post("/activate/:token", async (req, res) => {
   }
 });
 
-/*** Connexion locale ******************************************************/
-authRouter.post("/login", async (req, res) => {
-  const { email, mot_de_passe: password } = req.body;
 
+/*** Connexion locale ******************************************************/
+authRouter.post("/login", async (req: Request, res: Response) => {
+  const { email, mot_de_passe: password } = req.body;
   try {
     const client = await prisma.client.findUnique({
       where: { adresse_mail_client: email },
     });
-
-    // ─── 1) PAS trouvé → 401
-    if (!client) {
-      await new Promise(r => setTimeout(r, 1000));
+    if (
+      !client ||
+      (client.provider === provider_enum.local && client.statut_compte !== "actif")
+    ) {
+      // 401 ou 403 selon le cas...
       return res.status(401).json({ message: "Email ou mot de passe incorrect" });
     }
-
-    // ─── 2) Compte non activé → 403 avec message dédié
-    if (client.provider === provider_enum.local && client.statut_compte !== "actif") {
-      return res.status(403).json({ message: "Compte non activé" });
-    }
-
-    // ─── 3) Vérifier le mot de passe
     const match = await bcrypt.compare(password, client.mot_de_passe!);
     if (!match) {
-      await new Promise(r => setTimeout(r, 1000));
       return res.status(401).json({ message: "Email ou mot de passe incorrect" });
     }
-
-    // ─── 4) Tout est bon → JWT
     const token = generateJwt(client.id_client, client.id_role);
     return res.json({ token, client });
-
   } catch (error) {
-    console.error("/login", error);
+    console.error("‼️ Erreur /login:", error);
     return res.status(500).json({ message: "Erreur serveur" });
   }
 });
@@ -240,81 +245,84 @@ authRouter.post("/google", async (req, res) => {
   }
 });
 /*** Mot de passe oublié / réinitialisation **************************************/
-authRouter.post('/forgot-password', async (req, res) => {
+authRouter.post("/forgot-password", async (req, res) => {
   const { email } = req.body as { email?: string };
   if (!email) {
-    return res.status(400).json({ message: 'Email manquant' });
+    return res.status(400).json({ message: "Email manquant" });
   }
   try {
     const client = await prisma.client.findUnique({
       where: { adresse_mail_client: email },
     });
     if (!client || client.provider !== provider_enum.local) {
-      return res.status(404).json({ message: 'Compte introuvable' });
+      return res.status(404).json({ message: "Compte introuvable" });
     }
-    // Génère un token et l’enregistre
-    const resetToken = crypto.randomBytes(30).toString('hex');
+    // Génère un token et l’enregistre DANS reset_token
+    const resetToken = crypto.randomBytes(30).toString("hex");
+    const expiry = new Date(Date.now() + 3600 * 1000); // 1h
     await prisma.client.update({
       where: { id_client: client.id_client },
       data: {
-        activation_token: resetToken,
-        // facultatif : token_expires_at: new Date(Date.now() + 3600_000), // +1h
+        reset_token: resetToken,
+        reset_token_expiry: expiry,
       },
     });
-    // Envoi du mail
+
+    // Envoi du mail de reset
     await sendMail({
       to: client.adresse_mail_client,
-      subject: '🔑 UrbanHeritage – Réinitialisation de votre mot de passe',
+      subject: "🔑 Réinitialisation de votre mot de passe",
       html: templateForgotPassword(
         client.prenom_client || client.nom_client,
         resetToken
       ),
     });
-    console.log('Email de reset envoyé à :', client.adresse_mail_client);
-    return res.json({ message: 'Email envoyé' });
+
+    return res.json({ message: "Email de réinitialisation envoyé." });
   } catch (err) {
-    console.error('/forgot-password', err);
-    return res.status(500).json({ message: 'Erreur serveur' });
+    console.error("/forgot-password", err);
+    return res.status(500).json({ message: "Erreur serveur" });
   }
 });
-/*** 1.2 Réinitialisation du mot de passe ***/
-authRouter.post('/reset-password', async (req, res) => {
-  const { token }    = req.query as { token?: string };
+
+/*** Réinitialisation du mot de passe (via reset_token) ***********************/
+authRouter.post("/reset-password", async (req, res) => {
+  const { token } = req.query as { token?: string };
   const { password } = req.body as { password?: string };
   if (!token) {
-    return res.status(400).json({ message: 'Token manquant' });
+    return res.status(400).json({ message: "Token manquant" });
   }
   if (!password) {
-    return res.status(400).json({ message: 'Mot de passe manquant' });
+    return res.status(400).json({ message: "Mot de passe manquant" });
   }
   try {
-    // Vérifie le token
     const client = await prisma.client.findFirst({
       where: {
-        activation_token: token,
+        reset_token: token,
+        reset_token_expiry: { gt: new Date() },
         provider: provider_enum.local,
-        // facultatif : token_expires_at: { gt: new Date() }
-      }
+      },
     });
     if (!client) {
-      return res.status(400).json({ message: 'Token invalide ou expiré' });
+      return res.status(400).json({ message: "Token invalide ou expiré" });
     }
-    // Hash et update
-    const hash = await bcrypt.hash(password, 10);
+    // Hash avec le même nombre de rounds
+    const hash = await bcrypt.hash(password, SALT_ROUNDS);
     await prisma.client.update({
       where: { id_client: client.id_client },
       data: {
         mot_de_passe: hash,
-        activation_token: null,
-        // facultatif : token_expires_at: null
+        reset_token: null,
+        reset_token_expiry: null,
       },
     });
-    return res.json({ message: 'Mot de passe réinitialisé avec succès' });
+    return res.json({ message: "Mot de passe réinitialisé avec succès" });
   } catch (err) {
-    console.error('/reset-password', err);
-    return res.status(500).json({ message: 'Erreur serveur' });
+    console.error("/reset-password", err);
+    return res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
 
 /*** Creation Admin *********************************************************/
 authRouter.post("/register-admin", monMiddlewareBearer, isAdmin, async (req, res) => {

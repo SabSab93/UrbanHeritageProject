@@ -319,6 +319,22 @@ commandeRouter.post(
   }
 );
 
+commandeRouter.get(
+  '/maillot/:id/authorized',
+  monMiddlewareBearer,
+  async (req: any, res) => {
+    const idClient = req.clientId;                 // à extraire via ton middleware
+    const idMaillot = parseInt(req.params.id, 10);
+    const delivered = await prisma.ligneCommande.findFirst({
+      where: {
+        id_client: idClient,
+        id_maillot: idMaillot,
+        Commande: { statut_commande: 'livre' },
+      },
+    });
+    return res.json({ authorized: Boolean(delivered) });
+  }
+);
 /*** 7. Valider paiement ******************************************************/
 commandeRouter.post(
   '/valider-paiement/:id',

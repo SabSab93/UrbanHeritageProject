@@ -1,5 +1,7 @@
-const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
 
+import { FRONTEND_URL } from "../../config"
+
+const frontendUrl = FRONTEND_URL;
 export const templateDemandeAvis = (
   prenom_client: string,
   id_maillot: number,
@@ -10,8 +12,8 @@ export const templateDemandeAvis = (
     <p>Bonjour ${prenom_client},</p>
     <p>Nous espérons que vous êtes ravi(e) de votre maillot <strong>${nom_maillot}</strong> !</p>
     <p>Votre retour est précieux pour nous et pour les autres fans 🏆.</p>
-    <p><strong>En quelques clics</strong>, donnez votre avis sur votre commande :</p>
-    <a href="${frontendUrl}/avis/creer/${id_maillot}"
+    <p><strong>En quelques clics</strong>, donnez votre avis :</p>
+    <a href="${frontendUrl}/maillot/${id_maillot}/avis"
        style="display: inline-block; padding: 10px 20px; background-color: #004aad; color: white; text-decoration: none; border-radius: 5px; margin-top: 15px;">
       Donner mon avis
     </a>
