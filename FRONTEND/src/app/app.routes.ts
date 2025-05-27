@@ -15,6 +15,7 @@ import { PaymentCancelComponent } from './components/paiement/payment-cancel.com
 import { PaymentSuccessComponent } from './components/paiement/payment-success.component';
 import { AvisComponent } from './avis/avis.component';
 import { OrderGuard } from './guards/order-guard';
+import { AuthActivationComponent } from './components/auth/auth-activation/auth-activation.component';
 
 export const routes: Routes = [
   // {path: 'admin',canActivate: [AuthGuard] , children: import('./ADMIN/index.router').then(m => m.ADMIN_ROUTES)},
@@ -54,5 +55,7 @@ export const routes: Routes = [
   component: AvisComponent,
   canActivate: [AuthGuard, OrderGuard]
 },
+ { path: 'activation', component:AuthActivationComponent },
+        
   { path: '', component: HomePageComponent }
 ];
