@@ -117,7 +117,8 @@ authRouter.post('/register-client', async (req, res) => {
         adresse_mail_client,
         mot_de_passe: hash,
         activation_token: activationToken,
-        statut_compte: 'en_attente'
+        statut_compte: 'en_attente',
+        id_role: 2 
       }
     });
 

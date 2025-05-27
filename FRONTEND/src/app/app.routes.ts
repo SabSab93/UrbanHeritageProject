@@ -54,5 +54,9 @@ export const routes: Routes = [
   component: AvisComponent,
   canActivate: [AuthGuard, OrderGuard]
 },
+ { path: 'activation', loadComponent: () =>
+      import('./components/auth/auth-activation/auth-activation.component')
+        .then(m => m.AuthActivationComponent) },
+        
   { path: '', component: HomePageComponent }
 ];

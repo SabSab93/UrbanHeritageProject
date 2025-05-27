@@ -160,7 +160,6 @@ export class AuthLoginService {
     return this.clientSubject.value?.id_client ?? null;
   }
   activateAccount(token: string): Observable<{ message: string }> {
-    // on envoie un corps vide {} car le back attend un POST
     return this.http.post<{ message: string }>(
       `${environment.apiUrl}/auth/activate/${token}`,
       {}
