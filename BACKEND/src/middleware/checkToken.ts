@@ -1,22 +1,24 @@
-
 import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
 
-export const monMiddlewareBearer = async (req: any, res: any, next: any) => {
-  try {
-    const fullToken = req.headers.authorization;
-
-    if (!fullToken) return res.status(401).send("No token provided");
-
-    const [typeToken, token] = fullToken.split(" ");
-    if (typeToken !== "Bearer") return res.status(401).send("Invalid token type");
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-
-    req.token = token;
-    req.decoded = decoded; 
-    next();
-
-  } catch (error) {
-    return res.status(401).send("Invalid or expired token");
+export function monMiddlewareBearer(req: Request, res: Response, next: NextFunction) {
+  /* 👉 Laisse passer la pré-requête CORS */
+  if (req.method === 'OPTIONS') {
+    return next();               // pas de contrôle de token
   }
-};
+
+  const full = req.headers.authorization;
+  if (!full) return res.status(401).send('No token provided');
+
+  const [scheme, token] = full.split(' ');
+  if (scheme !== 'Bearer') return res.status(401).send('Invalid token type');
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    (req as any).token   = token;
+    (req as any).decoded = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).send('Invalid or expired token');
+  }
+}

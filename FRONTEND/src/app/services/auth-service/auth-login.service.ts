@@ -136,7 +136,7 @@ export class AuthLoginService {
   }
   resendActivation(email: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(
-      `${environment.apiUrl}/auth/resend-activation`,
+      `${this.authUrl}/resend-activation`,
       { email }
     );
   }
@@ -161,7 +161,7 @@ export class AuthLoginService {
   }
   activateAccount(token: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(
-      `${environment.apiUrl}/auth/activate/${token}`,
+      `${this.authUrl}/activate/${token}`,
       {}
     );
   }
