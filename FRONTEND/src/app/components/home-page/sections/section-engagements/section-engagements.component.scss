@@ -1,0 +1,49 @@
+.engagements-section {
+  background-color: white;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  position: relative;
+}
+
+// Titre : fond noir, police impact, au-dessus
+.engagements-title {
+  font-family: 'Impact', sans-serif;
+  font-size: 5rem;
+  background-color: #0A0A0A;
+  color: #FFF;
+  display: inline-block;
+  padding: 0.5rem 2rem;
+  margin-top: -5rem; // à cheval avec la section précédente
+  margin-bottom: 4rem;
+  z-index: 2;
+  position: relative;
+}
+
+// Liste en flex
+.engagements-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3rem;
+  padding-bottom: 4rem;
+}
+
+// Item : centré, texte poppins semi-bold
+.engagement-item {
+  width: 220px;
+
+  img {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #2E2E2E;
+    margin: 0;
+  }
+}
