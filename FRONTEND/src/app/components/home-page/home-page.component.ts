@@ -14,6 +14,7 @@ import { BannerComponent } from './banner/banner.component';
   standalone: true,
   imports: [CommonModule, RouterModule, HeaderComponent, BannerComponent, SectionEngagementsComponent,SectionIntroductionComponent,SectionAProposComponent, FooterComponent],
   templateUrl: './home-page.component.html'
+
 })
 export class HomePageComponent {
   constructor(public authUiService: AuthUiService) {}

@@ -1,0 +1,55 @@
+:host {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+.hero-banner {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-image: url('/assets/images/home/home.png');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.hero-text {
+  position: absolute;
+  top:35%;
+  left: 5%;
+  transform: translateY(-50%);
+  text-align: left;
+  max-width: 40%;
+}
+.hero-title {
+  font-family: 'Impact', sans-serif;
+  font-size: 4rem;
+  text-transform: uppercase;
+  color: #ffffff;
+  background-color: #0A0A0A;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  margin: 0 0 1rem;
+}
+.hero-subtitle {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 2rem;
+  color: #ffffff;
+  margin-bottom: 2rem;
+}
+.hero-button {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  background-color: #2E2E2E;
+  color: #FFFFFF;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.hero-button:hover {
+  background-color: #0A0A0A;
+}
