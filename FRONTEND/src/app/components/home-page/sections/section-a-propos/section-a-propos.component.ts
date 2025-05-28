@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-section-a-propos',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './section-a-propos.component.html'
+  templateUrl: './section-a-propos.component.html',
+  styleUrls: ['./section-a-propos.component.scss']
 })
 export class SectionAProposComponent {}

@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap');
+
+:host {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.about-hero {
+  display: flex;
+  height: 100vh;
+  margin: 0;
+}
+
+// Image à gauche
+.about-left {
+  flex: 1;
+  background-image: url('/assets/images/home/engagement.png');
+  background-size: cover;
+  background-position: center;
+  height: 100%;
+}
+
+// Contenu à droite
+.about-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; // pour coller en haut
+}
+
+// Titre Impact, fond noir
+.about-title {
+  font-family: 'Impact', sans-serif;
+  font-size: 6rem;
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  margin: 0 0 2rem 0;
+  position: relative;
+  top: -4rem;
+  z-index: 2; 
+}
+
+// Texte Poppins semi-bold, gris anthracite
+.about-text p {
+   padding: 2rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 2rem;
+  color: #2E2E2E;
+  margin-bottom: 1rem;
+}
+
+// Bouton inspiré de la section intro
+.btn-engagements {
+  align-self: start;
+  margin-left: 2rem;
+  font-size: 1.75rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #2E2E2E;
+  color: #FFF;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+    &:hover {
+    background-color: #0A0A0A;
+  }
+}
+
