@@ -8,11 +8,12 @@ import { HeaderComponent } from './shared/header/header.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { AuthUiService } from '../../services/auth-service/auth-sidebar.service';
 import { BannerComponent } from './banner/banner.component';
+import { SectionMaillotsCoupDeCoeurComponent } from './sections/section-maillots-coup-de-coeur/section-maillots-coup-de-coeur.component';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent, BannerComponent, SectionEngagementsComponent,SectionIntroductionComponent,SectionAProposComponent, FooterComponent],
+  imports: [CommonModule, RouterModule, HeaderComponent, BannerComponent, SectionEngagementsComponent,SectionIntroductionComponent,SectionAProposComponent, SectionMaillotsCoupDeCoeurComponent, FooterComponent],
   templateUrl: './home-page.component.html'
 
 })
