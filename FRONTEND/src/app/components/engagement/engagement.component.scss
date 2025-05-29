@@ -4,37 +4,54 @@
   --anthracite: #2E2E2E;
   --grey-medium: #777777;
   --grey-light: #D9D9D9;
+
+  /* Hauteur approximative du header (ajustez si nécessaire) */
+  --header-height: 80px;
 }
 
+/* Reset de base */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Conteneur global */
 .engagement-container {
   font-family: 'Poppins', sans-serif;
   color: var(--anthracite);
 }
 
-/* rend le row plein écran ou presque */
+/* 1) La row prend toute la hauteur restante sous le header */
 .engagement-section {
-  min-height: 80vh;
+  display: flex;
+  height: calc(100vh - var(--header-height));
+  overflow: hidden;
 }
 
-/* Image en fond plein cadre */
+/* 2) Colonne image */
 .image-col {
   position: relative;
   padding: 0;
-}
-
-.image-col img {
-  width: 100%;
   height: 100%;
-  object-fit: cover;
 }
 
-/* Titre principal en Impact, overlay */
+/* 3) L’image remplit la colonne sans être découpée */
+.image-col img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* 4) Titre principal en Impact, overlay */
 .association-title {
   font-family: 'Impact', sans-serif;
   font-size: 5rem;
   text-transform: uppercase;
-  background-color: var(--black);
-  color: var(--white);
+  background-color: black;
+  color: white;
   display: inline-block;
   padding: 0.75rem 1.5rem;
   margin: 0;
@@ -43,20 +60,25 @@
 .overlay-title {
   position: absolute;
   top: 1rem;
-  right: -31rem;   
-  left: auto;       
+  right: -15rem; /* ajustez pour décaler horizontalement */
+  left: auto;
   background-color: black;
-  color: #FFFFFF;
+  color: white;
 }
 
-/* Texte à droite */
+/* 5) Colonne texte */
 .text-col {
-  background-color: var(--white);
+  background-color: white;
+
 }
+
+
+/* Classe utilitaire pour descendre le texte */
 .pt-15 {
   padding-top: 15rem !important;
 }
 
+/* Sous-titres */
 .subtitle {
   font-weight: 600;
   text-transform: uppercase;
@@ -65,6 +87,7 @@
   color: var(--grey-medium);
 }
 
+/* Texte courant */
 .body-text {
   font-weight: 300;
   font-size: 1.125rem;
@@ -72,9 +95,31 @@
   line-height: 1.7;
 }
 
+/* Séparateur */
 .divider {
   height: 3px;
   background-color: var(--grey-light);
   border: none;
   margin: 3rem 0;
+}
+
+/* Responsive : en mobile on repasse à un comportement normal */
+@media (max-width: 767.98px) {
+  .engagement-section {
+    display: block;
+    height: auto;
+  }
+  .image-col {
+    height: auto;
+  }
+  .image-col img {
+    height: auto;
+    width: 100%;
+    object-fit: cover;
+  }
+}
+.text-col,
+.text-col .subtitle,
+.text-col .body-text {
+  text-align: left;
 }
