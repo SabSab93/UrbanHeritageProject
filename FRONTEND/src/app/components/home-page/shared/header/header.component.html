@@ -58,7 +58,7 @@
     </ng-container>
 
     <ng-template #login>
-      <a href="#" class="static-link" (click)="toggleAuth()">
+      <a href="#" class="static-link" (click)="toggleAuth(); $event.preventDefault()">
         <img src="assets/icons/user.svg" class="icon" alt="Se connecter" />
         Se connecter
       </a>
