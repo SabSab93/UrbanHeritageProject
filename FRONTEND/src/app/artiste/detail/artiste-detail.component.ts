@@ -8,6 +8,7 @@ import { FooterComponent }               from '../../components/home-page/shared
 import { ArtisteService }                from '../artiste.service';
 import { Artiste }                       from '../../models/artiste.model';
 import { Maillot }                       from '../../models/maillot.model';
+import { CarrouselMaillotComponent } from '../../maillot/carrousel-maillot/carrousel-maillot.component';
 
 @Component({
   selector: 'app-artiste-detail',
@@ -16,6 +17,7 @@ import { Maillot }                       from '../../models/maillot.model';
     CommonModule,
     RouterModule,
     HeaderComponent,
+    CarrouselMaillotComponent,
     FooterComponent
   ],
   templateUrl: './artiste-detail.component.html',
