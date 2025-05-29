@@ -1,4 +1,3 @@
-<!-- src/app/components/association/detail-association/detail-association.component.html -->
 <app-header></app-header>
 
 <div class="container py-5">
@@ -9,7 +8,7 @@
       <h2 class="assoc-hero-title text-uppercase mb-3">
         {{ association.nom_association }}
       </h2>
-      <p class="text-muted mb-1">
+      <p class="assoc-hero-subtitle text-uppercase mb-1">
         {{ association.pays_association }}
         <span *ngIf="association.numero_identification_association">
           · ID {{ association.numero_identification_association }}
@@ -23,7 +22,7 @@
           [href]="association.site_web_association"
           target="_blank"
           rel="noopener"
-          class="btn btn-primary btn-sm mt-3"
+          class="btn-site-officiel mt-3"
         >
           Visiter le site officiel
         </a>
@@ -38,7 +37,7 @@
     </div>
   </div>
 
-  <!-- Second bloc : description 2 & image 2 -->
+  <!-- Mission : image à gauche, texte à droite -->
   <div *ngIf="association" class="row align-items-center mb-5 assoc-section">
     <div class="col-md-6 text-center">
       <img
@@ -55,7 +54,7 @@
     </div>
   </div>
 
-  <!-- Troisième bloc : description 3 & image 3 -->
+  <!-- Valeurs : texte à gauche, image à droite -->
   <div *ngIf="association" class="row align-items-center assoc-section">
     <div class="col-md-6">
       <h3 class="section-title mb-3">Valeurs</h3>
@@ -72,7 +71,7 @@
     </div>
   </div>
 
-  <!-- Gestion du loading / erreur -->
+  <!-- Loading / Erreur -->
   <div *ngIf="loading" class="text-center py-5">
     <div class="spinner-border" role="status">
       <span class="visually-hidden">Chargement...</span>
