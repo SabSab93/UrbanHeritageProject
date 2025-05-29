@@ -1,52 +1,89 @@
-<app-header></app-header>
+@import url('https://fonts.googleapis.com/css2?family=Impact&family=Poppins:wght@300;600&display=swap');
 
-<div class="association-list container px-4 pt-5 pb-5">
-  <!-- Bandeau titre aligné à droite -->
-  <div class="d-flex justify-content-end mb-4">
-    <h2 class="association-title">Nos associations</h2>
-  </div>
+.artist-list {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 
-  <!-- Chargement -->
-  <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Chargement...</span>
-    </div>
-  </div>
-  <div *ngIf="error" class="alert alert-danger">
-    {{ error }}
-  </div>
+  /* BANNIÈRE TITRE ARTISTES alignée à droite */
+  .artist-title {
+    font-family: 'Impact', sans-serif;
+    font-size: 4rem;
+    text-transform: uppercase;
+    background-color: #0A0A0A;
+    color: #FFFFFF;
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0;
+  }
 
-  <!-- Grille responsive 5 colonnes max -->
-  <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
-    <div class="col" *ngFor="let a of associations">
-      <div class="card h-100 shadow-sm border association-card">
-        <!-- Image de l'association -->
-        <img
-          [src]="a.url_image_association_1"
-          [alt]="a.nom_association"
-          class="association-thumb"
-        />
+  .artist-thumb {
+    width: 100%;
+    height: 700px;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+    border-bottom: 2px solid #f0f0f0;
+  }
 
-        <div class="card-body d-flex flex-column">
-          <!-- Nom en semi-bold uppercase Poppins -->
-          <h5 class="card-title association-name">
-            {{ a.nom_association }}
-          </h5>
-          <!-- Pays en Poppins regular -->
-          <p class="card-text flex-grow-1 association-country">
-            {{ a.pays_association }}
-          </p>
-          <!-- Bouton voir le profil -->
-          <a
-            [routerLink]="['/association', a.id_association]"
-            class="hero-button mt-2"
-          >
-            Voir le profil
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+  .card {
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+    border: 1px solid #dee2e6;
 
-<app-footer></app-footer>
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+
+    .card-body {
+      display: flex;
+      flex-direction: column;
+
+      /* Nom de l'artiste */
+      .card-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+      }
+
+      /* Description courte */
+      .card-text {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 300;
+        flex-grow: 1;
+      }
+
+      /* Bouton “Voir le profil” */
+      .btn-outline-primary {
+        margin-top: 1rem;
+      }
+    }
+  }
+
+  /* Centrer la grille si besoin */
+  .row.justify-content-center {
+    justify-content: center;
+  }
+}
+
+/* Bouton “Voir le profil” style hero */
+.artist-button {
+  display: inline-block;    
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  background-color: #2E2E2E;
+  font-size: 1rem;         
+  color: #FFFFFF;
+  padding: 0.5rem 1rem;        
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
+}
+
+.artist-button:hover {
+  background-color: #0A0A0A;
+}
