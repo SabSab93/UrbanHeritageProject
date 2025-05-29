@@ -1,14 +1,14 @@
 /* src/app/shared/footer/footer.component.scss */
-
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap');
 .footer {
   border-top: 1px solid black;
   background-color: white;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 1.2rem;
 
-  /* hauteur fixe comme le header */
+
   height: 40px;
-  /* on ne veut plus de padding vertical, seulement horizontal */
+  max-height: 40px;
   padding: 0 2rem;
 
   display: flex;
@@ -16,13 +16,12 @@
   align-items: center;
   /* plus de wrapping */
   flex-wrap: nowrap;
-  box-sizing: border-box; /* pour que padding soit inclus dans la hauteur */
+  box-sizing: border-box; 
 }
 
 .footer-links {
   display: flex;
   gap: 1.5rem;
-  /* plus de flex-wrap */
   flex-wrap: nowrap;
 }
 
@@ -41,7 +40,6 @@
 .footer-social {
   display: flex;
   gap: 1rem;
-  /* on supprime le margin-top pour tout aligner sur une ligne */
   margin-top: 0;
 }
 
