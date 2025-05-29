@@ -1,12 +1,19 @@
-/* src/app/components/artiste/list-artiste.component.scss */
+@import url('https://fonts.googleapis.com/css2?family=Impact&family=Poppins:wght@300;600&display=swap');
+
 .artist-list {
-  /* padding horizontal déjà géré par .container.px-4 */
   padding-top: 2rem;
   padding-bottom: 2rem;
 
-  h2 {
-    font-size: 1.75rem;
-    font-weight: 500;
+  /* BANNIÈRE TITRE ARTISTES */
+  .artist-title {
+    font-family: 'Impact', sans-serif;
+    font-size: 4rem;
+    text-transform: uppercase;
+    background-color: #0A0A0A;
+    color: #FFFFFF;
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0;
   }
 
   .artist-thumb {
@@ -21,10 +28,60 @@
   .card {
     overflow: hidden;
     transition: transform .2s, box-shadow .2s;
-    border: 1px solid #dee2e6; /* bordure légère */
+    border: 1px solid #dee2e6;
+
     &:hover {
       transform: translateY(-4px);
       box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
     }
+
+    .card-body {
+      display: flex;
+      flex-direction: column;
+
+      /* Nom de l'artiste */
+      .card-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+      }
+
+      /* Description courte */
+      .card-text {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 300;
+        flex-grow: 1;
+      }
+
+      /* Bouton inchangé */
+      .btn-outline-primary {
+        margin-top: 1rem;
+      }
+    }
   }
+
+  /* Centrer la grille (optionnel) */
+  .row.justify-content-center {
+    justify-content: center;
+  }
+}
+.artist-button {
+  display: inline-block;    
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  background-color: #2E2E2E;
+  font-size: 1rem;         
+  color: #FFFFFF;
+  padding: 0.5rem 1rem;        
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
+}
+
+.artist-button:hover {
+  background-color: #0A0A0A;
 }
