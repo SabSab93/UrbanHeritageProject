@@ -22,7 +22,7 @@
 
       <!-- Colonne 3 : infos produit -->
       <div class="col">
-        <h2 class="mb-1">{{ maillot?.nom_maillot }}</h2>
+        <h2 class="detail-title">{{ maillot?.nom_maillot }}</h2>
         <p class="text-muted">
           {{ maillot?.pays_maillot }} · Réf. {{ maillot?.id_maillot }}
         </p>
@@ -144,10 +144,7 @@
         </div>
 
         <!-- Bouton Ajouter au panier -->
-        <button
-          class="btn btn-success btn-lg w-100 mb-4"
-          (click)="addToCart()"
-        >
+        <button class="btn-panier mb-4" (click)="addToCart()">
           Ajouter au panier
         </button>
 
@@ -215,97 +212,109 @@
     </div>
   </div>
 
-  <!-- Section Hero -->
-  <div class="row align-items-center my-5 hero-section">
-    <div class="col-md-5 text-center">
-      <img
-        [src]="maillot?.url_image_maillot_3"
-        [alt]="maillot?.nom_maillot + ' vue 3'"
-        class="img-fluid hero-img"
-      />
-    </div>
-    <div class="col-md-7">
-      <h2 class="maillot-title text-uppercase mb-3">
-        {{ maillot?.nom_maillot }}
-      </h2>
-      <p class="maillot-description">
-        {{ maillot?.description_maillot }}
-      </p>
-    </div>
+  <!-- Section Hero ------------------------------------------------>
+<div class="row align-items-center my-5 hero-section">
+  <div class="col-md-5 text-center">
+    <img
+      [src]="maillot?.url_image_maillot_3"
+      [alt]="maillot?.nom_maillot + ' vue 3'"
+      class="img-fluid hero-img"
+    />
+  </div>
+  <div class="col-md-7">
+    <h2 class="maillot-title text-uppercase mb-3">
+      {{ maillot?.nom_maillot }}
+    </h2>
+    <p class="maillot-description">
+      {{ maillot?.description_maillot }}
+    </p>
+  </div>
+</div>
+<!-- / Hero ------------------------------------------------------>
+
+<!-- Section Artiste --------------------------------------------->
+<div class="row artist-section align-items-center my-5">
+  <div class="col-12 mb-4 text-center">
+    <h2 class="detail-title">Découvrez l'artiste</h2>
   </div>
 
-  <!-- Section Artiste -->
-  <div class="row artist-section align-items-center my-5">
-    <div class="col-12 mb-4 text-center">
-      <h3 class="artist-section-title text-uppercase">
-        Découvrez l'artiste associé
-      </h3>
+  <div class="col-md-4 text-center">
+    <!-- Image artiste -->
+  </div>
+
+  <div class="col-md-8">
+    <h4 class="artist-name mb-2"><!-- Nom artiste --></h4>
+    <p class="artist-bio"><!-- Bio courte --></p>
+    <ul class="artist-stats list-unstyled d-flex flex-wrap gap-3 mt-3">
+      <!-- Statistiques artiste -->
+    </ul>
+  </div>
+</div>
+<!-- / Artiste --------------------------------------------------->
+
+<!-- Section Associations --------------------------------------------->
+<div class="row associations-section my-5">
+  <div class="col-12 mb-4 text-center">
+    <h2 class="detail-title">Association</h2>
+  </div>
+  <div class="col-md-4 text-center">
+    <!-- Image association -->
+  </div>
+  <div class="col-md-8">
+    <h4 class="association-name mb-2"><!-- Nom association --></h4>
+    <p class="association-description"><!-- Description association --></p>
+  </div>
+</div>
+
+<!-- / Associations --------------------------------------------------->
+
+
+<!-- Section Avis clients --------------------------------------->
+<div class="row reviews-section my-5">
+  <div class="col-12">
+    <h2 class="detail-title">Avis clients</h2>
+
+    <!-- Statistiques globales -->
+    <div *ngIf="!loadingAvis && nombreAvis > 0" class="mb-3">
+      <strong>{{ moyenneAvis }}/5</strong>
+      ({{ nombreAvis }} {{ nombreAvis > 1 ? 'avis' : 'avis' }})
     </div>
-    <div class="col-md-4 text-center">
-      <!-- Image artiste si vous la réactivez -->
-    </div>
-    <div class="col-md-8">
-      <h4 class="artist-name mb-2">
-        <!-- {{ maillot?.artiste?.nom_artiste }} -->
-      </h4>
-      <p class="artist-bio">
-        <!-- {{ maillot?.artiste?.bio_courte }} -->
-      </p>
-      <div class="reviews-section mt-5">
-        <h3>Avis clients</h3>
 
-        <!-- Statistiques globales -->
-        <div *ngIf="!loadingAvis && nombreAvis > 0" class="mb-3">
-          <strong>{{ moyenneAvis }}/5</strong>
-          ({{ nombreAvis }} {{ nombreAvis > 1 ? 'avis' : 'avis' }})
-        </div>
+    <!-- Chargement / erreur -->
+    <div *ngIf="loadingAvis" class="text-muted mb-3">Chargement des avis…</div>
+    <div *ngIf="errorAvis" class="text-danger mb-3">{{ errorAvis }}</div>
 
-        <!-- Chargement -->
-        <div *ngIf="loadingAvis" class="text-muted">
-          Chargement des avis…
-        </div>
-        <div *ngIf="errorAvis" class="text-danger">
-          {{ errorAvis }}
-        </div>
-
-        <!-- Liste des avis -->
-        <ul class="list-unstyled" *ngIf="!loadingAvis && avisList.length">
-          <li *ngFor="let a of avisList" class="mb-4 border-bottom pb-3">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <span class="fw-bold">{{ a.titre_avis }}</span>
-                <small class="text-muted ms-2">
-                  – {{ a.Client?.prenom_client || 'Anonyme' }}
-                </small>
-              </div>
-              <div>
-                <!-- Affiche des étoiles selon classement_avis -->
-                <ng-container *ngFor="let star of [1,2,3,4,5]">
-                  <i
-                    class="bi"
-                    [class.bi-star-fill]="star <= a.classement_avis"
-                    [class.bi-star]="star > a.classement_avis"
-                  ></i>
-                </ng-container>
-              </div>
-            </div>
-            <p class="mt-2 mb-1">{{ a.description_avis }}</p>
-            <small class="text-muted">
-              {{ a.date_avis | date:'longDate'}}
+    <!-- Liste des avis -->
+    <ul class="list-unstyled" *ngIf="!loadingAvis && avisList.length">
+      <li *ngFor="let a of avisList" class="mb-4 border-bottom pb-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="fw-bold">{{ a.titre_avis }}</span>
+            <small class="text-muted ms-2">
+              – {{ a.Client?.prenom_client || 'Anonyme' }}
             </small>
-          </li>
-        </ul>
-
-        <!-- Aucun avis -->
-        <div *ngIf="!loadingAvis && avisList.length === 0" class="text-muted">
-          Aucun avis pour ce maillot.
+          </div>
+          <div>
+            <ng-container *ngFor="let star of [1,2,3,4,5]">
+              <i
+                class="bi"
+                [class.bi-star-fill]="star <= a.classement_avis"
+                [class.bi-star]="star > a.classement_avis"
+              ></i>
+            </ng-container>
+          </div>
         </div>
-      </div>
-      <ul class="artist-stats list-unstyled d-flex flex-wrap gap-3 mt-3">
-        <!-- Statistiques artiste -->
-      </ul>
+        <p class="mt-2 mb-1">{{ a.description_avis }}</p>
+        <small class="text-muted">{{ a.date_avis | date:'longDate' }}</small>
+      </li>
+    </ul>
+
+    <!-- Aucun avis -->
+    <div *ngIf="!loadingAvis && avisList.length === 0" class="text-muted">
+      Aucun avis pour ce maillot.
     </div>
   </div>
 </div>
+<!-- / Avis ----------------------------------------------------->
 
 <app-footer></app-footer>
