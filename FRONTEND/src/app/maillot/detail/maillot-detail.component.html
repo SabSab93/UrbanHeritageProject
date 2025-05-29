@@ -232,39 +232,12 @@
 </div>
 <!-- / Hero ------------------------------------------------------>
 
-<!-- Section Artiste --------------------------------------------->
-<div class="row artist-section align-items-center my-5">
-  <div class="col-12 mb-4 text-center">
-    <h2 class="detail-title">Découvrez l'artiste</h2>
-  </div>
-
-  <div class="col-md-4 text-center">
-    <!-- Image artiste -->
-  </div>
-
-  <div class="col-md-8">
-    <h4 class="artist-name mb-2"><!-- Nom artiste --></h4>
-    <p class="artist-bio"><!-- Bio courte --></p>
-    <ul class="artist-stats list-unstyled d-flex flex-wrap gap-3 mt-3">
-      <!-- Statistiques artiste -->
-    </ul>
-  </div>
-</div>
-<!-- / Artiste --------------------------------------------------->
+<app-section-artiste *ngIf="artiste" [artiste]="artiste"></app-section-artiste>
 
 <!-- Section Associations --------------------------------------------->
-<div class="row associations-section my-5">
-  <div class="col-12 mb-4 text-center">
-    <h2 class="detail-title">Association</h2>
-  </div>
-  <div class="col-md-4 text-center">
-    <!-- Image association -->
-  </div>
-  <div class="col-md-8">
-    <h4 class="association-name mb-2"><!-- Nom association --></h4>
-    <p class="association-description"><!-- Description association --></p>
-  </div>
-</div>
+
+<app-section-association *ngIf="association" [association]="association"></app-section-association>
+
 
 <!-- / Associations --------------------------------------------------->
 
