@@ -1,8 +1,10 @@
+/* src/app/artiste/detail/artiste-detail.component.scss */
+@import url('https://fonts.googleapis.com/css2?family=Impact&family=Poppins:wght@300;600&display=swap');
+
 /* conteneur général */
 .container {
   .artist-hero,
   .artist-section {
-    // ajoute un peu d’espacement vertical
     & + & {
       margin-top: 4rem;
     }
@@ -11,84 +13,99 @@
 
 /* images dans chaque section */
 .section-img {
-  width: 100%;            /* Bootstrap img-fluid s’en charge déjà */
-  height: auto;           /* respecte le ratio d’origine */
+  width: 100%;
+  height: auto;
   border-radius: 0.5rem;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
 }
-/* titre principal */
+
+/* ---------------------------------------------------
+   HERO SECTION
+   --------------------------------------------------- */
+
+/* Titre principal */
 .artist-hero-title {
-  font-family: 'Oswald', sans-serif;
-  font-size: 2.5rem;
-  letter-spacing: 0.05em;
-  color: #1a1a1a;
+  font-family: 'Impact', sans-serif;
+  font-size: 3.5rem;
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  line-height: 1;
 }
 
-/* texte intro */
+/* Sous-titre (pays + date) */
+.artist-hero-subtitle {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #444;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+/* Texte d’introduction */
 .artist-hero-text {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 1.1rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 300;
+  font-size: 1rem;
   line-height: 1.6;
   color: #444;
+  margin-top: 1rem;
 }
 
-/* sous-titres de sections */
+/* Bouton “site officiel” */
+.btn-site-officiel {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  background-color: #2E2E2E;
+  color: #FFFFFF;
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.btn-site-officiel:hover {
+  background-color: #0A0A0A;
+}
+
+/* ---------------------------------------------------
+   SECTIONS PARCOURS & VALEURS
+   --------------------------------------------------- */
+
 .section-title {
-  font-family: 'Oswald', sans-serif;
-  font-size: 1.75rem;
-  letter-spacing: 0.05em;
-  color: #222;
+  font-family: 'Impact', sans-serif;
+  font-size: 2rem;
+  text-transform: uppercase;
+  background-color: #0A0A0A;
+  color: #fff;
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
 }
 
-/* paragraphe de section */
 .section-text {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 300;
   font-size: 1rem;
   line-height: 1.6;
   color: #555;
   text-align: justify;
 }
 
-/* boutons réseaux */
+/* ---------------------------------------------------
+   SOCIAL BUTTONS (Instagram / TikTok)
+   --------------------------------------------------- */
+
 .artist-socials .btn {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
   font-size: 0.85rem;
   padding: 0.4rem 0.8rem;
 }
 
-/* section maillots carousel */
-.artist-maillots {
-  .carousel-img {
-    max-height: 400px;
-    object-fit: cover;
-  }
-
-  .carousel-item .position-relative {
-    overflow: hidden;
-  }
-
-  .carousel-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    transition: opacity 0.3s;
-    text-align: center;
-  }
-
-  .carousel-item .position-relative:hover .carousel-overlay {
-    opacity: 1;
-  }
-
-  .carousel-overlay h5 {
-    font-family: 'Oswald', sans-serif;
-    font-size: 1.25rem;
-    color: #fff;
-  }
-
-  .carousel-overlay .btn {
-    font-size: 0.9rem;
-  }
-}

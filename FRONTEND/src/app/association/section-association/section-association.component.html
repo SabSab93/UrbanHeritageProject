@@ -1,0 +1,51 @@
+<!-- Section Association réutilisable -->
+<div class="row association-section align-items-center my-5">
+  <!-- Titre centré -->
+  <div class="col-12 mb-4 text-center">
+    <h2 class="detail-title">Découvrez l'association</h2>
+  </div>
+
+  <!-- Texte aligné à droite -->
+  <div class="col-12 col-md-8 text-end">
+    <!-- Nom -->
+    <h4 class="association-name mb-3">{{ association.nom_association }}</h4>
+
+    <!-- Description -->
+    <p class="association-bio mb-4 text-end">
+      {{ association.description_association_1 }}
+    </p>
+
+    <!-- Bouton vers le site -->
+    <a
+      *ngIf="association.site_web_association"
+      [href]="association.site_web_association"
+      target="_blank"
+      rel="noopener"
+      class="association-button mb-4 d-inline-block"
+    >
+      Visiter le site
+    </a>
+
+    <!-- Infos diverses -->
+    <ul class="association-stats list-unstyled d-flex flex-wrap gap-3 justify-content-end">
+      <li><strong>Pays&nbsp;:</strong> {{ association.pays_association }}</li>
+      <li *ngIf="association.numero_identification_association">
+        <strong>N°&nbsp;:</strong> {{ association.numero_identification_association }}
+      </li>
+      <li *ngIf="association.adresse_siege_social_association">
+        <strong>Siège&nbsp;:</strong> {{ association.adresse_siege_social_association }}
+      </li>
+    </ul>
+  </div>
+
+  <!-- Image à droite -->
+  <div class="col-12 col-md-4 text-center">
+    <img
+      *ngIf="association.url_image_association_1"
+      [src]="association.url_image_association_1"
+      [alt]="association.nom_association"
+      class="img-fluid association-img"
+    />
+  </div>
+</div>
+<!-- / Section Association -->

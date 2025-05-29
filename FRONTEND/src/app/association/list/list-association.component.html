@@ -1,46 +1,50 @@
-<!-- src/app/components/association/list-association/list-association.component.html -->
 <app-header></app-header>
 
 <div class="association-list container px-4 pt-5 pb-5">
-  <h2 class="mb-4 text-start">Nos associations</h2>
+  <!-- Bandeau titre aligné à droite -->
+  <div class="d-flex justify-content-end mb-4">
+    <h2 class="association-title">Nos associations</h2>
+  </div>
 
+  <!-- Chargement -->
   <div *ngIf="loading" class="text-center py-5">
     <div class="spinner-border" role="status">
       <span class="visually-hidden">Chargement...</span>
     </div>
   </div>
-
   <div *ngIf="error" class="alert alert-danger">
     {{ error }}
   </div>
 
-  <div class="row g-4">
-    <div
-      class="col-sm-6 col-md-4 col-lg-3"
-      *ngFor="let a of associations"
-    >
-      <div class="card h-100 shadow-sm association-card border">
-        <!-- Image cliquable vers le détail -->
-        <a [routerLink]="['/association', a.id_association]">
-          <img
-            [src]="a.url_image_association_1"
-            [alt]="a.nom_association"
-            class="card-img-top association-thumb"
-          />
-        </a>
+  <!-- Grille responsive 5 colonnes max -->
+  <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
+    <div class="col" *ngFor="let a of associations">
+      <div class="card h-100 shadow-sm border association-card">
+        <!-- Image de l'association -->
+        <img
+          [src]="a.url_image_association_1"
+          [alt]="a.nom_association"
+          class="association-thumb"
+        />
 
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title">{{ a.nom_association }}</h5>
-          <p class="card-text flex-grow-1 text-muted">
+          <!-- Nom en semi-bold uppercase Poppins -->
+          <h5 class="card-title association-name">
+            {{ a.nom_association }}
+          </h5>
+          <p class="card-text flex-grow-1">
+            {{ a.description_association_1}}
+          </p>
+          <!-- Pays en Poppins regular -->
+          <p class="card-text flex-grow-1 association-country">
             {{ a.pays_association }}
           </p>
+          <!-- Bouton voir le profil -->
           <a
-            *ngIf="a.site_web_association"
-            [href]="a.site_web_association"
-            target="_blank"
-            class="btn btn-outline-primary mt-2"
+            [routerLink]="['/association', a.id_association]"
+            class="hero-button mt-2"
           >
-            Visiter le site
+            Voir le profil
           </a>
         </div>
       </div>

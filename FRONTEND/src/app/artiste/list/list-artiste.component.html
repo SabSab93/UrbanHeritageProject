@@ -2,7 +2,9 @@
 <app-header></app-header>
 
 <div class="artist-list container px-4 pt-5 pb-5">
-  <h2 class="mb-4 text-start">Nos artistes</h2>
+  <div class="d-flex justify-content-end mb-4">
+    <h2 class="artist-title">Nos artistes</h2>
+  </div>
 
   <div *ngIf="loading" class="text-center py-5">
     <div class="spinner-border" role="status">
@@ -14,11 +16,8 @@
     {{ error }}
   </div>
 
-  <div class="row g-4">
-    <div
-      class="col-sm-6 col-md-4 col-lg-3"
-      *ngFor="let artiste of artistes"
-    >
+  <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
+    <div class="col" *ngFor="let artiste of artistes">
       <div class="card h-100 shadow-sm border association-card">
         <img
           [src]="artiste.url_image_artiste_1"
@@ -34,7 +33,7 @@
           </p>
           <a
             [routerLink]="['/artiste', artiste.id_artiste]"
-            class="btn btn-outline-primary mt-2"
+            class="artist-button mt-2"
           >
             Voir le profil
           </a>

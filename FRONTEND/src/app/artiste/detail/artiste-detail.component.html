@@ -5,20 +5,25 @@
   <!-- Hero : texte à gauche, image à droite -->
   <div class="row align-items-center mb-5 artist-hero">
     <div class="col-md-6">
-      <h2 class="artist-hero-title text-uppercase mb-3">
+      <h3 class="artist-hero-title text-uppercase mb-3">
         {{ artiste?.prenom_artiste }} {{ artiste?.nom_artiste }}
-      </h2>
-      <p class="text-muted mb-1">
+      </h3>
+      <p class="artist-hero-subtitle text-uppercase mb-1">
         {{ artiste?.pays_artiste }}
         <span *ngIf="artiste?.date_naissance_artiste">
-          · Date de naissance {{ artiste?.date_naissance_artiste }}
+          · {{ artiste?.date_naissance_artiste | date }}
         </span>
       </p>
       <p class="artist-hero-text">
         {{ artiste?.description_artiste_1 }}
       </p>
       <p *ngIf="artiste?.site_web_artiste">
-        <a [href]="artiste?.site_web_artiste" target="_blank" rel="noopener" class="btn btn-primary btn-sm mt-3">
+        <a
+          [href]="artiste?.site_web_artiste"
+          target="_blank"
+          rel="noopener"
+          class="btn-site-officiel mt-3"
+        >
           Visiter son site officiel
         </a>
       </p>
@@ -57,18 +62,22 @@
         {{ artiste?.description_artiste_3 }}
       </p>
       <div class="artist-socials mt-3">
-        <a *ngIf="instagramUrl"
-           [href]="instagramUrl"
-           target="_blank"
-           rel="noopener"
-           class="btn btn-outline-dark me-2 btn-sm">
+        <a
+          *ngIf="instagramUrl"
+          [href]="instagramUrl"
+          target="_blank"
+          rel="noopener"
+          class="btn btn-outline-dark me-2 btn-sm"
+        >
           Instagram
         </a>
-        <a *ngIf="tiktokUrl"
-           [href]="tiktokUrl"
-           target="_blank"
-           rel="noopener"
-           class="btn btn-outline-dark btn-sm">
+        <a
+          *ngIf="tiktokUrl"
+          [href]="tiktokUrl"
+          target="_blank"
+          rel="noopener"
+          class="btn btn-outline-dark btn-sm"
+        >
           TikTok
         </a>
       </div>
@@ -81,61 +90,11 @@
       />
     </div>
   </div>
-  <!-- … fin de la page artise … -->
 
-  <div *ngIf="maillots.length" class="artist-maillots mt-5">
-    <h3 class="section-title mb-4 text-center">
-      Maillots créés par {{ artiste?.prenom_artiste }}
-    </h3>
-
-    <div
-      id="artistMaillotCarousel"
-      class="carousel slide"
-      data-bs-ride="carousel"
-    >
-      <div class="carousel-inner">
-        <div class="carousel-item" *ngFor="let m of maillots; let i = index" [class.active]="i === 0">
-          <div class="position-relative">
-            <img
-              [src]="m.url_image_maillot_1"
-              [alt]="m.nom_maillot"
-              class="d-block w-100 carousel-img"
-            />
-            <div class="carousel-overlay d-flex flex-column justify-content-center align-items-center">
-              <h5 class="text-white mb-3">{{ m.nom_maillot }}</h5>
-              <a
-                [routerLink]="['/maillots', m.id_maillot]"
-                class="btn btn-light"
-              >
-                Voir le maillot
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <button
-        class="carousel-control-prev"
-        type="button"
-        data-bs-target="#artistMaillotCarousel"
-        data-bs-slide="prev"
-      >
-        <span class="carousel-control-prev-icon"></span>
-        <span class="visually-hidden">Précédent</span>
-      </button>
-      <button
-        class="carousel-control-next"
-        type="button"
-        data-bs-target="#artistMaillotCarousel"
-        data-bs-slide="next"
-      >
-        <span class="carousel-control-next-icon"></span>
-        <span class="visually-hidden">Suivant</span>
-      </button>
-    </div>
-  </div>
+<app-carrousel-maillot
+  [maillots]="maillots"
+  [artisteName]="artiste?.prenom_artiste || ''"
+></app-carrousel-maillot>
 </div>
-
-
 
 <app-footer></app-footer>

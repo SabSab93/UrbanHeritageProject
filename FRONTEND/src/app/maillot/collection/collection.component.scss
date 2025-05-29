@@ -1,13 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Impact&family=Poppins:wght@300;600&display=swap');
+
 /* SECTION GÉNÉRALE -------------------------------------------------------- */
 .collection-wrapper {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
   padding: 5rem 1.5rem;
   min-height: calc(100vh - 80px);
 }
 
 .section-title {
-  font-size: 3rem;
-  font-weight: 600;
-  margin-bottom: 1.25rem;
+  font-family: 'Impact', sans-serif;
+  font-size: 6rem;              /* même taille que sur home */
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  margin-bottom: 2rem;
 }
 
 /* FILTRES ----------------------------------------------------------------- */
@@ -92,7 +101,7 @@
     padding: 0.25rem 0;
     margin: 0 0.25rem;
     text-align: center;
-    font-size: 0.9rem;
+    font-size: 1rem;
     line-height: 1.2;
     border: 1px solid #333;
     border-radius: 4px;

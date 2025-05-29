@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-section-engagements',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './section-engagements.component.html'
+  templateUrl: './section-engagements.component.html',
+  styleUrls: ['./section-engagements.component.scss']
 })
 export class SectionEngagementsComponent {}

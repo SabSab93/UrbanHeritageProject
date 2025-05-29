@@ -15,7 +15,10 @@
     <!-- 2) panneau contenu -->
     <div class="content-panel">
       <div class="container">
-        <h1>Confirmation de la commande</h1>
+        <!-- 1) TITRE -->
+        <h1 class="confirmation-title">
+          Confirmation de la commande
+        </h1>
 
         <div *ngIf="stockWarning" class="stock-warning">
           {{ stockWarning }}
@@ -67,7 +70,13 @@
                 formControlName="reduction"
                 placeholder="Entrez un code"
               />
-              <button type="button" (click)="applyPromo()">Appliquer</button>
+              <button
+                type="button"
+                class="btn-apply"
+                (click)="applyPromo()"
+              >
+                Appliquer
+              </button>
             </div>
             <p *ngIf="promoMessage" class="promo-message">
               {{ promoMessage }}
@@ -228,7 +237,7 @@
           <div class="form-group text-end mt-4">
             <button
               type="submit"
-              class="btn btn-primary btn-lg"
+              class="btn-submit"
               [disabled]="confirmForm.invalid"
             >
               Payer la commande

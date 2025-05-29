@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
   selector: 'app-section-introduction',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './section-introduction.component.html'
+  templateUrl: './section-introduction.component.html',
+  styleUrls: ['./section-introduction.component.scss']
 })
 export class SectionIntroductionComponent {}

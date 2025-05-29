@@ -1,6 +1,7 @@
 /* src/app/components/association/detail-association/detail-association.component.scss */
+@import url('https://fonts.googleapis.com/css2?family=Impact&family=Poppins:wght@300;600&display=swap');
 
-/* Espacement vertical entre les sections */
+/* Espacement vertical identique à Artiste Detail */
 .container {
   .assoc-hero,
   .assoc-section {
@@ -10,7 +11,7 @@
   }
 }
 
-/* Images des sections */
+/* Images “section-img” partagées */
 .section-img {
   width: 100%;
   height: auto;
@@ -18,33 +19,80 @@
   box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
 }
 
+/* ---------------------------------------------------
+   HERO SECTION
+   --------------------------------------------------- */
+
 /* Titre principal */
 .assoc-hero-title {
-  font-family: 'Oswald', sans-serif;
-  font-size: 2.5rem;
-  letter-spacing: 0.05em;
-  color: #1a1a1a;
+  font-family: 'Impact', sans-serif;
+  font-size: 3.5rem;
+  background-color: #0A0A0A;
+  color: #fff;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  line-height: 1;
 }
 
-/* Texte d’intro */
+/* Sous-titre */
+.assoc-hero-subtitle {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #444;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+/* Texte d’introduction */
 .assoc-hero-text {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 1.1rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 300;
+  font-size: 1rem;
   line-height: 1.6;
   color: #444;
+  margin-top: 1rem;
 }
+
+/* Bouton “site officiel” */
+.btn-site-officiel {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  background-color: #2E2E2E;
+  color: #fff;
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: inline-block;
+  text-decoration: none;
+}
+.btn-site-officiel:hover {
+  background-color: #0A0A0A;
+}
+
+/* ---------------------------------------------------
+   SECTIONS “Mission” & “Valeurs”
+   --------------------------------------------------- */
 
 /* Sous-titres de sections */
 .section-title {
-  font-family: 'Oswald', sans-serif;
-  font-size: 1.75rem;
-  letter-spacing: 0.05em;
-  color: #222;
+  font-family: 'Impact', sans-serif;
+  font-size: 2rem;
+  text-transform: uppercase;
+  background-color: #0A0A0A;
+  color: #fff;
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
 }
 
 /* Paragraphes de section */
 .section-text {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 300;
   font-size: 1rem;
   line-height: 1.6;
   color: #555;
