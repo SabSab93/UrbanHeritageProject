@@ -55,15 +55,15 @@
       .maillot-country {
         position: absolute;
         top: 50%;
-        left: 1rem;               /* à l'intérieur, légèrement décalé vers la droite */
+        left: 1rem;               
         transform: translateY(-50%);
         writing-mode: vertical-rl; 
-        text-transform: uppercase; /* texte vertical de haut en bas */
-        text-orientation: upright;  /* lettres restent droites */
+        text-transform: uppercase; 
+        text-orientation: upright;  
         font-family: 'Impact', sans-serif;
         font-weight: 600;
-        font-size: 4rem;           /* taille augmentée */
-        color: #2E2E2E;             /* noir anthracite */
+        font-size: 4rem;          
+        color: #2E2E2E;            
         background: none;
         margin: 0;
         padding: 0;
