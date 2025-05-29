@@ -16,6 +16,7 @@ import { PaymentSuccessComponent } from './components/paiement/payment-success.c
 import { AvisComponent } from './avis/avis.component';
 import { OrderGuard } from './guards/order-guard';
 import { AuthActivationComponent } from './components/auth/auth-activation/auth-activation.component';
+import { EngagementComponent } from './components/engagement/engagement.component';
 
 export const routes: Routes = [
   // {path: 'admin',canActivate: [AuthGuard] , children: import('./ADMIN/index.router').then(m => m.ADMIN_ROUTES)},
@@ -35,6 +36,7 @@ export const routes: Routes = [
       .then(m => m.ConfirmationComponent),
     canActivate: [AuthGuard]
   },
+  { path: 'engagements', component: EngagementComponent },
   { path: 'collection', component: CollectionComponent },
   {
     path: 'collection/maillot/:id',

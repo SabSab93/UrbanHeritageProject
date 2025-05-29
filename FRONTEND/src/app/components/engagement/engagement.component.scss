@@ -1,0 +1,80 @@
+:root {
+  --black: #0A0A0A;
+  --white: #FFFFFF;
+  --anthracite: #2E2E2E;
+  --grey-medium: #777777;
+  --grey-light: #D9D9D9;
+}
+
+.engagement-container {
+  font-family: 'Poppins', sans-serif;
+  color: var(--anthracite);
+}
+
+/* rend le row plein écran ou presque */
+.engagement-section {
+  min-height: 80vh;
+}
+
+/* Image en fond plein cadre */
+.image-col {
+  position: relative;
+  padding: 0;
+}
+
+.image-col img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Titre principal en Impact, overlay */
+.association-title {
+  font-family: 'Impact', sans-serif;
+  font-size: 5rem;
+  text-transform: uppercase;
+  background-color: var(--black);
+  color: var(--white);
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  margin: 0;
+}
+
+.overlay-title {
+  position: absolute;
+  top: 1rem;
+  right: -31rem;   
+  left: auto;       
+  background-color: black;
+  color: #FFFFFF;
+}
+
+/* Texte à droite */
+.text-col {
+  background-color: var(--white);
+}
+.pt-15 {
+  padding-top: 15rem !important;
+}
+
+.subtitle {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  color: var(--grey-medium);
+}
+
+.body-text {
+  font-weight: 300;
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+  line-height: 1.7;
+}
+
+.divider {
+  height: 3px;
+  background-color: var(--grey-light);
+  border: none;
+  margin: 3rem 0;
+}
