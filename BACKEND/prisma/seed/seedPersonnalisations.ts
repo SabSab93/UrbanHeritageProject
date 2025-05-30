@@ -6,7 +6,6 @@ const prisma = new PrismaClient();
 export const seedPersonnalisations = async () => {
   console.log("Seeding personnalisation...");
   await prisma.personnalisation.createMany({
-    skipDuplicates: true,
     data: [
       {
         type_personnalisation: "name_color",
@@ -19,5 +18,6 @@ export const seedPersonnalisations = async () => {
         description: "Ajout d’un nom",
       },
     ],
+    skipDuplicates: true,
   });
 };

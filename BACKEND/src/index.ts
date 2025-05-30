@@ -1,8 +1,9 @@
+// src/index.ts
+
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { PrismaClient } from "@prisma/client";
-
 
 import { authRouter } from "./router/auth";
 import { maillotRouter } from "./router/maillots";
@@ -28,18 +29,19 @@ import { clientRouter } from "./router/clients";
 import { stripeRouter } from "./router/stripe";
 import { stripeWebhookRouter } from "./router/stripeWebhook";
 
-
 import { monMiddlewareBearer } from "./middleware/checkToken";
 import { isAdmin } from "./middleware/isAdmin";
 
+// Charge le bon fichier .env
 dotenv.config({
   path: process.env.NODE_ENV === "production" ? ".env.prod" : ".env.dev",
 });
 
+// ORM et instance Express exportées pour tests et serverless
 export const prisma = new PrismaClient();
 export const app = express();
 
-
+// Configuration CORS
 app.use(
   cors({
     origin: (inc, callback) => {
@@ -50,32 +52,42 @@ app.use(
       } catch {
         return callback(new Error("Origin invalide"), false);
       }
-      if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".vercel.app"))
+      if (
+        host === "localhost" ||
+        host === "127.0.0.1" ||
+        host.endsWith(".vercel.app")
+      ) {
         return callback(null, true);
+      }
       callback(null, false);
     },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],   
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "ngsw-bypass"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "ngsw-bypass",
+    ],
     credentials: true,
     optionsSuccessStatus: 204,
   })
 );
 
-
-
-
+// Stripe webhook – raw body parser
 app.use(
-  '/api/stripe/webhook',
-  express.raw({ type: 'application/json' }), 
-  stripeWebhookRouter                       
+  "/api/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebhookRouter
 );
 
-
+// Middleware JSON
 app.use(express.json());
+
+// Routeur principal
 const api = express.Router();
 app.use("/api", api);
 
-
+// Déclaration des routes
 api.use("/auth", authRouter);
 api.use("/client", clientRouter);
 api.use("/maillot", maillotRouter);
@@ -98,8 +110,3 @@ api.use("/facture", factureRouter);
 api.use("/retour", retourRouter);
 api.use("/avoir", monMiddlewareBearer, isAdmin, avoirRouter);
 api.use("/stripe", stripeRouter);
-
-
-const port = process.env.PORT! || 1993;
-app.listen(port, () => console.log(`Serveur démarré sur http://localhost:${port}`));
-

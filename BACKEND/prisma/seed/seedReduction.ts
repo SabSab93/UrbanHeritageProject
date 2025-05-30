@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 export const seedReduction = async () => {
   console.log("Seeding reductions...");
   await prisma.reduction.createMany({
-    skipDuplicates: true,
     data: [
       {
         code_reduction: "SPRING15",
@@ -17,5 +16,6 @@ export const seedReduction = async () => {
         statut_reduction: "active",
       },
     ],
+    skipDuplicates: true,
   });
 };
