@@ -12,3 +12,4 @@ export interface Association {
   description_association_2?: string;
   description_association_3?: string;
 }
+

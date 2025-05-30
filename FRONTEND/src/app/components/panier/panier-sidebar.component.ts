@@ -40,25 +40,21 @@ export class PanierSidebarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    /* 1️⃣  ouverture/fermeture sidebar */
     this.isOpen$ = this.panierUi.isSidebarOpen$;
 
-    /* 2️⃣  id_client courant (null si invité) */
     const clientId$ = this.authLogin.client$.pipe(
       map(c => c?.id_client ?? null),
       shareReplay(1)
     );
 
-    /* 3️⃣  déclencheurs : ouverture ou demande reload() */
     const open$    = this.isOpen$.pipe(filter(o => o), mapTo(undefined));
     const trigger$ = merge(open$, this.reload$);
 
-    /* 4️⃣  lignes du panier */
     this.lignes$ = trigger$.pipe(
       withLatestFrom(clientId$),
       switchMap(([_, id]) => this.panierSrv.getCartLines(id)),
       map(lines => {
-        /* regrouper mêmes articles + perso + taille */
+
         const grouped: Record<string,LignePanier> = {};
         for (const l of lines) {
           const key = [
@@ -78,7 +74,6 @@ export class PanierSidebarComponent implements OnInit {
       })
     );
 
-    /* 5️⃣  total TTC du panier */
     this.total$ = trigger$.pipe(
       withLatestFrom(clientId$),
       switchMap(([_, id]) => this.panierSrv.getCartTotal(id)),
@@ -86,14 +81,12 @@ export class PanierSidebarComponent implements OnInit {
     );
   }
 
-  /* ---------- actions ---------- */
   close(): void {
     this.panierUi.closeSidebar();
   }
 
   removeLine(idLigne: number): void {
     const idClient = this.authLogin.currentClientId;
-    /* nouvelle signature : (idClient, idLigne) */
     this.panierSrv.removeLine(idClient, idLigne).subscribe({
       next: () => this.reload$.next(),
       error: err => console.error('❌ Erreur suppression ligne', err)

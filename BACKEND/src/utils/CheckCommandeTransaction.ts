@@ -1,5 +1,5 @@
 
-import { PrismaClient, taille_maillot_enum } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -20,14 +20,14 @@ export const checkCommandeTransaction = async (
 ) => {
   return prisma.$transaction(
     async (tx) => {
-      /* 1️⃣ récupérer les lignes du panier */
+
       const lignesPanier = await tx.ligneCommande.findMany({
         where: { id_client, id_commande: null },
       });
       if (lignesPanier.length === 0)
         throw new Error("Panier vide : aucune ligne à commander.");
 
-      /* 2️⃣ vérification stock pour chacune */
+
       for (const l of lignesPanier) {
         const stock = await tx.stock.findFirst({
           where: { id_maillot: l.id_maillot, taille_maillot: l.taille_maillot },
@@ -54,7 +54,7 @@ export const checkCommandeTransaction = async (
           );
       }
 
-      /* 3️⃣ calculs totals HT + TTC */
+ 
       const totalHT = lignesPanier.reduce(
         (acc, l) => acc + l.quantite * Number(l.prix_ht),
         0
@@ -73,7 +73,6 @@ export const checkCommandeTransaction = async (
         (totalHT + prixLiv) * (1 + tauxTVA / 100)
       );
 
-      /* 4️⃣ création de la commande */
       const commande = await tx.commande.create({
         data: {
           id_client,
@@ -84,13 +83,13 @@ export const checkCommandeTransaction = async (
         },
       });
 
-      /* 5️⃣ rattacher les lignes existantes à cette commande */
+
       await tx.ligneCommande.updateMany({
         where: { id_client, id_commande: null },
         data: { id_commande: commande.id_commande },
       });
 
-      /* 6️⃣ construire les données de livraison */
+
       const {
         id_methode_livraison,
         id_lieu_livraison,
@@ -119,7 +118,7 @@ export const checkCommandeTransaction = async (
         livData.pays_livraison = pays_livraison;
       }
 
-      /* 7️⃣ insertion de la livraison */
+
       await tx.livraison.create({
         data: livData,
       });

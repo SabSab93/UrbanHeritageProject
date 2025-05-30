@@ -10,6 +10,5 @@ import { Association }      from '../../models/association.model';
   styleUrls: ['./section-association.component.scss']
 })
 export class SectionAssociationComponent {
-  /** Données de l’association à afficher */
   @Input() association!: Association;
 }

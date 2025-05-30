@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 
-// Routers
+
 import { authRouter } from "./router/auth";
 import { maillotRouter } from "./router/maillots";
 import { artisteRouter } from "./router/artistes";
@@ -28,7 +28,7 @@ import { clientRouter } from "./router/clients";
 import { stripeRouter } from "./router/stripe";
 import { stripeWebhookRouter } from "./router/stripeWebhook";
 
-// Middlewares
+
 import { monMiddlewareBearer } from "./middleware/checkToken";
 import { isAdmin } from "./middleware/isAdmin";
 
@@ -39,7 +39,7 @@ dotenv.config({
 export const prisma = new PrismaClient();
 export const app = express();
 
-// 🌐 CORS
+
 app.use(
   cors({
     origin: (inc, callback) => {
@@ -61,21 +61,21 @@ app.use(
   })
 );
 
-// ⚠️ Webhook Stripe — AVANT express.json()
+
+
+
 app.use(
   '/api/stripe/webhook',
-  express.raw({ type: 'application/json' }), // doit rester AVANT toute autre
-  stripeWebhookRouter                        // router qui contient ses propres .post()
+  express.raw({ type: 'application/json' }), 
+  stripeWebhookRouter                       
 );
 
-// 🧩 JSON parser pour le reste
-app.use(express.json());
 
-// 🧭 Routing API
+app.use(express.json());
 const api = express.Router();
 app.use("/api", api);
 
-// Routes publiques ou sécurisées
+
 api.use("/auth", authRouter);
 api.use("/client", clientRouter);
 api.use("/maillot", maillotRouter);
@@ -99,6 +99,7 @@ api.use("/retour", retourRouter);
 api.use("/avoir", monMiddlewareBearer, isAdmin, avoirRouter);
 api.use("/stripe", stripeRouter);
 
-// 🚀 Démarrage
-const port = +process.env.PORT! || 1993;
-app.listen(port, () => console.log(`✅ Serveur démarré sur http://localhost:${port}`));
+
+const port = process.env.PORT! || 1993;
+app.listen(port, () => console.log(`Serveur démarré sur http://localhost:${port}`));
+

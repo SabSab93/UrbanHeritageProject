@@ -12,15 +12,11 @@ export interface LignePanier {
   taille_maillot: string;
   quantite: number;
   prix_ht: number;
-
-  // Ajouts pour la perso
   id_personnalisation?: number;
   valeur_personnalisation?: string;
   couleur_personnalisation?: string;
   Personnalisation?: PersonnalisationInLigne;
-
   TVA: { taux_tva: number };
-
   Maillot: {
     id_maillot: number;
     nom_maillot: string;
