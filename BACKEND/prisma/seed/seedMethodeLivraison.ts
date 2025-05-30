@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 export const seedMethodesLivraison = async () => {
   console.log("Seeding méthodes de livraison...");
   await prisma.methodeLivraison.createMany({
-    skipDuplicates: true,
     data: [
       {
         nom_methode: "Livraison Rapide",
@@ -20,5 +19,6 @@ export const seedMethodesLivraison = async () => {
         prix_methode: 4,
       },
     ],
+    skipDuplicates: true,
   });
 };

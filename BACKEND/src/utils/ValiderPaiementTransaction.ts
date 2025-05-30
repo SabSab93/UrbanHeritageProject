@@ -82,9 +82,7 @@ export const validerPaiementTransaction = async (id_commande: number) => {
       });
       if (!cmd) throw new Error('Impossible de charger la commande complète');
 
-      /* ------------------------------------------------------------------ *
-       * 5. Création de la facture (enregistre + génère le PDF)              *
-       * ------------------------------------------------------------------ */
+
       const dateFacture   = new Date();
       const numeroFacture = `FCT-${id_commande}-${Date.now()}`;
 
@@ -97,7 +95,7 @@ export const validerPaiementTransaction = async (id_commande: number) => {
         },
       });
 
-      /* 5.a Détail des articles pour le PDF ------------------------------ */
+
       const articles = cmd.LigneCommande.map(l => {
         const prixBase   = Number(l.prix_ht);
         const prixPerso  = l.Personnalisation ? Number(l.Personnalisation.prix_ht) : 0;
@@ -122,7 +120,7 @@ export const validerPaiementTransaction = async (id_commande: number) => {
         };
       });
 
-      /* 5.b Totaux ------------------------------------------------------- */
+
       const liv = cmd.Livraison[0];
       const fraisLivraison = (liv?.MethodeLivraison.prix_methode || 0) +
                              (liv?.LieuLivraison.prix_lieu || 0);
@@ -137,7 +135,7 @@ export const validerPaiementTransaction = async (id_commande: number) => {
       const tvaTx         = cmd.Client.pays_client.toLowerCase() === 'suisse' ? 0 : 20;
       const totalTTC      = totalHT * (1 + tvaTx / 100);
 
-      /* 5.c PDF ---------------------------------------------------------- */
+   
       const pdfPath = await generateFacturePDF({
         numeroFacture: numeroFacture,
         dateFacture:   dateFacture.toLocaleDateString('fr-FR'),
@@ -160,9 +158,7 @@ export const validerPaiementTransaction = async (id_commande: number) => {
         },
       });
 
-      /* ------------------------------------------------------------------ *
-       * 6. Mails de confirmation & facture                                 *
-       * ------------------------------------------------------------------ */
+
       await sendMail({
         to:      cmd.Client.adresse_mail_client,
         subject: '🎉 Confirmation de votre commande UrbanHeritage',

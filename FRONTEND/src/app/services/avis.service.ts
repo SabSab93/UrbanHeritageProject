@@ -1,24 +1,49 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Avis } from '../models/avis.model';
-import { environment } from '../../environments/environment';
+import { Injectable }                from '@angular/core';
+import { HttpClient, HttpHeaders }   from '@angular/common/http';
+import { Observable }                from 'rxjs';
+import { Avis }                      from '../models/avis.model';
+import { environment }               from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
+
 export class AvisService {
   private baseUrl = `${environment.apiUrl}/avis`;
 
-  /** Récupère tous les avis pour un maillot donné */
+  constructor(private http: HttpClient) {}
+
   getByMaillot(idMaillot: number): Observable<Avis[]> {
-    return this.http.get<Avis[]>(`${this.baseUrl}/maillot/${idMaillot}`);
+    return this.http.get<Avis[]>(
+      `${this.baseUrl}/maillot/${idMaillot}`
+    );
   }
 
-  /** Récupère statistiques (note moyenne, nombre) et avis */
-  getStats(idMaillot: number): Observable<{ nombreAvis: number; noteMoyenne: string; avis: Avis[] }> {
-    return this.http.get<{ nombreAvis: number; noteMoyenne: string; avis: Avis[] }>(
+  getStats(idMaillot: number): Observable<{
+    nombreAvis: number;
+    noteMoyenne: string;
+    avis: Avis[];
+  }> {
+    return this.http.get<{
+      nombreAvis: number;
+      noteMoyenne: string;
+      avis: Avis[];
+    }>(
       `${this.baseUrl}/maillot/${idMaillot}/stats`
     );
   }
 
-  constructor(private http: HttpClient) {}
+  create(avis: Partial<Avis>): Observable<{ message: string }> {
+    const token = localStorage.getItem('authToken') || '';
+    const headers = new HttpHeaders({
+      'Content-Type':  'application/json',
+      Authorization:   `Bearer ${token}`
+    });
+
+    return this.http.post<{ message: string }>(
+      `${this.baseUrl}/create`,
+      { data: avis },
+      { headers }
+    );
+  }
 }
+
+
