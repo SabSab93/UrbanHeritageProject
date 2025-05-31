@@ -1,5 +1,5 @@
 // src/app/auth-register/auth-register.service.ts
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 
@@ -9,11 +9,10 @@ export class AuthRegisterService {
 
   constructor(private http: HttpClient) {}
 
-  registerClient(data: any) {
-    console.log('📡 Envoi POST à :', `${this.baseUrl}/register-client`, 'avec', data);
-    return this.http.post<{ message: string }>(
-      `${this.baseUrl}/register-client`,
-      data               
-    );
-  }
+registerClient(data: any) {
+  const headers = new HttpHeaders()
+    .set('Content-Type', 'application/json; charset=utf-8');
+  return this.http.post<{message: string}>(`${this.baseUrl}/register-client`,
+                                         JSON.stringify(data), { headers });
+}
 }
