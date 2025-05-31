@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 
 export async function seedArtistes() {
   console.log('Seeding artistes…');
+  await prisma.artiste.deleteMany(); 
   await prisma.artiste.createMany({
     data: [
       {

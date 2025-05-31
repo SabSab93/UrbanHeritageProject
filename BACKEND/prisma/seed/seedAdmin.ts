@@ -1,6 +1,15 @@
-// src/prisma/seedAdmin.ts (ou là où tu as mis ton seed)
+// src/prisma/seedAdmin.ts
+
 import { PrismaClient, provider_enum } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+
+// Charge .env ou .env.prod selon NODE_ENV
+dotenv.config({
+  path: process.env.NODE_ENV === 'production'
+    ? '.env.prod'
+    : '.env'
+});
 
 const prisma = new PrismaClient();
 
@@ -15,31 +24,38 @@ export async function seedAdmin() {
     return;
   }
 
-  const hashed = await bcrypt.hash('kiwi', 10);
+  // Récupère le mot de passe depuis l'env
+  const rawPassword = process.env.ADMIN_PASSWORD;
+  if (!rawPassword) {
+    console.error('❌  ADMIN_PASSWORD non défini dans .env.prod');
+    process.exit(1);
+  }
+
+  const saltRounds = Number(process.env.SALT_ROUNDS) || 10;
+  const hashed = await bcrypt.hash(rawPassword, saltRounds);
 
   await prisma.client.upsert({
     where: { adresse_mail_client: 'urbanheritage.project.mds@gmail.com' },
     update: {
-      // Si l’admin existe, mets à jour aussi le mdp + statut + provider
-      mot_de_passe: hashed,
-      provider: provider_enum.local,
+      mot_de_passe:  hashed,
+      provider:      provider_enum.local,
       statut_compte: 'actif',
-      id_role: adminRole.id_role,
+      id_role:       adminRole.id_role,
     },
     create: {
-      nom_client: 'Hammadi',
-      prenom_client: 'Sabrina',
-      civilite: 'femme',
+      nom_client:           'Hammadi',
+      prenom_client:        'Sabrina',
+      civilite:             'femme',
       date_naissance_client: new Date('1980-01-01'),
-      adresse_client: '99 rue des Admins',
-      code_postal_client: '75001',
-      ville_client: 'Paris',
-      pays_client: 'France',
-      adresse_mail_client: 'urbanheritage.project.mds@gmail.com',
-      mot_de_passe: hashed,
-      provider: provider_enum.local,
-      statut_compte: 'actif',
-      id_role: adminRole.id_role,
+      adresse_client:       '99 rue des Admins',
+      code_postal_client:   '75001',
+      ville_client:         'Paris',
+      pays_client:          'France',
+      adresse_mail_client:  'urbanheritage.project.mds@gmail.com',
+      mot_de_passe:         hashed,
+      provider:             provider_enum.local,
+      statut_compte:        'actif',
+      id_role:              adminRole.id_role,
     },
   });
 

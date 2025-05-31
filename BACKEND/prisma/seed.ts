@@ -8,6 +8,7 @@ import { seedMethodesLivraison } from "./seed/seedMethodeLivraison";
 import { seedPersonnalisations } from "./seed/seedPersonnalisations";
 import { seedReduction } from "./seed/seedReduction";
 import { seedRoles } from "./seed/seedRoles";
+import { seedStocks } from "./seed/seedStocks";
 import { seedTVA } from "./seed/seedTVA";
 
 async function main() {
@@ -22,6 +23,7 @@ async function main() {
   await seedMethodesLivraison();
   await seedLieuLivraison();
   await seedLivreurs();
+   await seedStocks(); 
 }
 
 main()
