@@ -1,1 +1,4 @@
-export const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:4200';
+export const FRONTEND_URL =
+  process.env.NODE_ENV === 'production'
+    ? 'https://urban-heritage-project.vercel.app'
+    : 'http://localhost:4200';
