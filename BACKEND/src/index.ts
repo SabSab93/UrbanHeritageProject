@@ -49,17 +49,22 @@ export const app     = express();
   CORS
 ────────────────────────────────*/
 const ALLOWED_ORIGINS = [
-  'http://localhost:4200',
-  'https://urban-heritage-project.vercel.app',
-  /\.vercel\.app$/                 // previews Vercel
+  /^http:\/\/localhost(?::\d+)?$/,           // localhost 3000, 4200, etc.
+  /^https:\/\/urban-heritage-project\.vercel\.app$/,
+  /\.vercel\.app$/                   // previews Vercel
 ];
 
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin) return cb(null, true);                 // same-site / Postman
-    const ok = ALLOWED_ORIGINS.some(o =>
-      o instanceof RegExp ? o.test(origin) : o === origin);
-    return ok ? cb(null, true) : cb(new Error('Origin non autorisé'));
+    console.log('CORS Origin reçu →', origin);   // ← garde ce log
+
+    if (!origin) return cb(null, true);          // Postman / même domaine
+
+    const ok = ALLOWED_ORIGINS.some(p =>
+      p instanceof RegExp ? p.test(origin) : p === origin
+    );
+    return ok ? cb(null, true)
+              : cb(new Error('Origin non autorisé : ' + origin));
   },
   credentials: true,
   methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
