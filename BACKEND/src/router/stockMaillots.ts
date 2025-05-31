@@ -2,6 +2,7 @@ import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../middleware/checkToken";
 import { isAdmin } from "../middleware/isAdmin";
+import { paginationMiddleware } from "../middleware/pagination";
 
 export const stockmaillotRouter = Router();
 const prisma = new PrismaClient();
@@ -9,7 +10,7 @@ const prisma = new PrismaClient();
 /*** Lecture ***************************************************************/
 
 // Lecture : tous les mouvements de stock
-stockmaillotRouter.get("/",monMiddlewareBearer,isAdmin, async (req, res) => {
+stockmaillotRouter.get("/",paginationMiddleware, monMiddlewareBearer,isAdmin, async (req, res) => {
   try {
     const mouvements = await prisma.stockMaillot.findMany({
       include: {

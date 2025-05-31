@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../middleware/checkToken";
 import { isAdmin } from "../middleware/isAdmin";
+import { paginationMiddleware } from "../middleware/pagination";
 
 export const associationRouter = Router();
 const prisma = new PrismaClient();
@@ -65,7 +66,7 @@ associationRouter.post(
 );
 
 /*** Lecture standard *********************************************************/
-associationRouter.get("/", async (_req, res) => {
+associationRouter.get("/",paginationMiddleware, async (_req, res) => {
   const associations = await prisma.association.findMany();
   res.json(associations);
 });

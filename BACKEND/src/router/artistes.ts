@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../middleware/checkToken";
 import { isAdmin } from "../middleware/isAdmin";
+import { paginationMiddleware } from "../middleware/pagination";
 
 export const artisteRouter = Router();
 const prisma = new PrismaClient();
@@ -61,7 +62,7 @@ artisteRouter.post(
 );
 
 /*** Lecture standard  *******************************************************/
-artisteRouter.get("/", async (_req, res) => {
+artisteRouter.get("/",paginationMiddleware, async (_req, res) => {
   const artistes = await prisma.artiste.findMany();
   res.json(artistes);
 });

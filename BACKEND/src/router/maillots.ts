@@ -81,7 +81,7 @@ maillotRouter.post(
 );
 
 /*** Routes spécifiques : coup‑de‑cœur & nouveautés ***************************/
-maillotRouter.get("/coup-de-coeur", async (req, res) => {
+maillotRouter.get("/coup-de-coeur",paginationMiddleware, async (req, res) => {
   const limit = parseLimit(req.query.limit);
   try {
     const bestSellers = await prisma.maillot.findMany({
@@ -96,7 +96,7 @@ maillotRouter.get("/coup-de-coeur", async (req, res) => {
   }
 });
 
-maillotRouter.get("/nouveautes", async (req, res) => {
+maillotRouter.get("/nouveautes",paginationMiddleware, async (req, res) => {
   const limit = parseLimit(req.query.limit);
   try {
     const latestMaillots = await prisma.maillot.findMany({

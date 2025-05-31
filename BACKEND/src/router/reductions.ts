@@ -6,6 +6,7 @@ import {
 } from "@prisma/client";
 import { monMiddlewareBearer } from "../middleware/checkToken";
 import { isAdmin } from "../middleware/isAdmin";
+import { paginationMiddleware } from "../middleware/pagination";
 
 export const reductionRouter = Router();
 const prisma = new PrismaClient();
@@ -44,7 +45,7 @@ reductionRouter.get("/public/actives", async (_req, res) => {
 });
 
 // Toutes les réductions
-reductionRouter.get("/", monMiddlewareBearer, isAdmin, async (_req, res) => {
+reductionRouter.get("/",paginationMiddleware, monMiddlewareBearer, isAdmin, async (_req, res) => {
   try {
     const list = await prisma.reduction.findMany();
     res.json(list);

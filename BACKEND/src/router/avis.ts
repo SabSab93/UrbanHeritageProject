@@ -16,7 +16,7 @@ const parseId = (raw: any): number => {
 
 /*** Lecture standard *********************************************************/
 // Tous les avis
-avisRouter.get("/",monMiddlewareBearer,isAdmin, async (_req, res) => {
+avisRouter.get("/", monMiddlewareBearer,isAdmin, async (_req, res) => {
   const allReviews = await prisma.avis.findMany();
   res.json(allReviews);
 });
