@@ -19,16 +19,13 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 /** Génère un JWT valable 24 h pour le client donné. */
 const generateJwt = (idClient: number, idRole: number | null) =>
   jwt.sign({ id_client: idClient, id_role: idRole }, process.env.JWT_SECRET!, {
-    expiresIn: "18h",
+    expiresIn: "24h",
   });
 
   const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS || "10", 10);
 
 /*** Inscription locale (client) *******************************************/
 authRouter.post('/register-client', async (req, res) => {
-  console.log('--- headers ---', req.headers);
-  console.log('--- body    ---', req.body);
-  console.log('--- rawBody ---', (req as any).rawBody?.toString?.().slice(0,200));
   const {
     nom_client,
     prenom_client,
@@ -43,13 +40,11 @@ authRouter.post('/register-client', async (req, res) => {
   } = req.body;
 
   try {
-    // 1) Existe-t-il déjà un compte avec cette adresse ?
     const existing = await prisma.client.findUnique({
       where: { adresse_mail_client }
     });
 
     if (existing) {
-      // 2.a) Si un token d’activation existe → compte non activé
       if (existing.activation_token) {
         const newActivationToken = crypto.randomBytes(32).toString('hex');
         await prisma.client.update({
@@ -70,11 +65,10 @@ authRouter.post('/register-client', async (req, res) => {
         });
         return res.status(200).json({
           message:
-            "Un nouveau lien d'activation vient de t'être envoyé ! Vérifie ta boîte mail."
+            "Vérifie ton email pour activer ton compte."
         });
       }
 
-      // 2.b) Compte déjà activé → flow mot de passe oublié
       const resetToken = crypto.randomBytes(32).toString('hex');
       const expiry = new Date(Date.now() + 3600 * 1000); // 1 h de validité
 
@@ -98,13 +92,17 @@ authRouter.post('/register-client', async (req, res) => {
       });
       return res.status(200).json({
         message:
-          "Ton compte est déjà activé ; un lien de réinitialisation de mot de passe t'a été envoyé."
+          "Vérifie ton email pour activer ton compte."
       });
     }
 
-    // 3) Nouvel utilisateur → création
+
     const salt = await bcrypt.genSalt(SALT_ROUNDS);
+
+
     const hash = await bcrypt.hash(mot_de_passe, salt);
+
+
     const activationToken = crypto.randomBytes(32).toString('hex');
 
     const newClient = await prisma.client.create({
@@ -125,7 +123,7 @@ authRouter.post('/register-client', async (req, res) => {
       }
     });
 
-    // Envoi du mail d’activation
+
     await sendMail({
       to: newClient.adresse_mail_client,
       subject: '👋 Bienvenue chez UrbanHeritage ! Active ton compte',
@@ -140,7 +138,7 @@ authRouter.post('/register-client', async (req, res) => {
     });
 
     return res.status(201).json({
-      message: 'Inscription réussie ! Vérifie ton email pour activer ton compte.'
+      message: 'Vérifie ton email pour activer ton compte.'
     });
   } catch (error) {
     console.error('[REGISTER] erreur', error);
@@ -208,7 +206,6 @@ authRouter.post("/login", async (req: Request, res: Response) => {
       !client ||
       (client.provider === provider_enum.local && client.statut_compte !== "actif")
     ) {
-      // 401 ou 403 selon le cas...
       return res.status(401).json({ message: "Email ou mot de passe incorrect" });
     }
     const match = await bcrypt.compare(password, client.mot_de_passe!);
@@ -218,10 +215,12 @@ authRouter.post("/login", async (req: Request, res: Response) => {
     const token = generateJwt(client.id_client, client.id_role);
     return res.json({ token, client });
   } catch (error) {
-    console.error("‼️ Erreur /login:", error);
+    console.error("Erreur /login:", error);
     return res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
+
 
 /*** Connexion Google ******************************************************/
 authRouter.post("/google", async (req, res) => {

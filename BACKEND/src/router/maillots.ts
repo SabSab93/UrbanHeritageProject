@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../middleware/checkToken";
 import { isAdmin } from "../middleware/isAdmin";
+import { paginationMiddleware } from "../middleware/pagination";
 
 export const maillotRouter = Router();
 const prisma = new PrismaClient();
@@ -110,7 +111,7 @@ maillotRouter.get("/nouveautes", async (req, res) => {
 });
 
 /*** Lecture standard ********************************************************/
-maillotRouter.get("/", async (_req, res) => {
+maillotRouter.get("/",paginationMiddleware, async (_req, res) => {
   const maillots = await prisma.maillot.findMany();
   res.json(maillots);
 });
