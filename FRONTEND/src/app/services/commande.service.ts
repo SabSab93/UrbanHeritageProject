@@ -183,4 +183,15 @@ export class CommandeService {
     map(res => res.authorized)
   );
 }
+annulerCommande(id: number) {
+  return this.http.delete<{ message: string }>(
+    `${this.baseUrl}/${id}/annuler`,
+    this.authHeaders()
+  );
+}
+
+relancerPaiement(id: number) {
+  /* ré-utilise l’endpoint déjà existant */
+  return this.createCheckoutSessionByOrder(id);
+}
 }

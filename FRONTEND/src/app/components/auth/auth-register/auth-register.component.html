@@ -132,19 +132,17 @@
               registerForm.get('confirmPassword')?.touched
           }"
         />
-        <div
-          *ngIf="
-            registerForm.hasError('passwordsMismatch') &&
-            registerForm.get('confirmPassword')?.touched
-          "
-          class="text-danger"
-        >
+        <div *ngIf="
+              registerForm.hasError('passwordsMismatch') &&
+              registerForm.get('confirmPassword')?.touched"
+            class="text-danger">
           Les mots de passe ne correspondent pas.
         </div>
 
-        <button type="submit" class="btn btn-dark mt-3" [disabled]="registerForm.invalid">
-          Créer un compte
-        </button>
+        <button type="submit" class="btn btn-dark mt-3"
+            [disabled]="registerForm.invalid">
+      Créer un compte
+    </button>
 
         <div *ngIf="successMessage" class="text-success mt-3 text-center">
           {{ successMessage }}
