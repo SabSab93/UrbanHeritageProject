@@ -1,89 +1,78 @@
 @import url('https://fonts.googleapis.com/css2?family=Impact&family=Poppins:wght@300;600&display=swap');
 
+/* ---------- Layout général ---------- */
+.page-wrapper {        /* Flex column plein-écran */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+app-footer {
+  flex: 0 0 auto;      /* empêche le footer de s’étirer */
+}
+
+/* ---------- Section artistes ---------- */
 .artist-list {
   padding-top: 2rem;
   padding-bottom: 2rem;
+}
 
-  /* BANNIÈRE TITRE ARTISTES alignée à droite */
-  .artist-title {
-    font-family: 'Impact', sans-serif;
-    font-size: 4rem;
-    text-transform: uppercase;
-    background-color: #0A0A0A;
-    color: #FFFFFF;
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    margin: 0;
-  }
+/* Bandeau titre à droite */
+.artist-title {
+  font-family: 'Impact', sans-serif;
+  font-size: 4rem;
+  text-transform: uppercase;
+  background: #0A0A0A;
+  color: #FFF;
+  padding: .5rem 1rem;
+  margin: 0;
+}
 
-  .artist-thumb {
-    width: 100%;
-    height: 700px;
-    object-fit: cover;
-    object-position: top;
-    display: block;
-    border-bottom: 2px solid #f0f0f0;
-  }
+/* Vignette (image) */
+.artist-thumb {
+  width: 100%;
+  height: 700px;             /* hauteur conservée */
+  object-fit: cover;
+  object-position: top;
+  border-bottom: 2px solid #f0f0f0;
+}
 
-  .card {
-    overflow: hidden;
-    transition: transform .2s, box-shadow .2s;
-    border: 1px solid #dee2e6;
+/* Carte + effet hover */
+.card-hover {
+  border: 1px solid #dee2e6;
+  overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
 
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
-    }
-
-    .card-body {
-      display: flex;
-      flex-direction: column;
-
-      /* Nom de l'artiste */
-      .card-title {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 600;
-        text-transform: uppercase;
-        margin-bottom: 0.5rem;
-      }
-
-      /* Description courte */
-      .card-text {
-        font-family: 'Poppins', sans-serif;
-        font-weight: 300;
-        flex-grow: 1;
-      }
-
-      /* Bouton “Voir le profil” */
-      .btn-outline-primary {
-        margin-top: 1rem;
-      }
-    }
-  }
-
-  /* Centrer la grille si besoin */
-  .row.justify-content-center {
-    justify-content: center;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
   }
 }
 
-/* Bouton “Voir le profil” style hero */
-.artist-button {
-  display: inline-block;    
+/* Corps de carte */
+.card-title {
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
   text-transform: uppercase;
-  background-color: #2E2E2E;
-  font-size: 1rem;         
-  color: #FFFFFF;
-  padding: 0.5rem 1rem;        
-  border: none;
-  border-radius: 2px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  text-decoration: none;
+  margin-bottom: .5rem;
 }
 
-.artist-button:hover {
-  background-color: #0A0A0A;
+.card-text {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 300;
+}
+
+/* ---------- Bouton hero ---------- */
+.artist-button {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: #2E2E2E;
+  color: #FFF;
+  padding: .5rem 1rem;
+  border-radius: 2px;
+  text-decoration: none;
+  transition: background .3s;
+
+  &:hover { background: #0A0A0A; }
 }

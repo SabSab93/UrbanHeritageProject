@@ -1,55 +1,50 @@
 <app-header></app-header>
 
-<div class="association-list container px-4 pt-5 pb-5">
-  <!-- Bandeau titre aligné à droite -->
+<main class="page-container flex-grow-1">
+
+  <!-- Bandeau titre -->
   <div class="d-flex justify-content-end mb-4">
-    <h2 class="association-title">Nos associations</h2>
+    <h2 class="page-title">Nos associations</h2>
   </div>
 
-  <!-- Chargement -->
-  <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Chargement...</span>
+  <!-- Loading & erreur -->
+  <ng-container *ngIf="loading; else loaded">
+    <div class="text-center py-5">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Chargement…</span>
+      </div>
     </div>
-  </div>
-  <div *ngIf="error" class="alert alert-danger">
-    {{ error }}
-  </div>
+  </ng-container>
 
-  <!-- Grille responsive 5 colonnes max -->
-  <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
-    <div class="col" *ngFor="let a of associations">
-      <div class="card h-100 shadow-sm border association-card">
-        <!-- Image de l'association -->
-        <img
-          [src]="a.url_image_association_1"
-          [alt]="a.nom_association"
-          class="association-thumb"
-        />
+  <ng-template #loaded>
+    <div *ngIf="error" class="alert alert-danger mb-4">{{ error }}</div>
 
-        <div class="card-body d-flex flex-column">
-          <!-- Nom en semi-bold uppercase Poppins -->
-          <h5 class="card-title association-name">
-            {{ a.nom_association }}
-          </h5>
-          <p class="card-text flex-grow-1">
-            {{ a.description_association_1}}
-          </p>
-          <!-- Pays en Poppins regular -->
-          <p class="card-text flex-grow-1 association-country">
-            {{ a.pays_association }}
-          </p>
-          <!-- Bouton voir le profil -->
-          <a
-            [routerLink]="['/association', a.id_association]"
-            class="hero-button mt-2"
-          >
-            Voir le profil
-          </a>
+    <!-- Grille -->
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
+      <div class="col" *ngFor="let a of associations">
+        <div class="card h-100 shadow-sm card-hover">
+
+          <img class="thumb" [src]="a.url_image_association_1"
+               [alt]="a.nom_association">
+
+          <div class="card-body d-flex flex-column">
+            <h5 class="name">{{ a.nom_association }}</h5>
+
+            <p class="flex-grow-1">{{ a.description_association_1 }}</p>
+
+            <p class="country mb-2">{{ a.pays_association }}</p>
+
+            <a class="btn-hero mt-auto"
+               [routerLink]="['/association', a.id_association]">
+              Voir le profil
+            </a>
+          </div>
+
         </div>
       </div>
     </div>
-  </div>
-</div>
+  </ng-template>
+
+</main>
 
 <app-footer></app-footer>

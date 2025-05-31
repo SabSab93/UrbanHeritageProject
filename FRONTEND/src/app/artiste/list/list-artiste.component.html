@@ -1,46 +1,54 @@
-<!-- src/app/components/artiste/list-artiste.component.html -->
 <app-header></app-header>
 
-<div class="artist-list container px-4 pt-5 pb-5">
-  <div class="d-flex justify-content-end mb-4">
-    <h2 class="artist-title">Nos artistes</h2>
-  </div>
+<!-- Wrapper flex-column pour pousser le footer en bas -->
+<div class="page-wrapper d-flex flex-column min-vh-100">
 
-  <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Chargement...</span>
+  <!-- ======= CONTENU ======= -->
+  <main class="artist-list flex-grow-1 container px-4 pt-5 pb-5">
+
+    <!-- Bandeau titre -->
+    <div class="d-flex justify-content-end mb-4">
+      <h2 class="artist-title">Nos artistes</h2>
     </div>
-  </div>
 
-  <div *ngIf="error" class="alert alert-danger">
-    {{ error }}
-  </div>
+    <!-- Loader -->
+    <div *ngIf="loading" class="text-center py-5">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Chargement…</span>
+      </div>
+    </div>
 
-  <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
-    <div class="col" *ngFor="let artiste of artistes">
-      <div class="card h-100 shadow-sm border association-card">
-        <img
-          [src]="artiste.url_image_artiste_1"
-          [alt]="artiste.prenom_artiste + ' ' + artiste.nom_artiste"
-          class="card-img-top artist-thumb"
-        />
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">
-            {{ artiste.prenom_artiste }} {{ artiste.nom_artiste }}
-          </h5>
-          <p class="card-text flex-grow-1">
-            {{ artiste.description_artiste_1 }}
-          </p>
-          <a
-            [routerLink]="['/artiste', artiste.id_artiste]"
-            class="artist-button mt-2"
-          >
-            Voir le profil
-          </a>
+    <!-- Erreur -->
+    <div *ngIf="error" class="alert alert-danger mb-4">{{ error }}</div>
+
+    <!-- Grille -->
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4"
+         *ngIf="!loading && !error">
+      <div class="col" *ngFor="let a of artistes">
+        <div class="card h-100 shadow-sm card-hover">
+
+          <img class="artist-thumb"
+               [src]="a.url_image_artiste_1"
+               [alt]="a.prenom_artiste + ' ' + a.nom_artiste">
+
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">{{ a.prenom_artiste }} {{ a.nom_artiste }}</h5>
+
+            <p class="card-text flex-grow-1">
+              {{ a.description_artiste_1 }}
+            </p>
+
+            <a class="artist-button mt-2"
+               [routerLink]="['/artiste', a.id_artiste]">
+              Voir le profil
+            </a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<app-footer></app-footer>
+  </main>
+  <!-- ======= /CONTENU ======= -->
+
+  <app-footer></app-footer>
+</div>
