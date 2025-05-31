@@ -26,6 +26,9 @@ const generateJwt = (idClient: number, idRole: number | null) =>
 
 /*** Inscription locale (client) *******************************************/
 authRouter.post('/register-client', async (req, res) => {
+  console.log('--- headers ---', req.headers);
+  console.log('--- body    ---', req.body);
+  console.log('--- rawBody ---', (req as any).rawBody?.toString?.().slice(0,200));
   const {
     nom_client,
     prenom_client,
