@@ -1,7 +1,7 @@
 
-import { FRONTEND_URL } from "../../config"
+import { getFrontendUrl } from '../../config';
 
-const frontendUrl = FRONTEND_URL;
+const frontendUrl = getFrontendUrl();
 export const templateDemandeAvis = (
   prenom_client: string,
   id_maillot: number,

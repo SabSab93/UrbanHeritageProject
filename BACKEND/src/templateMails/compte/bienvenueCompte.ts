@@ -1,9 +1,7 @@
 // src/templateMails/activationCompte.ts (à adapter aussi pour bienvenueCompte)
-const frontendUrl = (process.env.FRONTEND_URL || "http://localhost:4200").replace(/\/$/, "");
+import { getFrontendUrl } from '../../config';
 
-/**
- * Template pour l'email de bienvenue après activation de compte
- */
+const frontendUrl = getFrontendUrl();
 export const templateBienvenueCompte = (prenom: string) => `
   <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
     <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px;">

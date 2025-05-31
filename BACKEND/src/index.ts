@@ -32,64 +32,76 @@ import { stripeWebhookRouter } from "./router/stripeWebhook";
 import { monMiddlewareBearer } from "./middleware/checkToken";
 import { isAdmin } from "./middleware/isAdmin";
 
-// Charge le bon fichier .env
+/*───────────────────────────────
+  Chargement de la bonne config
+────────────────────────────────*/
 dotenv.config({
-  path: process.env.NODE_ENV === "production" ? ".env.prod" : ".env.dev",
+  path: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev'
 });
 
-// ORM et instance Express exportées pour tests et serverless
+/*───────────────────────────────
+  Instances
+────────────────────────────────*/
 export const prisma = new PrismaClient();
-export const app = express();
+export const app     = express();
 
-// Configuration CORS
-app.use(
-  cors({
-    origin: (inc, callback) => {
-      if (!inc) return callback(null, true);
-      let host: string;
-      try {
-        host = new URL(inc).hostname;
-      } catch {
-        return callback(new Error("Origin invalide"), false);
-      }
-      if (
-        host === "localhost" ||
-        host === "127.0.0.1" ||
-        host.endsWith(".vercel.app")
-      ) {
-        return callback(null, true);
-      }
-      callback(null, false);
-    },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Requested-With",
-      "ngsw-bypass",
-    ],
-    credentials: true,
-    optionsSuccessStatus: 204,
-  })
-);
+/*───────────────────────────────
+  CORS
+────────────────────────────────*/
+const ALLOWED_ORIGINS = [
+  /^http:\/\/localhost(?::\d+)?$/,           // localhost 3000, 4200, etc.
+  /^https:\/\/urban-heritage-project\.vercel\.app$/,
+  /\.vercel\.app$/                   // previews Vercel
+];
 
-// Stripe webhook – raw body parser
-app.use(
-  "/api/stripe/webhook",
-  express.raw({ type: "application/json" }),
+app.use(cors({
+  origin: (origin, cb) => {
+    const ok =
+      !origin ||                               // requêtes internes / Postman
+      origin === 'http://localhost:4200' ||
+      origin === 'https://urban-heritage-project.vercel.app' ||
+      origin.endsWith('.vercel.app');          // previews
+
+    console.log('CORS', { origin, ok });       // ← log clair
+
+    return ok ? cb(null, true)
+              : cb(new Error('CORS bloqué : ' + origin));
+  },
+  credentials: true,
+  methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+  allowedHeaders: 'Content-Type,Authorization,X-Requested-With,ngsw-bypass'
+}));
+
+// autoriser les pré-vols CORS universellement
+app.options('*', cors());
+
+/*───────────────────────────────
+  Stripe : raw body
+────────────────────────────────*/
+app.use('/api/stripe/webhook',
+  express.raw({ type: 'application/json' }),
   stripeWebhookRouter
 );
 
-// Middleware JSON
-app.use(express.json());
+/*───────────────────────────────
+  Parse JSON
+────────────────────────────────*/
+app.use(express.json({ limit: '1mb' }));   // 100 kB défaut → 1 MB
 
-// Routeur principal
-const api = express.Router();
+/*───────────────────────────────
+  Trace rudimentaire
+────────────────────────────────*/
 app.use((req, _res, next) => {
   console.log('[TRACE]', req.method, req.originalUrl);
   next();
 });
-app.use("/api", api);
+
+/*───────────────────────────────
+  Routeur principal
+────────────────────────────────*/
+const api = express.Router();
+app.use('/api', api);
+
 
 // Déclaration des routes
 api.use("/auth", authRouter);

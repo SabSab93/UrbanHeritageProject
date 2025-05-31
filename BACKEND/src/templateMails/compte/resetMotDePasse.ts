@@ -1,11 +1,6 @@
-// src/templateMails/compte/templateForgotPassword.ts
+import { getFrontendUrl } from '../../config';
 
-// On centralise l’URL du front une seule fois, avec fallback local et suppression du slash final
-const frontendUrl = (process.env.FRONTEND_URL || "http://localhost:4200").replace(/\/$/, "");
-
-/**
- * Template pour l'email de réinitialisation de mot de passe
- */
+const frontendUrl = getFrontendUrl();
 export const templateForgotPassword = (prenom: string, token: string) => `
   <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
     <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px;">
