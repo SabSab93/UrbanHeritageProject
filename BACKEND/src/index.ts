@@ -56,15 +56,16 @@ const ALLOWED_ORIGINS = [
 
 app.use(cors({
   origin: (origin, cb) => {
-    console.log('CORS Origin reçu →', origin);   // ← garde ce log
+    const ok =
+      !origin ||                               // requêtes internes / Postman
+      origin === 'http://localhost:4200' ||
+      origin === 'https://urban-heritage-project.vercel.app' ||
+      origin.endsWith('.vercel.app');          // previews
 
-    if (!origin) return cb(null, true);          // Postman / même domaine
+    console.log('CORS', { origin, ok });       // ← log clair
 
-    const ok = ALLOWED_ORIGINS.some(p =>
-      p instanceof RegExp ? p.test(origin) : p === origin
-    );
     return ok ? cb(null, true)
-              : cb(new Error('Origin non autorisé : ' + origin));
+              : cb(new Error('CORS bloqué : ' + origin));
   },
   credentials: true,
   methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
