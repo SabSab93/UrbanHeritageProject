@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 
 export async function seedMaillots() {
   console.log('Seeding maillots…');
+  await prisma.maillot.deleteMany();
   await prisma.maillot.createMany({
     data: [
       {

@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 
 export const seedLivreurs = async () => {
   console.log("Seeding livreurs...");
+  await prisma.livreur.deleteMany();
   await prisma.livreur.createMany({
     data: [
       { nom_livreur: "UPS" },

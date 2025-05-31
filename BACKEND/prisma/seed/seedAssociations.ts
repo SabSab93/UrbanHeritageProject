@@ -3,6 +3,7 @@ const prisma = new PrismaClient();
 
 export const seedAssociations = async () => {
   console.log("Seeding associations…");
+  await prisma.association.deleteMany();
   await prisma.association.createMany({
     data: [
       {
