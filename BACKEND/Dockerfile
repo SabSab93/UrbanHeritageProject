@@ -1,30 +1,29 @@
-###################  Étape DEV (hot-reload)  ###################
-FROM node:20-alpine AS dev
-WORKDIR /app
+# Dockerfile
+
 FROM node:20-alpine
 
 WORKDIR /app
 
-# 1) on copie et installe uniquement les dépendances
+# 1) Dépendances
 COPY package*.json ./
 RUN npm ci
 
-# 2) on ajoute tout le code source + Prisma
+# 2) Code source
 COPY prisma ./prisma
-COPY src    ./src
-COPY types  ./types
-COPY tsconfig*.json ./  
+COPY src ./src
+COPY types ./types
+COPY tsconfig*.json ./
 
-# 3) on génère le client Prisma + on compile TS → dist/
+# 3) Prisma + build
 RUN npx prisma generate
 RUN npm run build
 
-# 4) copier l’entrypoint et lui donner les droits
+# 4) Entrypoint
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+# ✅ Le port DOIT correspondre à process.env.PORT (Render impose 10000)
 ENV NODE_ENV=production
-EXPOSE 1992
+EXPOSE 10000
 
-# 5) on démarre via notre script
 ENTRYPOINT ["entrypoint.sh"]
