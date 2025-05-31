@@ -4,22 +4,13 @@
   <div *ngIf="!selectedCommandeId">
     <h3>Mes commandes</h3>
 
-    <div *ngIf="loading" class="text-center py-5">
-      Chargement…
-    </div>
+    <div *ngIf="loading" class="text-center py-5">Chargement…</div>
+    <div *ngIf="error"   class="alert alert-danger">{{ error }}</div>
 
-    <div *ngIf="error" class="alert alert-danger">
-      {{ error }}
-    </div>
-
-    <table *ngIf="!loading && !error" class="table">
+    <table *ngIf="!loading && !error" class="table align-middle">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Date</th>
-          <th>Montant TTC</th>
-          <th>Statut</th>
-          <th></th>
+          <th>#</th><th>Date</th><th>Montant</th><th>Statut</th><th class="text-end">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -27,12 +18,35 @@
           <td>{{ cmd.id_commande }}</td>
           <td>{{ cmd.date_commande | date:'shortDate' }}</td>
           <td>{{ cmd.montant_total_ttc | currency:'EUR' }}</td>
-          <td>{{ cmd.statut_commande }}</td>
+
+          <!-- Statut lisible -->
           <td>
-            <button
-              class="btn btn-sm btn-outline-primary"
-              (click)="showDetails(cmd.id_commande)"
-            >
+            <span [ngClass]="{
+                  'badge bg-warning text-dark': cmd.statut_commande==='en_cours',
+                  'badge bg-info'             : cmd.statut_commande==='en_cours_de_preparation',
+                  'badge bg-success'          : cmd.statut_commande==='livre'
+                }">
+              {{ cmd.statut_commande | labelStatut }}
+            </span>
+          </td>
+
+          <!-- Actions -->
+          <td class="text-end">
+            <!-- Boutons visibles uniquement si pas encore payé -->
+            <button *ngIf="cmd.statut_commande==='en_cours' && cmd.statut_paiement!=='paye'"
+                    class="btn btn-sm btn-outline-primary me-2"
+                    (click)="payer(cmd.id_commande)">
+              Payer maintenant
+            </button>
+
+            <button *ngIf="cmd.statut_commande==='en_cours' && cmd.statut_paiement!=='paye'"
+                    class="btn btn-sm btn-outline-danger me-2"
+                    (click)="annuler(cmd.id_commande)">
+              Annuler
+            </button>
+
+            <button class="btn btn-sm btn-outline-secondary"
+                    (click)="showDetails(cmd.id_commande)">
               Détails
             </button>
           </td>
@@ -43,15 +57,7 @@
 
   <!-- DÉTAIL -->
   <div *ngIf="selectedCommandeId">
-    <button
-      class="btn btn-link mb-3"
-      (click)="backToList()"
-    >
-      ← Retour à la liste
-    </button>
-    <app-details-commande
-      [commandeId]="selectedCommandeId"
-    ></app-details-commande>
+    <button class="btn btn-link mb-3" (click)="backToList()">← Retour à la liste</button>
+    <app-details-commande [commandeId]="selectedCommandeId"></app-details-commande>
   </div>
-
 </div>

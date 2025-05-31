@@ -49,28 +49,26 @@ export const app     = express();
   CORS
 ────────────────────────────────*/
 const ALLOWED_ORIGINS = [
-  /^http:\/\/localhost(?::\d+)?$/,           // localhost 3000, 4200, etc.
+  /^http:\/\/localhost(?::\d+)?$/,          // localhost:4200, 4300, …
+  /^http:\/\/127\.0\.0\.1(?::\d+)?$/, 
   /^https:\/\/urban-heritage-project\.vercel\.app$/,
   /\.vercel\.app$/                   // previews Vercel
 ];
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      const ok = !origin || ALLOWED_ORIGINS.some((p) =>
+        p instanceof RegExp ? p.test(origin) : p === origin
+      );
 
-app.use(cors({
-  origin: (origin, cb) => {
-    const ok =
-      !origin ||                               // requêtes internes / Postman
-      origin === 'http://localhost:4200' ||
-      origin === 'https://urban-heritage-project.vercel.app' ||
-      origin.endsWith('.vercel.app');          // previews
-
-    console.log('CORS', { origin, ok });       // ← log clair
-
-    return ok ? cb(null, true)
-              : cb(new Error('CORS bloqué : ' + origin));
-  },
-  credentials: true,
-  methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
-  allowedHeaders: 'Content-Type,Authorization,X-Requested-With,ngsw-bypass'
-}));
+      console.log('CORS', { origin, ok });
+      return ok ? cb(null, true) : cb(new Error('CORS bloqué : ' + origin));
+    },
+    credentials: true,
+    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization,X-Requested-With,ngsw-bypass',
+  })
+);
 
 // autoriser les pré-vols CORS universellement
 app.options('*', cors());

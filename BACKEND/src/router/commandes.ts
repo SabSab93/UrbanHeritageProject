@@ -349,3 +349,39 @@ commandeRouter.post(
     }
   }
 );
+
+// DELETE /commande/:id/annuler   (client)
+commandeRouter.delete('/:id/annuler', monMiddlewareBearer, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+
+  try {
+    await prisma.$transaction(async tx => {
+      /* vérif appartenance + paiement */
+      const cmd = await tx.commande.findUnique({ where: { id_commande: id } });
+      if (!cmd || !req.decoded || cmd.id_client !== req.decoded.id_client) {
+        throw new Error('notfound');
+      }
+      if (cmd.statut_paiement === 'paye') {
+        throw new Error('paid');
+      }
+
+      /* 1️⃣  supprime les dépendances */
+      await tx.livraison.deleteMany({        where: { id_commande: id } });
+      await tx.commandeReduction.deleteMany({where: { id_commande: id } });
+      await tx.ligneCommande.deleteMany({    where: { id_commande: id } });
+
+      /* 2️⃣  supprime la commande */
+      await tx.commande.delete({ where: { id_commande: id } });
+    });
+
+    return res.json({ message: 'Commande annulée' });
+
+  } catch (e:any) {
+    if (e.message === 'notfound')
+      return res.status(404).json({ message: 'Commande introuvable' });
+    if (e.message === 'paid')
+      return res.status(400).json({ message: 'Commande déjà payée' });
+    console.error('DELETE /commande/annuler', e);
+    return res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
