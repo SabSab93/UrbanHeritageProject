@@ -85,6 +85,10 @@ app.use(express.json());
 
 // Routeur principal
 const api = express.Router();
+app.use((req, _res, next) => {
+  console.log('[TRACE]', req.method, req.originalUrl);
+  next();
+});
 app.use("/api", api);
 
 // Déclaration des routes
