@@ -4,6 +4,7 @@ import { PrismaClient, provider_enum } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import rateLimit from "express-rate-limit";
 import { OAuth2Client } from "google-auth-library";
 import { monMiddlewareBearer } from "../middleware/checkToken";
 import { isAdmin } from "../middleware/isAdmin";
@@ -13,6 +14,8 @@ import { templateBienvenueCompte } from "../templateMails/compte/bienvenueCompte
 import { templateForgotPassword } from "../templateMails/compte/resetMotDePasse";
 import { findOrCreateUser } from "../utils/findOrCreateUser";
 import { xssGuardMiddleware } from "../middleware/xssGuard";
+
+
 export const authRouter = Router();
 const prisma = new PrismaClient();
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -24,6 +27,13 @@ const generateJwt = (idClient: number, idRole: number | null) =>
   });
 
   const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS || "10", 10);
+
+  const loginLimiter = rateLimit({
+  windowMs: 60 * 1000,  // 1 minute
+  max: 5,               // 5 requêtes max par minute par IP
+  message: { message: "Trop de tentatives, réessayez dans un instant." },
+});
+
 
 /*** Inscription locale (client) *******************************************/
 authRouter.post('/register-client',xssGuardMiddleware, async (req, res) => {
@@ -192,7 +202,7 @@ authRouter.post("/activate/:token", async (req, res) => {
 
 
 /*** Connexion locale ******************************************************/
-authRouter.post("/login",xssGuardMiddleware, async (req: Request, res: Response) => {
+authRouter.post("/login",loginLimiter, xssGuardMiddleware, async (req: Request, res: Response) => {
   const { email, mot_de_passe: password } = req.body;
   try {
     const client = await prisma.client.findUnique({
