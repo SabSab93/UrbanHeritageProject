@@ -8,7 +8,6 @@ import {
   of,
   Observable,
 } from 'rxjs';
-import { finalize } from 'rxjs/operators';
 import { Client } from '../../models/client.model';
 import { environment } from '../../../environments/environment';
 

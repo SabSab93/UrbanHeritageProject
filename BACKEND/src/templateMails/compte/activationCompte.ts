@@ -1,10 +1,8 @@
-// src/templateMails/compte/activationCompte.ts
-
 import { getFrontendUrl } from '../../config';
 
 export function templateActivationCompte(prenom: string, token: string) {
   const frontendUrl = getFrontendUrl();
-  console.log('▶ FRONTEND_URL =', process.env.FRONTEND_URL);
+  
   const html = `
     <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
       <div style="max-width: 600px; margin: auto; background-color: #ffffff;

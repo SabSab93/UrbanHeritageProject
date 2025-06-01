@@ -32,16 +32,12 @@ import { stripeWebhookRouter } from "./router/stripeWebhook";
 import { monMiddlewareBearer } from "./middleware/checkToken";
 import { isAdmin } from "./middleware/isAdmin";
 
-/*───────────────────────────────
-  Chargement de la bonne config
-────────────────────────────────*/
+
 dotenv.config({
-  path: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev'
+  path: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env'
 });
 
-/*───────────────────────────────
-  Instances
-────────────────────────────────*/
+
 export const prisma = new PrismaClient();
 export const app     = express();
 
