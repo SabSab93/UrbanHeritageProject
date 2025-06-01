@@ -63,7 +63,7 @@ export class PanierService {
         );
     } else {
       const tot = this.guestLines$.value.reduce(
-        (s, l) => s + l.prix_ht * (1 + l.TVA.taux_tva / 100) * l.quantite,
+        (s, l) => s + l.prix_ht  * l.quantite,
         0
       );
       return of({ total: tot });

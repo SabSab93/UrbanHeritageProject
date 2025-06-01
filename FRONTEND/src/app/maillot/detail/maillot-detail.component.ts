@@ -102,7 +102,7 @@ export class DetailComponent implements OnInit {
       next: m => {
         /* --------- Maillot --------- */
         this.maillot       = { ...m, availableSizes: [], sizeQuantities: {}, allOutOfStock: false };
-        this.displayedPrice = Number(m.prix_ht_maillot);
+        this.displayedPrice = Number(m.prix_ht_maillot) * 1.2;
 
         /* Charger stock */
         this.stockSrv.getDisponibilitePublic(id).pipe(

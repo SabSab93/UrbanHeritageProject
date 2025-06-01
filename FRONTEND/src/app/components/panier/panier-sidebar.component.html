@@ -21,20 +21,20 @@
             </p>
 
             <p class="small mb-1">
-              Prix unité HT :
+              Prix unité  :
               {{ ligne.prix_ht | currency:'EUR':'symbol':'1.2-2' }}
               &nbsp;|&nbsp;
-              Total HT :
-              {{ (ligne.prix_ht * ligne.quantite) | currency:'EUR':'symbol':'1.2-2' }}
+              Total  :
+              {{ (ligne.prix_ht * ligne.quantite ) | currency:'EUR':'symbol':'1.2-2' }}
             </p>
 
-            <p class="small mb-1">
+            <!-- <p class="small mb-1">
               Total TTC :
               {{
                 (ligne.prix_ht * ligne.quantite * (1 + ligne.TVA.taux_tva/100))
                 | currency:'EUR':'symbol':'1.2-2'
               }}
-            </p>
+            </p> -->
 
             <!-- AFFICHAGE PERSONNALISATION -->
             <p *ngIf="ligne.id_personnalisation" class="perso-info">

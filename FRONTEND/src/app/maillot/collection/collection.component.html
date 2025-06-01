@@ -66,7 +66,7 @@
         <figcaption class="pt-2">
           <h6 class="prod-title mb-1">{{ m.nom_maillot }}</h6>
           <p class="prod-price mb-0 fw-bold">
-            {{ m.prix_ht_maillot | currency:'EUR':'symbol':'1.0-0' }}
+            {{ m.prix_ht_maillot * 1.2 | currency:'EUR':'symbol':'1.0-0' }}
           </p>
         </figcaption>
 
