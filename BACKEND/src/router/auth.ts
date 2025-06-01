@@ -12,6 +12,7 @@ import { templateActivationCompte } from "../templateMails/compte/activationComp
 import { templateBienvenueCompte } from "../templateMails/compte/bienvenueCompte";
 import { templateForgotPassword } from "../templateMails/compte/resetMotDePasse";
 import { findOrCreateUser } from "../utils/findOrCreateUser";
+import { xssGuardMiddleware } from "../middleware/xssGuard";
 export const authRouter = Router();
 const prisma = new PrismaClient();
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -25,7 +26,7 @@ const generateJwt = (idClient: number, idRole: number | null) =>
   const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS || "10", 10);
 
 /*** Inscription locale (client) *******************************************/
-authRouter.post('/register-client', async (req, res) => {
+authRouter.post('/register-client',xssGuardMiddleware, async (req, res) => {
   const {
     nom_client,
     prenom_client,
@@ -96,15 +97,10 @@ authRouter.post('/register-client', async (req, res) => {
       });
     }
 
-
     const salt = await bcrypt.genSalt(SALT_ROUNDS);
-
-
     const hash = await bcrypt.hash(mot_de_passe, salt);
 
-
     const activationToken = crypto.randomBytes(32).toString('hex');
-
     const newClient = await prisma.client.create({
       data: {
         nom_client,
@@ -196,7 +192,7 @@ authRouter.post("/activate/:token", async (req, res) => {
 
 
 /*** Connexion locale ******************************************************/
-authRouter.post("/login", async (req: Request, res: Response) => {
+authRouter.post("/login",xssGuardMiddleware, async (req: Request, res: Response) => {
   const { email, mot_de_passe: password } = req.body;
   try {
     const client = await prisma.client.findUnique({
@@ -248,7 +244,7 @@ authRouter.post("/google", async (req, res) => {
   }
 });
 /*** Mot de passe oublié / réinitialisation **************************************/
-authRouter.post("/forgot-password", async (req, res) => {
+authRouter.post("/forgot-password",xssGuardMiddleware, async (req, res) => {
   const { email } = req.body as { email?: string };
   if (!email) {
     return res.status(400).json({ message: "Email manquant" });
@@ -289,7 +285,7 @@ authRouter.post("/forgot-password", async (req, res) => {
 });
 
 /*** Réinitialisation du mot de passe (via reset_token) ***********************/
-authRouter.post("/reset-password", async (req, res) => {
+authRouter.post("/reset-password",xssGuardMiddleware, async (req, res) => {
   const { token } = req.query as { token?: string };
   const { password } = req.body as { password?: string };
   if (!token) {
@@ -328,7 +324,7 @@ authRouter.post("/reset-password", async (req, res) => {
 
 
 /*** Creation Admin *********************************************************/
-authRouter.post("/register-admin", monMiddlewareBearer, isAdmin, async (req, res) => {
+authRouter.post("/register-admin", monMiddlewareBearer, isAdmin,xssGuardMiddleware, async (req, res) => {
   try {
     const adminData = req.body.data;
     if (!adminData)
@@ -407,7 +403,7 @@ authRouter.get("/me", monMiddlewareBearer, async (req, res) => {
 /*** Changement de mot de passe pour le client authentifié ***/
 authRouter.patch(
   "/change-password",
-  monMiddlewareBearer,
+  monMiddlewareBearer,xssGuardMiddleware,
   async (req: Request, res: Response) => {
     const idClient = req.decoded?.id_client;
     if (!idClient) return res.status(401).json({ message: "Non autorisé" });

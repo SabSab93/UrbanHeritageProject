@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../middleware/checkToken";
 import { isAdmin } from "../middleware/isAdmin";
+import { xssGuardMiddleware } from "../middleware/xssGuard";
 
 export const avisRouter = Router();
 const prisma = new PrismaClient();
@@ -51,7 +52,8 @@ avisRouter.get("/maillot/:id", async (req, res) => {
 });
 
 /*** Création d’un avis (client connecté) ************************************/
-avisRouter.post("/create", monMiddlewareBearer, async (req: any, res) => {
+avisRouter.post("/create", monMiddlewareBearer,xssGuardMiddleware,  async (req: any, res) => {
+ 
   const reviewData = req.body?.data;
 
   const requiredFields = [
