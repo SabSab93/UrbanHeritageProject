@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { monMiddlewareBearer } from "../middleware/checkToken";
 import { isAdmin } from "../middleware/isAdmin";
+import { paginationMiddleware } from "../middleware/pagination";
 
 export const maillotRouter = Router();
 const prisma = new PrismaClient();
@@ -80,7 +81,7 @@ maillotRouter.post(
 );
 
 /*** Routes spécifiques : coup‑de‑cœur & nouveautés ***************************/
-maillotRouter.get("/coup-de-coeur", async (req, res) => {
+maillotRouter.get("/coup-de-coeur",paginationMiddleware, async (req, res) => {
   const limit = parseLimit(req.query.limit);
   try {
     const bestSellers = await prisma.maillot.findMany({
@@ -95,7 +96,7 @@ maillotRouter.get("/coup-de-coeur", async (req, res) => {
   }
 });
 
-maillotRouter.get("/nouveautes", async (req, res) => {
+maillotRouter.get("/nouveautes",paginationMiddleware, async (req, res) => {
   const limit = parseLimit(req.query.limit);
   try {
     const latestMaillots = await prisma.maillot.findMany({
@@ -110,7 +111,7 @@ maillotRouter.get("/nouveautes", async (req, res) => {
 });
 
 /*** Lecture standard ********************************************************/
-maillotRouter.get("/", async (_req, res) => {
+maillotRouter.get("/",paginationMiddleware, async (_req, res) => {
   const maillots = await prisma.maillot.findMany();
   res.json(maillots);
 });

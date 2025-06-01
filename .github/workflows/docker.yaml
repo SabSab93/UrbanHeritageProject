@@ -1,0 +1,59 @@
+# name: Workflow Docker
+# description: |
+#   Workflow to build and deploy the Urban Heritage application using Docker and Vercel.
+#   This workflow builds the backend Docker image, pushes it to Docker Hub, triggers a build on Render,
+#   installs dependencies and builds the frontend, and finally deploys it to Vercel.
+# on:
+#   push:
+#     branches: [main]
+#   pull_request:
+#     branches: [main]
+
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v3
+
+#       # 1) Login sur Docker Hub (backend)
+#       - name: Login to DockerHub
+#         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" \
+#           | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+#       # 2) Build Docker image du backend
+#       - name: Build Docker image (backend)
+#         working-directory: ./BACKEND
+#         run: docker build \
+#           -t ${{ secrets.DOCKERHUB_USERNAME }}/urbanheritage-back:github-actions .
+
+#       # 3) Push Docker image (backend)
+#       - name: Push Docker image (backend)
+#         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/urbanheritage-back:github-actions
+
+#       # 4) Déclencher le Build Hook Render (backend)
+#       - name: Render Build Hook (backend)
+#         run: |
+#           echo "Pinging Render build hook…"
+#           curl -X POST "${{ secrets.RENDER_BUILD_HOOK_URL }}"
+
+#       # 5) Install & Build du frontend
+#       - name: Install & Build (frontend)
+#         working-directory: ./frontend
+#         run: |
+#           npm install
+#           npm run build -- --prod
+
+#       # 6) Déployer sur Vercel (frontend)
+#       - name: Deploy to Vercel
+#         working-directory: ./frontend
+#         env:
+#           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+#           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+#           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+#         run: |
+#           npx vercel --prod --prebuilt
+
+
+
+
+

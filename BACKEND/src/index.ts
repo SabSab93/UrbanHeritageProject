@@ -32,27 +32,21 @@ import { stripeWebhookRouter } from "./router/stripeWebhook";
 import { monMiddlewareBearer } from "./middleware/checkToken";
 import { isAdmin } from "./middleware/isAdmin";
 
-/*───────────────────────────────
-  Chargement de la bonne config
-────────────────────────────────*/
+
 dotenv.config({
-  path: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev'
+  path: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env'
 });
 
-/*───────────────────────────────
-  Instances
-────────────────────────────────*/
+
 export const prisma = new PrismaClient();
 export const app     = express();
 
-/*───────────────────────────────
-  CORS
-────────────────────────────────*/
+
 const ALLOWED_ORIGINS = [
-  /^http:\/\/localhost(?::\d+)?$/,          // localhost:4200, 4300, …
+  /^http:\/\/localhost(?::\d+)?$/,          
   /^http:\/\/127\.0\.0\.1(?::\d+)?$/, 
   /^https:\/\/urban-heritage-project\.vercel\.app$/,
-  /\.vercel\.app$/                   // previews Vercel
+  /\.vercel\.app$/                   
 ];
 app.use(
   cors({
@@ -70,7 +64,7 @@ app.use(
   })
 );
 
-// autoriser les pré-vols CORS universellement
+
 app.options('*', cors());
 
 /*───────────────────────────────

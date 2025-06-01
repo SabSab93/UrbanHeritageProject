@@ -4,6 +4,7 @@ import { PrismaClient, provider_enum } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import rateLimit from "express-rate-limit";
 import { OAuth2Client } from "google-auth-library";
 import { monMiddlewareBearer } from "../middleware/checkToken";
 import { isAdmin } from "../middleware/isAdmin";
@@ -12,6 +13,9 @@ import { templateActivationCompte } from "../templateMails/compte/activationComp
 import { templateBienvenueCompte } from "../templateMails/compte/bienvenueCompte";
 import { templateForgotPassword } from "../templateMails/compte/resetMotDePasse";
 import { findOrCreateUser } from "../utils/findOrCreateUser";
+import { xssGuardMiddleware } from "../middleware/xssGuard";
+
+
 export const authRouter = Router();
 const prisma = new PrismaClient();
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -19,16 +23,20 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 /** Génère un JWT valable 24 h pour le client donné. */
 const generateJwt = (idClient: number, idRole: number | null) =>
   jwt.sign({ id_client: idClient, id_role: idRole }, process.env.JWT_SECRET!, {
-    expiresIn: "18h",
+    expiresIn: "24h",
   });
 
   const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS || "10", 10);
 
+  const loginLimiter = rateLimit({
+  windowMs: 60 * 1000,  // 1 minute
+  max: 5,               // 5 requêtes max par minute par IP
+  message: { message: "Trop de tentatives, réessayez dans un instant." },
+});
+
+
 /*** Inscription locale (client) *******************************************/
-authRouter.post('/register-client', async (req, res) => {
-  console.log('--- headers ---', req.headers);
-  console.log('--- body    ---', req.body);
-  console.log('--- rawBody ---', (req as any).rawBody?.toString?.().slice(0,200));
+authRouter.post('/register-client',xssGuardMiddleware, async (req, res) => {
   const {
     nom_client,
     prenom_client,
@@ -43,13 +51,11 @@ authRouter.post('/register-client', async (req, res) => {
   } = req.body;
 
   try {
-    // 1) Existe-t-il déjà un compte avec cette adresse ?
     const existing = await prisma.client.findUnique({
       where: { adresse_mail_client }
     });
 
     if (existing) {
-      // 2.a) Si un token d’activation existe → compte non activé
       if (existing.activation_token) {
         const newActivationToken = crypto.randomBytes(32).toString('hex');
         await prisma.client.update({
@@ -70,11 +76,10 @@ authRouter.post('/register-client', async (req, res) => {
         });
         return res.status(200).json({
           message:
-            "Un nouveau lien d'activation vient de t'être envoyé ! Vérifie ta boîte mail."
+            "Vérifie ton email pour activer ton compte."
         });
       }
 
-      // 2.b) Compte déjà activé → flow mot de passe oublié
       const resetToken = crypto.randomBytes(32).toString('hex');
       const expiry = new Date(Date.now() + 3600 * 1000); // 1 h de validité
 
@@ -98,15 +103,14 @@ authRouter.post('/register-client', async (req, res) => {
       });
       return res.status(200).json({
         message:
-          "Ton compte est déjà activé ; un lien de réinitialisation de mot de passe t'a été envoyé."
+          "Vérifie ton email pour activer ton compte."
       });
     }
 
-    // 3) Nouvel utilisateur → création
     const salt = await bcrypt.genSalt(SALT_ROUNDS);
     const hash = await bcrypt.hash(mot_de_passe, salt);
-    const activationToken = crypto.randomBytes(32).toString('hex');
 
+    const activationToken = crypto.randomBytes(32).toString('hex');
     const newClient = await prisma.client.create({
       data: {
         nom_client,
@@ -125,7 +129,7 @@ authRouter.post('/register-client', async (req, res) => {
       }
     });
 
-    // Envoi du mail d’activation
+
     await sendMail({
       to: newClient.adresse_mail_client,
       subject: '👋 Bienvenue chez UrbanHeritage ! Active ton compte',
@@ -140,7 +144,7 @@ authRouter.post('/register-client', async (req, res) => {
     });
 
     return res.status(201).json({
-      message: 'Inscription réussie ! Vérifie ton email pour activer ton compte.'
+      message: 'Vérifie ton email pour activer ton compte.'
     });
   } catch (error) {
     console.error('[REGISTER] erreur', error);
@@ -198,7 +202,7 @@ authRouter.post("/activate/:token", async (req, res) => {
 
 
 /*** Connexion locale ******************************************************/
-authRouter.post("/login", async (req: Request, res: Response) => {
+authRouter.post("/login",loginLimiter, xssGuardMiddleware, async (req: Request, res: Response) => {
   const { email, mot_de_passe: password } = req.body;
   try {
     const client = await prisma.client.findUnique({
@@ -208,7 +212,6 @@ authRouter.post("/login", async (req: Request, res: Response) => {
       !client ||
       (client.provider === provider_enum.local && client.statut_compte !== "actif")
     ) {
-      // 401 ou 403 selon le cas...
       return res.status(401).json({ message: "Email ou mot de passe incorrect" });
     }
     const match = await bcrypt.compare(password, client.mot_de_passe!);
@@ -218,10 +221,12 @@ authRouter.post("/login", async (req: Request, res: Response) => {
     const token = generateJwt(client.id_client, client.id_role);
     return res.json({ token, client });
   } catch (error) {
-    console.error("‼️ Erreur /login:", error);
+    console.error("Erreur /login:", error);
     return res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
+
 
 /*** Connexion Google ******************************************************/
 authRouter.post("/google", async (req, res) => {
@@ -249,7 +254,7 @@ authRouter.post("/google", async (req, res) => {
   }
 });
 /*** Mot de passe oublié / réinitialisation **************************************/
-authRouter.post("/forgot-password", async (req, res) => {
+authRouter.post("/forgot-password",xssGuardMiddleware, async (req, res) => {
   const { email } = req.body as { email?: string };
   if (!email) {
     return res.status(400).json({ message: "Email manquant" });
@@ -290,7 +295,7 @@ authRouter.post("/forgot-password", async (req, res) => {
 });
 
 /*** Réinitialisation du mot de passe (via reset_token) ***********************/
-authRouter.post("/reset-password", async (req, res) => {
+authRouter.post("/reset-password",xssGuardMiddleware, async (req, res) => {
   const { token } = req.query as { token?: string };
   const { password } = req.body as { password?: string };
   if (!token) {
@@ -329,7 +334,7 @@ authRouter.post("/reset-password", async (req, res) => {
 
 
 /*** Creation Admin *********************************************************/
-authRouter.post("/register-admin", monMiddlewareBearer, isAdmin, async (req, res) => {
+authRouter.post("/register-admin", monMiddlewareBearer, isAdmin,xssGuardMiddleware, async (req, res) => {
   try {
     const adminData = req.body.data;
     if (!adminData)
@@ -408,7 +413,7 @@ authRouter.get("/me", monMiddlewareBearer, async (req, res) => {
 /*** Changement de mot de passe pour le client authentifié ***/
 authRouter.patch(
   "/change-password",
-  monMiddlewareBearer,
+  monMiddlewareBearer,xssGuardMiddleware,
   async (req: Request, res: Response) => {
     const idClient = req.decoded?.id_client;
     if (!idClient) return res.status(401).json({ message: "Non autorisé" });

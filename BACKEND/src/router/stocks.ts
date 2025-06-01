@@ -2,6 +2,7 @@ import { Router } from "express";
 import { PrismaClient, taille_maillot_enum } from "@prisma/client";
 import { monMiddlewareBearer } from "../middleware/checkToken";
 import { isAdmin } from "../middleware/isAdmin";
+import { paginationMiddleware } from "../middleware/pagination";
 
 export const stockRouter = Router();
 const prisma = new PrismaClient();
@@ -73,7 +74,7 @@ stockRouter.post("/create-multiple",monMiddlewareBearer,isAdmin, async (req, res
 /*** Lecture ***************************************************************/
 
 // Lecture : liste tous les stocks avec dispo dynamique
-stockRouter.get("/",monMiddlewareBearer,isAdmin, async (req, res) => {
+stockRouter.get("/",paginationMiddleware, monMiddlewareBearer,isAdmin, async (req, res) => {
   try {
     const stocks = await prisma.stock.findMany({ include: { StockMaillot: true } });
 
