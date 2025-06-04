@@ -32,14 +32,14 @@
 // Titre Impact, fond noir
 .about-title {
   font-family: 'Impact', sans-serif;
-  font-size: 4rem;
+  font-size: 3rem;
   background-color: #0A0A0A;
   color: #FFFFFF;
   display: inline-block;
   padding: 0.5rem 1rem;
   margin: 0 0 2rem 0;
   position: relative;
-  top: -4rem;
+  top: -2rem;
   z-index: 2; 
 }
 
@@ -48,16 +48,18 @@
 
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
-  font-size: 2rem;
+  font-size: 1.5rem;
+  padding: 1rem;
   color: #2E2E2E;
   margin-bottom: 1rem;
+  margin-left: 1rem
 }
 
 // Bouton inspiré de la section intro
 .btn-engagements {
   align-self: start;
   margin-left: 2rem;
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   padding: 0.75rem 1.5rem;
   background-color: #2E2E2E;
   color: #FFF;

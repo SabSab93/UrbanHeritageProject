@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Impact&family=Poppins:wght@300;600&display=swap');
+
+/* Bandeau titre Impact */
+.detail-title {
+  font-family: 'Impact', sans-serif;
+  font-size: 3rem;
+  text-transform: uppercase;
+  background: #0A0A0A;
+  color: #fff;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+}
+
+/* Image de l’association */
+.association-img {
+  max-width: 100%;
+  border-radius: 6px;
+}
+
+/* Nom */
+.association-name {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 3rem;
+  text-transform: uppercase;
+}
+
+/* Description */
+.association-bio {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+/* Stats */
+.association-stats li {
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Bouton “Visiter le site” – même look que les autres */
+.association-button {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 1rem;
+  background-color: #2E2E2E;
+  color: #FFF;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #0A0A0A;
+  }
+}

@@ -1,10 +1,16 @@
+<!-- detail-commande.component.html -->
 <div class="details-commande p-4 bg-white shadow-sm rounded">
 
   <!-- En-tête -->
   <div class="d-flex justify-content-between align-items-baseline mb-4">
     <h4 class="mb-0">Commande n°{{ commande!.id_commande }}</h4>
-    <span class="badge bg-secondary text-uppercase">
-      {{ commande!.statut_commande }}
+
+    <!-- Badge “underground” noir-gris-blanc pour le statut -->
+    <span 
+      class="badge text-uppercase"
+      style="background: #333333; color: #ffffff;"
+    >
+      {{ commande!.statut_commande | labelStatut }}
     </span>
   </div>
 
@@ -25,7 +31,10 @@
 
   <!-- Lignes de commande -->
   <h5 class="mt-4 mb-3">Lignes</h5>
-  <div *ngFor="let l of commande!.LigneCommande" class="ligne d-flex align-items-center py-3 border-bottom">
+  <div 
+    *ngFor="let l of commande!.LigneCommande"
+    class="ligne d-flex align-items-center py-3 border-bottom"
+  >
     <div class="me-3">
       <img
         [src]="l.Maillot.url_image_maillot_1"
@@ -36,10 +45,13 @@
     <div class="flex-grow-1">
       <p class="mb-1"><strong>{{ l.Maillot.nom_maillot }}</strong></p>
       <p class="text-muted mb-0">
-        Qté : {{ l.quantite }} &mdash; Prix HT : {{ l.prix_ht | number:'1.0-2' }}€
+        Qté : {{ l.quantite }} &mdash; Prix: {{ l.prix_ht * 1.2 | number:'1.0-2' }}€
       </p>
     </div>
-    <span class="badge bg-light text-dark ms-3">
+    <span 
+      class="badge"
+      style="background: #555555; color: #ffffff; font-size: 0.75rem;"
+    >
       Taille : {{ l.taille_maillot }}
     </span>
   </div>

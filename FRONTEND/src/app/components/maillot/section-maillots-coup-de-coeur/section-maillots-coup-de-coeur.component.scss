@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap');
+
+:host {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.maillots-wrapper {
+  padding: 4rem 2rem;
+  text-align: left;
+
+  /* BANNIÈRE “MAILLOTS” */
+  .maillots-title {
+    font-family: 'Impact', sans-serif;
+    font-size: 3rem;
+    text-transform: uppercase;
+    background-color: #0A0A0A;
+    color: #ffffff;
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0 0 3rem;
+  }
+
+  /* GRILLE DES MAILLLOTS */
+  .maillots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+    justify-items: center;
+    margin-bottom: 3rem;
+
+    .maillot {
+      position: relative; /* nécessaire pour le positionnement absolu du nom du pays */
+      text-align: center;
+
+      .maillot-link {
+        display: block;
+        text-decoration: none;
+
+        img {
+          width: 100%;
+          height: 500px;
+          object-fit: cover;
+          border-radius: 6px;
+          transition: transform 0.3s ease;
+
+          &:hover {
+            transform: scale(1.05);
+          }
+        }
+      }
+
+      /* NOM DU PAYS VERTICAL À L'INTÉRIEUR DE L'IMAGE */
+      .maillot-country {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 3rem;
+        background-color: #0A0A0A;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        text-transform: uppercase;
+        color: #ffffff;
+        font-family: 'Impact', sans-serif;
+        font-weight: 600;
+        font-size: 2.5rem;
+        white-space: nowrap;
+        margin: 0;
+        padding: 0;
+      }
+    }
+  }
+
+  /* BOUTON VOIR PLUS */
+  .btn-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  .hero-button {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 1.5rem;
+    color: #FFFFFF;
+    background-color: #2E2E2E;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    text-decoration: none;  
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #0A0A0A;
+      text-decoration: none;
+    }
+  }
+} 
