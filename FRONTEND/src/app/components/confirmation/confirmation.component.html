@@ -44,7 +44,7 @@
                   <p>
                     Taille : {{ item.taille_maillot }}<br />
                     Quantité : {{ item.quantite }}<br />
-                    Prix unité HT : {{ item.prix_ht | number:'1.2-2' }} €
+                    Prix unité TTC : {{ item.prix_ht * 1.2 | number:'1.2-2' }} €
                   </p>
                   <p *ngIf="stockErrors[i]" class="error">
                     {{ stockErrors[i] }}
@@ -214,20 +214,29 @@
             <h2>Récapitulatif des prix</h2>
             <p>Total HT : {{ totalHt | number:'1.2-2' }} €</p>
             <p>TVA : 20 %</p>
-            <p>
+            <!-- <p>
               Produits TTC net promo :
               {{ (totalTtc - discount) | number:'1.2-2' }} €
+            </p> -->
+            <p>
+              Total TTC :
+              {{ (totalTtc ) | number:'1.2-2' }} €
             </p>
             <p>
               Livraison TTC :
               {{ shippingCostTtc | number:'1.2-2' }} €
             </p>
+            <strong>
+                Total à payer :
+                {{ totalTtc + shippingCostTtc  | number:'1.2-2' }} €
+            </strong>
+            
             <p *ngIf="discount > 0">
               Réduction : -{{ discount | number:'1.2-2' }} €
             </p>
-            <p>
+            <p *ngIf="discount > 0">
               <strong>
-                Total à payer :
+                Total à payer avec reduction :
                 {{ finalTotal | number:'1.2-2' }} €
               </strong>
             </p>

@@ -1,0 +1,78 @@
+<app-header></app-header>
+
+<section class="collection-wrapper">
+
+  <h1 class="section-title">Maillots</h1>
+
+  <div class="topbar d-flex justify-content-between align-items-center flex-wrap mb-3">
+    <!-- Filtres sous forme de pills -->
+    <ul class="filters nav flex-nowrap mb-2">
+      <li class="nav-item" *ngFor="let f of filterList">
+        <button
+          class="btn pill"
+          [class.active]="filter === f.key"
+          (click)="setFilter(f.key)"
+        >
+          {{ f.label }}
+        </button>
+      </li>
+    </ul>
+
+    <div class="view-actions btn-group mb-2">
+      <button class="btn icon-btn"><i class="bi bi-grid-3x3-gap-fill"></i></button>
+      <button class="btn icon-btn"><i class="bi bi-list"></i></button>
+      <button class="btn icon-btn"><i class="bi bi-funnel"></i></button>
+    </div>
+  </div>
+
+  <div class="row g-3 gallery" *ngIf="!loading && !error">
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3"
+         *ngFor="let m of maillots">
+
+      <figure class="product"
+              [class.out-of-stock]="m.outOfStock">
+
+        <a [routerLink]="['/collection/maillot', m.id_maillot]"
+           class="d-block text-decoration-none text-reset">
+
+          <div class="img-wrapper position-relative">
+            <img class="product-img primary"
+                 [src]="m.url_image_maillot_1"
+                 [alt]="m.nom_maillot" />
+            <img class="product-img secondary"
+                 [src]="m.url_image_maillot_2"
+                 [alt]="m.nom_maillot + ' vue arrière'" />
+
+            <!-- Bannière affichée pour rupture totale -->
+            <div *ngIf="m.outOfStock" class="sold-out-banner">
+              Victime de son succès
+            </div>
+
+            <!-- Overlay de sélection de taille -->
+            <div class="size-overlay">
+              <p class="overlay-text">Sélectionne une taille</p>
+              <div class="sizes">
+                <span *ngFor="let t of ['S','M','L','XL']"
+                      [class.unavailable]="m.outOfStock || !m.availableSizes.includes(t)"
+                      (click)="!m.outOfStock && m.availableSizes.includes(t) && addToCart(m, t); $event.stopPropagation(); $event.preventDefault()">
+                  {{ t }}
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </a>
+
+        <figcaption class="pt-2">
+          <h6 class="prod-title mb-1">{{ m.nom_maillot }}</h6>
+          <p class="prod-price mb-0 fw-bold">
+            {{ m.prix_ht_maillot * 1.2 | currency:'EUR':'symbol':'1.0-0' }}
+          </p>
+        </figcaption>
+
+      </figure>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>

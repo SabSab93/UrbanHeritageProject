@@ -54,7 +54,7 @@ authRouter.post('/register-client',xssGuardMiddleware, async (req, res) => {
     const existing = await prisma.client.findUnique({
       where: { adresse_mail_client }
     });
-
+//manque si adresse client oui  et compte actif 
     if (existing) {
       if (existing.activation_token) {
         const newActivationToken = crypto.randomBytes(32).toString('hex');

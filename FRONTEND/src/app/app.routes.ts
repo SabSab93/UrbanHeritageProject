@@ -4,16 +4,16 @@ import { AuthGuard } from './guards/auth-guard';
 import { ProfilComponent } from './components/profil/profil.component';
 import { AuthRegisterComponent } from './components/auth/auth-register/auth-register.component';
 import { AuthLoginComponent } from './components/auth/auth-login/auth-login.component';
-import { CollectionComponent } from './maillot/collection/collection.component';
-import { ArtisteComponent } from './artiste/list/list-artiste.component';
-import { ArtisteDetailComponent } from './artiste/detail/artiste-detail.component';
-import { AssociationComponent } from './association/list/list-association.component';
-import { AssociationDetailComponent } from './association/detail/association-detail.component';
+import { CollectionComponent } from './components/maillot/collection/collection.component';
+import { ArtisteComponent } from './components/artiste/list/list-artiste.component';
+import { ArtisteDetailComponent } from './components/artiste/detail/artiste-detail.component';
+import { AssociationComponent } from './components/association/list/list-association.component';
+import { AssociationDetailComponent } from './components/association/detail/association-detail.component';
 import { ForgotPasswordComponent } from './components/auth/auth-forgot-password/auth-forgot-password.component';
 import { ResetPasswordComponent } from './components/auth/auth-reset-pasword/auth-reset-password.component';
 import { PaymentCancelComponent } from './components/paiement/payment-cancel.component';
 import { PaymentSuccessComponent } from './components/paiement/payment-success.component';
-import { AvisComponent } from './avis/avis.component';
+import { AvisComponent } from './components/avis/avis.component';
 import { OrderGuard } from './guards/order-guard';
 import { AuthActivationComponent } from './components/auth/auth-activation/auth-activation.component';
 import { EngagementComponent } from './components/engagement/engagement.component';
@@ -41,7 +41,7 @@ export const routes: Routes = [
   {
     path: 'collection/maillot/:id',
     loadComponent: () =>
-      import('./maillot/detail/maillot-detail.component').then(m => m.DetailComponent)
+      import('./components/maillot/detail/maillot-detail.component').then(m => m.DetailComponent)
   },
   { path: 'artistes', component: ArtisteComponent },
   { path: 'artiste/:id', component: ArtisteDetailComponent },

@@ -89,10 +89,8 @@ stripeRouter.post(
         return res.status(400).json({ message: "id_commande invalide" });
       }
 
-      // build line_items
       const line_items = await buildLineItemsForOrder(id_commande);
 
-      // create Stripe session
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         payment_method_types: ["card"],
@@ -104,7 +102,7 @@ stripeRouter.post(
 
       return res.json({ url: session.url });
     } catch (err: any) {
-      console.error("❌ Erreur création session Stripe :", err);
+      console.error("Erreur création session Stripe :", err);
       return res.status(500).json({ message: err.message });
     }
   }

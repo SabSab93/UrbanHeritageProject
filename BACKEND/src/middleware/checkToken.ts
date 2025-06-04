@@ -2,9 +2,8 @@ import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 
 export function monMiddlewareBearer(req: Request, res: Response, next: NextFunction) {
-  /* 👉 Laisse passer la pré-requête CORS */
   if (req.method === 'OPTIONS') {
-    return next();               // pas de contrôle de token
+    return next();     
   }
 
   const full = req.headers.authorization;
@@ -22,3 +21,4 @@ export function monMiddlewareBearer(req: Request, res: Response, next: NextFunct
     return res.status(401).send('Invalid or expired token');
   }
 }
+

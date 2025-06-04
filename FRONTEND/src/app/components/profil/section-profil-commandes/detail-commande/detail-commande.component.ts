@@ -7,14 +7,20 @@ import {
   OnChanges,
   SimpleChanges
 } from '@angular/core';
-import { CommonModule }    from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { CommandeService } from '../../../../services/commande.service';
-import { Commande }        from '../../../../models/commande.model';
+import { Commande } from '../../../../models/commande.model';
+
+// 1️⃣ Importer la pipe label-statut
+import { LabelStatutPipe } from '../../../../pipes/label-statut.pipe';
 
 @Component({
   selector: 'app-details-commande',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    LabelStatutPipe    // ← on l'ajoute ici pour pouvoir l'utiliser dans le template
+  ],
   templateUrl: './detail-commande.component.html',
   styleUrls: ['./detail-commande.component.scss']
 })

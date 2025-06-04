@@ -1,0 +1,17 @@
+<section class="maillots-wrapper">
+  <h2 class="maillots-title">Maillots</h2>
+
+  <div class="maillots-grid">
+    <div class="maillot" *ngFor="let m of maillots">
+      <a class="maillot-link" [routerLink]="['/collection/maillot', m.id_maillot]">
+        <img [src]="m.url_image_maillot_1" [alt]="m.nom_maillot" />
+      </a>
+      <!-- Nom du pays, toujours affiché -->
+      <div class="maillot-country">{{ m.pays_maillot }}</div>
+    </div>
+  </div>
+
+  <div class="btn-wrapper">
+    <a routerLink="/collection" class="hero-button">Voir plus</a>
+  </div>
+</section>

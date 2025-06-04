@@ -1,0 +1,281 @@
+<app-header></app-header>
+
+<div class="detail-wrapper">
+  <div class="container-fluid py-4 detail-page">
+    <div class="row">
+      <!-- Colonne 1 : image principale -->
+      <div class="col">
+        <img
+          [src]="maillot?.url_image_maillot_1"
+          [alt]="maillot?.nom_maillot"
+          class="img-fluid main-img detail-img"
+        />
+      </div>
+      <!-- Colonne 2 : image secondaire -->
+      <div class="col">
+        <img
+          [src]="maillot?.url_image_maillot_2"
+          [alt]="maillot?.nom_maillot"
+          class="img-fluid main-img detail-img"
+        />
+      </div>
+
+      <!-- Colonne 3 : infos produit -->
+      <div class="col">
+        <h2 class="detail-title">{{ maillot?.nom_maillot }}</h2>
+        <p class="text-muted">
+          {{ maillot?.pays_maillot }} · Réf. {{ maillot?.id_maillot }}
+        </p>
+
+        <!-- Prix recalculé -->
+        <h3 class="text-primary mb-3">
+          {{ displayedPrice | currency:'EUR':'symbol':'1.2-2' }}
+        </h3>
+
+        <!-- Rupture totale -->
+        <div *ngIf="maillot?.allOutOfStock" class="text-danger mb-3">
+          Rupture de stock
+        </div>
+
+        <!-- Message « Vite…, reste moins de stockThreshold » -->
+        <div
+          *ngIf="
+            selectedSize
+            && (maillot?.sizeQuantities?.[selectedSize] ?? 0) < stockThreshold
+            && (maillot?.sizeQuantities?.[selectedSize] ?? 0) > 0
+          "
+          class="text-warning mb-2"
+        >
+          Vite ! Il ne reste plus que
+          {{ maillot?.sizeQuantities?.[selectedSize] }}
+          {{ (maillot?.sizeQuantities?.[selectedSize] ?? 0) > 1 ? 'maillots' : 'maillot' }} !
+        </div>
+
+        <!-- Sélecteur de taille -->
+        <div class="mb-4">
+          <p class="mb-2 fw-semibold">Sélectionner une taille</p>
+          <div class="d-flex flex-wrap gap-2">
+            <button
+              *ngFor="let s of ['S','M','L','XL']"
+              class="btn btn-outline-secondary size-pill"
+              [class.active]="selectedSize === s"
+              [class.unavailable]="
+                maillot?.allOutOfStock ||
+                !((maillot?.availableSizes || []).includes(s))
+              "
+              [disabled]="
+                maillot?.allOutOfStock ||
+                !((maillot?.availableSizes || []).includes(s))
+              "
+              (click)="selectSize(s)"
+            >
+              {{ s }}
+            </button>
+          </div>
+          <small class="text-muted d-block mt-2">
+            Taille du mannequin : S · 175 cm
+          </small>
+          <div *ngIf="errorMessage" class="text-danger mt-2 small">
+            {{ errorMessage }}
+          </div>
+        </div>
+
+        <!-- Personnalisation (optionnelle) -->
+        <div class="mb-4" *ngIf="personalisations.length">
+          <p class="mb-2 fw-semibold">Personnalisation (optionnelle)</p>
+
+          <!-- Aucune -->
+          <div class="form-check mb-2">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="perso"
+              id="perso-none"
+              [checked]="selectedPersoId === null"
+              (change)="onSelectPerso(null)"
+            />
+            <label class="form-check-label" for="perso-none">
+              Aucune personnalisation (+0 €)
+            </label>
+          </div>
+
+          <!-- Options existantes -->
+          <div *ngFor="let p of personalisations" class="form-check mb-2">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="perso"
+              [id]="'perso-'+p.id_personnalisation"
+              [checked]="selectedPersoId === p.id_personnalisation"
+              (change)="onSelectPerso(p.id_personnalisation)"
+            />
+            <label
+              class="form-check-label"
+              [for]="'perso-'+p.id_personnalisation"
+            >
+              {{ p.description }} (+{{ p.prix_ht }} €)
+            </label>
+          </div>
+
+          <!-- Champs texte & couleur -->
+          <div *ngIf="selectedPersoId !== null" class="mt-3 ps-4">
+            <label class="form-label">Texte :</label>
+            <input
+              type="text"
+              class="form-control mb-2"
+              [value]="valeur_personnalisation"
+              (input)="valeur_personnalisation = $any($event.target).value"
+              placeholder="Entrez le texte…"
+            />
+
+            <div *ngIf="selectedPersoType === 'name_color'">
+              <label class="form-label">Couleur :</label>
+              <select
+                class="form-select"
+                [value]="couleur_personnalisation"
+                (change)="couleur_personnalisation = $any($event.target).value"
+              >
+                <option *ngFor="let c of couleurOptions" [value]="c">
+                  {{ c.toLowerCase() | titlecase }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton Ajouter au panier -->
+        <button class="btn-panier mb-4" (click)="addToCart()">
+          Ajouter au panier
+        </button>
+
+        <!-- Accordéons informations -->
+        <div class="accordion" id="prodInfo">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseOne"
+              >
+                Composition, soin & traçabilité
+              </button>
+            </h2>
+            <div
+              id="collapseOne"
+              class="accordion-collapse collapse"
+              data-bs-parent="#prodInfo"
+            >
+              <div class="accordion-body">
+                <b>Composition :</b> {{ maillot?.composition_maillot }}<br />
+                <b>Entretien :</b> {{ maillot?.entretien }}<br />
+                <b>Origine :</b> {{ maillot?.origine }} –
+                {{ maillot?.tracabilite }}
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseTwo"
+              >
+                Disponibilité & Retours
+              </button>
+            </h2>
+            <div
+              id="collapseTwo"
+              class="accordion-collapse collapse"
+              data-bs-parent="#prodInfo"
+            >
+              <div class="accordion-body">
+                Retrait gratuit en magasin sous 2 h.<br />
+                Retour sous 30 jours.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Hero ------------------------------------------------>
+<div class="row align-items-center my-5 hero-section">
+  <div class="col-md-5 text-center">
+    <img
+      [src]="maillot?.url_image_maillot_3"
+      [alt]="maillot?.nom_maillot + ' vue 3'"
+      class="img-fluid hero-img"
+    />
+  </div>
+  <div class="col-md-7">
+    <h2 class="maillot-title text-uppercase mb-3">
+      {{ maillot?.nom_maillot }}
+    </h2>
+    <p class="maillot-description">
+      {{ maillot?.description_maillot }}
+    </p>
+  </div>
+</div>
+<!-- / Hero ------------------------------------------------------>
+
+<app-section-artiste *ngIf="artiste" [artiste]="artiste"></app-section-artiste>
+
+<!-- Section Associations --------------------------------------------->
+
+<app-section-association *ngIf="association" [association]="association"></app-section-association>
+
+
+<!-- / Associations --------------------------------------------------->
+
+
+<!-- Section Avis clients --------------------------------------->
+<div class="row reviews-section my-5">
+  <div class="col-12">
+    <h2 class="detail-title">Avis clients</h2>
+
+    <!-- Statistiques globales -->
+    <div *ngIf="!loadingAvis && nombreAvis > 0" class="mb-3">
+      <strong>{{ moyenneAvis }}/5</strong>
+      ({{ nombreAvis }} {{ nombreAvis > 1 ? 'avis' : 'avis' }})
+    </div>
+
+    <!-- Chargement / erreur -->
+    <div *ngIf="loadingAvis" class="text-muted mb-3">Chargement des avis…</div>
+    <div *ngIf="errorAvis" class="text-danger mb-3">{{ errorAvis }}</div>
+
+    <!-- Liste des avis -->
+    <ul class="list-unstyled" *ngIf="!loadingAvis && avisList.length">
+      <li *ngFor="let a of avisList" class="mb-4 border-bottom pb-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="fw-bold">{{ a.titre_avis }}</span>
+            <small class="text-muted ms-2">
+              – {{ a.Client?.prenom_client || 'Anonyme' }}
+            </small>
+          </div>
+          <div>
+            <ng-container *ngFor="let star of [1,2,3,4,5]">
+              <i
+                class="bi"
+                [class.bi-star-fill]="star <= a.classement_avis"
+                [class.bi-star]="star > a.classement_avis"
+              ></i>
+            </ng-container>
+          </div>
+        </div>
+        <p class="mt-2 mb-1">{{ a.description_avis }}</p>
+        <small class="text-muted">{{ a.date_avis | date:'longDate' }}</small>
+      </li>
+    </ul>
+
+    <!-- Aucun avis -->
+    <div *ngIf="!loadingAvis && avisList.length === 0" class="text-muted">
+      Aucun avis pour ce maillot.
+    </div>
+  </div>
+</div>
+<!-- / Avis ----------------------------------------------------->
+
+<app-footer></app-footer>

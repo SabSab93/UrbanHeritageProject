@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Impact&family=Poppins:wght@300;600&display=swap');
+
+.detail-title {
+  font-family: 'Impact', sans-serif;
+  font-size: 3rem;
+  text-transform: uppercase;
+  background: #0A0A0A;
+  color: #fff;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+}
+
+.artist-img {
+  max-width: 100%;
+  border-radius: 6px;
+}
+
+.artist-name {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 3rem;
+  text-transform: uppercase;
+}
+
+.artist-bio {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+.artist-stats li {
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+}
+.artist-button {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 1rem;
+  background-color: #2E2E2E;
+  color: #FFF;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #0A0A0A;
+  }
+}
+
+/* Icônes réseaux sociaux */
+.artist-social .social-icon img {
+  width: 30px;
+  opacity: 0.75;
+  transition: opacity 0.2s ease-in-out;
+
+  &:hover {
+    opacity: 1;
+  }
+}

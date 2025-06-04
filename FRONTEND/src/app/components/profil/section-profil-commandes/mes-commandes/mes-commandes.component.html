@@ -21,11 +21,7 @@
 
           <!-- Statut lisible -->
           <td>
-            <span [ngClass]="{
-                  'badge bg-warning text-dark': cmd.statut_commande==='en_cours',
-                  'badge bg-info'             : cmd.statut_commande==='en_cours_de_preparation',
-                  'badge bg-success'          : cmd.statut_commande==='livre'
-                }">
+            <span>
               {{ cmd.statut_commande | labelStatut }}
             </span>
           </td>
