@@ -14,7 +14,7 @@ export const templateDemandeAvis = (
     <p>Votre retour est précieux pour nous et pour les autres fans 🏆.</p>
     <p><strong>En quelques clics</strong>, donnez votre avis :</p>
     <a href="${frontendUrl}/maillot/${id_maillot}/avis"
-       style="display: inline-block; padding: 10px 20px; background-color: #004aad; color: white; text-decoration: none; border-radius: 5px; margin-top: 15px;">
+       style="display: inline-block; padding: 10px 20px; background-color: #777777; color: white; text-decoration: none; border-radius: 5px; margin-top: 15px;">
       Donner mon avis
     </a>
     <p style="margin-top: 20px;">Merci beaucoup pour votre soutien 🙏</p>
