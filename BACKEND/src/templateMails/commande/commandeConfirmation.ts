@@ -1,4 +1,3 @@
-// src/templateMails/commande/confirmationCommande.ts
 
 export const templateConfirmationCommande = (prenom: string | null, numeroCommande: string) => `
   <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
