@@ -43,7 +43,6 @@ export class AvisComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // 1) Récupérer l’ID dans l’URL
     this.idMaillot = Number(this.route.snapshot.paramMap.get('id'));
 
 
