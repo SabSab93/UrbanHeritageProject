@@ -11,3 +11,4 @@ export const templateFactureEnvoyee = (prenom: string | null) => `
     </div>
   </div>
 `;
+

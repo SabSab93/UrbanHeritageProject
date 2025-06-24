@@ -1,4 +1,3 @@
-
 import dotenv from "dotenv";
 
 if (process.env.NODE_ENV === "production") {
@@ -17,4 +16,5 @@ const server = app.listen(port, () => {
 
 process.once("SIGINT",  () => server.close(() => process.exit(0)));
 process.once("SIGTERM", () => server.close(() => process.exit(0)));
+
 

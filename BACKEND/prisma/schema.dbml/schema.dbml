@@ -1,0 +1,413 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table CommandeReduction {
+  id_commande Int [unique, not null]
+  id_reduction Int [not null]
+  Commande Commande [not null]
+  Reduction Reduction [not null]
+
+  indexes {
+    (id_commande, id_reduction) [pk]
+  }
+}
+
+Table Artiste {
+  nom_artiste String [not null]
+  prenom_artiste String [not null]
+  pays_artiste String [not null, default: ' ']
+  date_naissance_artiste String [not null, default: ' ']
+  site_web_artiste String [not null, default: ' ']
+  url_image_artiste_1 String [not null, default: ' ']
+  url_image_artiste_2 String [not null, default: ' ']
+  url_image_artiste_3 String [not null, default: ' ']
+  description_artiste_1 String [not null, default: ' ']
+  description_artiste_2 String [not null, default: ' ']
+  description_artiste_3 String [not null, default: ' ']
+  url_instagram_reseau_social String
+  url_tiktok_reseau_social String
+  id_artiste Int [pk, increment]
+  Maillots Maillot [not null]
+}
+
+Table Association {
+  nom_association String [not null]
+  numero_identification_association String [not null]
+  adresse_siege_social_association String [not null, default: ' ']
+  pays_association String [not null, default: ' ']
+  site_web_association String [not null, default: ' ']
+  url_image_association_1 String [not null, default: ' ']
+  url_image_association_2 String [not null, default: ' ']
+  url_image_association_3 String [not null, default: ' ']
+  description_association_1 String [not null, default: ' ']
+  description_association_2 String [not null, default: ' ']
+  description_association_3 String [not null, default: ' ']
+  id_association Int [pk, increment]
+  Maillots Maillot [not null]
+}
+
+Table Avis {
+  id_avis Int [pk, increment]
+  id_maillot Int [not null]
+  id_client Int [not null]
+  date_avis DateTime
+  classement_avis Int [not null]
+  titre_avis String [not null, default: ' ']
+  description_avis String [not null, default: ' ']
+  Client Client [not null]
+  Maillot Maillot [not null]
+}
+
+Table Avoir {
+  id_avoir Int [pk, increment]
+  numero_avoir String [unique]
+  date_avoir DateTime
+  avoir_hors_ue Boolean [not null, default: false]
+  id_commande_retour Int [not null]
+  Retour Retour [not null]
+}
+
+Table Role {
+  id_role Int [pk, increment]
+  nom_role String [unique, not null]
+  description String
+  Clients Client [not null]
+}
+
+Table Client {
+  id_client Int [pk, increment]
+  nom_client String [not null]
+  prenom_client String
+  civilite civilite_enum [not null, default: 'non_specifie']
+  date_naissance_client DateTime
+  adresse_client String [not null]
+  code_postal_client String [not null]
+  ville_client String [not null]
+  pays_client String [not null]
+  mot_de_passe String
+  adresse_mail_client String [unique, not null]
+  id_role Int
+  activation_token String
+  statut_compte statut_compte_enum [not null, default: 'en_attente']
+  deleted_at DateTime
+  is_anonymised Boolean [not null, default: false]
+  google_sub String [unique]
+  provider provider_enum [not null, default: 'local']
+  telephone_client String
+  reset_token String
+  reset_token_expiry DateTime
+  Avis Avis [not null]
+  Role Role
+  Commande Commande [not null]
+  LigneCommande LigneCommande [not null]
+  Livraison Livraison [not null]
+}
+
+Table Commande {
+  id_commande Int [pk, increment]
+  id_client Int [not null]
+  date_commande DateTime
+  statut_commande statut_commande_enum [not null, default: 'en_cours']
+  statut_paiement statut_paiement_enum [not null, default: 'en_attente']
+  montant_total_ttc Decimal
+  Client Client [not null]
+  CommandeReduction CommandeReduction
+  Facture Facture [not null]
+  LigneCommande LigneCommande [not null]
+  Livraison Livraison [not null]
+  Retour Retour
+}
+
+Table Facture {
+  numero_facture String [pk]
+  id_commande Int [not null]
+  date_facture DateTime [default: `now()`]
+  facture_hors_ue Boolean [default: false]
+  Commande Commande [not null]
+}
+
+Table LigneCommande {
+  id_lignecommande Int [pk, increment]
+  id_commande Int
+  id_maillot Int [not null]
+  taille_maillot taille_maillot_enum [not null]
+  quantite Int [not null, default: 0]
+  prix_ht Decimal [not null, default: 0]
+  id_client Int
+  id_tva Int [not null, default: 1]
+  date_creation DateTime [default: `now()`, not null]
+  couleur_personnalisation String
+  id_personnalisation Int
+  ligne_commande_personnalisee Boolean [not null, default: false]
+  valeur_personnalisation String
+  Client Client
+  Commande Commande
+  Maillot Maillot [not null]
+  Personnalisation Personnalisation
+  TVA TVA [not null]
+  RetourLigneCommande RetourLigneCommande [not null]
+
+  Note: 'Table des lignes de commande, avec personnalisation intégrée'
+}
+
+Table Livraison {
+  id_livraison Int [pk, increment]
+  id_commande Int [not null]
+  date_livraison DateTime
+  adresse_livraison String [not null, default: '']
+  code_postal_livraison String
+  ville_livraison String [not null, default: '']
+  pays_livraison String [not null, default: '']
+  id_lieu_livraison Int [not null]
+  id_livreur Int [not null]
+  id_methode_livraison Int [not null]
+  id_adresse_client Int
+  adresseClient Client
+  Commande Commande [not null]
+  LieuLivraison LieuLivraison [not null]
+  Livreur Livreur [not null]
+  MethodeLivraison MethodeLivraison [not null]
+}
+
+Table MethodeLivraison {
+  id_methode_livraison Int [pk, increment]
+  nom_methode String [unique, not null]
+  prix_methode Int [not null, default: 0]
+  Livraison Livraison [not null]
+}
+
+Table LieuLivraison {
+  id_lieu_livraison Int [pk, increment]
+  nom_lieu String [unique, not null]
+  prix_lieu Int [not null, default: 0]
+  Livraison Livraison [not null]
+}
+
+Table Livreur {
+  id_livreur Int [pk, increment]
+  nom_livreur String [unique, not null]
+  Livraison Livraison [not null]
+}
+
+Table Maillot {
+  id_maillot Int [pk, increment]
+  id_tva Int [not null, default: 1]
+  nom_maillot String [not null, default: '']
+  pays_maillot String [not null, default: '']
+  description_maillot String [not null, default: '']
+  composition_maillot String [not null, default: '']
+  url_image_maillot_1 String [not null, default: ' ']
+  url_image_maillot_2 String [not null, default: ' ']
+  url_image_maillot_3 String [not null, default: ' ']
+  origine String [not null, default: '']
+  tracabilite String [not null, default: '']
+  entretien String [not null, default: '']
+  prix_ht_maillot Int [not null, default: 0]
+  id_artiste Int [not null]
+  id_association Int [not null]
+  created_at DateTime [default: `now()`, not null]
+  quantite_vendue Int [not null, default: 0]
+  Avis Avis [not null]
+  LigneCommande LigneCommande [not null]
+  Artiste Artiste [not null]
+  Association Association [not null]
+  Stock Stock [not null]
+}
+
+Table Personnalisation {
+  id_personnalisation Int [pk, increment]
+  type_personnalisation type_personnalisation_enum [not null]
+  prix_ht Decimal [not null]
+  description String [not null, default: '']
+  LigneCommande LigneCommande [not null]
+}
+
+Table Reduction {
+  id_reduction Int [pk, increment]
+  code_reduction String [unique, not null]
+  description String
+  valeur_reduction Decimal [not null]
+  date_debut_reduction DateTime
+  date_fin_reduction DateTime
+  type_reduction type_reduction_enum [not null]
+  statut_reduction statut_reduction_type_enum [not null]
+  date_creation DateTime [default: `now()`]
+  CommandeReduction CommandeReduction [not null]
+}
+
+Table Retour {
+  id_commande_retour Int [pk]
+  motif_retour motif_retour_enum [not null]
+  date_retour DateTime [not null]
+  droit_retour Boolean [not null, default: false]
+  reception_retour Boolean [not null, default: false]
+  Avoir Avoir [not null]
+  Commande Commande [not null]
+  RetourLigneCommande RetourLigneCommande [not null]
+}
+
+Table RetourLigneCommande {
+  id_retour Int [not null]
+  id_lignecommande Int [not null]
+  LigneCommande LigneCommande [not null]
+  Retour Retour [not null]
+
+  indexes {
+    (id_retour, id_lignecommande) [pk]
+  }
+}
+
+Table Stock {
+  id_stock Int [pk, increment]
+  id_maillot Int [not null]
+  taille_maillot taille_maillot_enum [not null]
+  Maillot Maillot [not null]
+  StockMaillot StockMaillot [not null]
+}
+
+Table StockMaillot {
+  id_stock_maillot Int [pk, increment]
+  id_stock Int [not null]
+  quantite_stock Int [not null, default: 0]
+  type_mouvement type_mouvement_enum [not null]
+  date_mouvement DateTime [default: `now()`]
+  Stock Stock [not null]
+}
+
+Table TVA {
+  id_tva Int [pk, increment]
+  taux_tva Int [not null]
+  description_tva String [not null]
+  LigneCommande LigneCommande [not null]
+}
+
+Enum civilite_enum {
+  femme
+  homme
+  non_specifie
+}
+
+Enum motif_retour_enum {
+  taille
+  non_conforme
+  probleme_qualite
+}
+
+Enum status_enum {
+  active
+  inactive
+}
+
+Enum statut_commande_enum {
+  en_cours
+  livraison
+  livre
+  retard
+  retour
+  en_cours_de_preparation
+}
+
+Enum statut_reduction_type_enum {
+  active
+  expiree
+  annulee
+}
+
+Enum taille_maillot_enum {
+  S
+  M
+  L
+  XL
+}
+
+Enum type_mouvement_enum {
+  entree
+  sortie
+}
+
+Enum type_personnalisation_enum {
+  name
+  name_color
+}
+
+Enum type_reduction_enum {
+  pourcentage
+  montant_fixe
+  frais_livraison
+  autre
+}
+
+Enum statut_paiement_enum {
+  en_attente
+  paye
+  echec
+}
+
+Enum statut_compte_enum {
+  en_attente
+  actif
+  bloque
+}
+
+Enum provider_enum {
+  local
+  google
+}
+
+Enum couleur_personnalisation_enum {
+  ROUGE
+  VERT
+  NOIR
+  BLANC
+}
+
+Ref: CommandeReduction.id_commande - Commande.id_commande [delete: Cascade]
+
+Ref: CommandeReduction.id_reduction > Reduction.id_reduction [delete: Cascade]
+
+Ref: Avis.id_client > Client.id_client [delete: No Action]
+
+Ref: Avis.id_maillot > Maillot.id_maillot [delete: Cascade]
+
+Ref: Avoir.id_commande_retour > Retour.id_commande_retour
+
+Ref: Client.id_role > Role.id_role
+
+Ref: Commande.id_client > Client.id_client [delete: Cascade]
+
+Ref: Facture.id_commande > Commande.id_commande
+
+Ref: LigneCommande.id_client > Client.id_client [delete: Cascade]
+
+Ref: LigneCommande.id_commande > Commande.id_commande [delete: Cascade]
+
+Ref: LigneCommande.id_maillot > Maillot.id_maillot [delete: Cascade]
+
+Ref: LigneCommande.id_personnalisation > Personnalisation.id_personnalisation [delete: Cascade]
+
+Ref: LigneCommande.id_tva > TVA.id_tva
+
+Ref: Livraison.id_adresse_client > Client.id_client
+
+Ref: Livraison.id_commande > Commande.id_commande
+
+Ref: Livraison.id_lieu_livraison > LieuLivraison.id_lieu_livraison
+
+Ref: Livraison.id_livreur > Livreur.id_livreur
+
+Ref: Livraison.id_methode_livraison > MethodeLivraison.id_methode_livraison
+
+Ref: Maillot.id_artiste > Artiste.id_artiste
+
+Ref: Maillot.id_association > Association.id_association
+
+Ref: Retour.id_commande_retour - Commande.id_commande [delete: Cascade]
+
+Ref: RetourLigneCommande.id_lignecommande > LigneCommande.id_lignecommande [delete: Cascade]
+
+Ref: RetourLigneCommande.id_retour > Retour.id_commande_retour [delete: Cascade]
+
+Ref: Stock.id_maillot > Maillot.id_maillot
+
+Ref: StockMaillot.id_stock > Stock.id_stock [delete: Cascade]
