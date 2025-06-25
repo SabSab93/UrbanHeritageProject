@@ -1,163 +1,181 @@
-
-<div class="auth-register-page container-fluid">
-  <div class="row justify-content-center align-items-center min-vh-100">
-    <div class="col-lg-5 text-center left-side">
-      <img src="assets/images/logo/logo.png" alt="UrbanHeritage Logo" />
+<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+  <div class="row">
+    <div class="col">
+      <input
+        id="nom-input"
+        type="text"
+        class="form-control"
+        placeholder="Nom *"
+        formControlName="nom_client"
+      />
     </div>
-
-    <div class="col-lg-5 right-side">
-      <h2>Créer un compte</h2>
-      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-        <div class="row">
-          <div class="col">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Nom *"
-              formControlName="nom_client"
-            />
-          </div>
-          <div class="col">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Prénom"
-              formControlName="prenom_client"
-            />
-          </div>
-        </div>
-
-        <select class="form-control" formControlName="civilite">
-          <option *ngFor="let opt of civiliteOptions" [value]="opt">{{ opt }}</option>
-        </select>
-
-        <input
-          type="date"
-          class="form-control"
-          formControlName="date_naissance_client"
-        />
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Adresse *"
-          formControlName="adresse_client"
-        />
-
-        <div class="row">
-          <div class="col">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Code postal *"
-              formControlName="code_postal_client"
-            />
-          </div>
-          <div class="col">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Ville *"
-              formControlName="ville_client"
-            />
-          </div>
-          <div class="col">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Pays *"
-              formControlName="pays_client"
-            />
-          </div>
-        </div>
-
-        <!-- Email -->
-        <input
-          type="email"
-          class="form-control"
-          placeholder="Email *"
-          formControlName="adresse_mail_client"
-          [ngClass]="{
-            'is-invalid':
-              registerForm.get('adresse_mail_client')?.invalid &&
-              registerForm.get('adresse_mail_client')?.touched
-          }"
-        />
-        <div
-          *ngIf="
-            registerForm.get('adresse_mail_client')?.hasError('email') &&
-            registerForm.get('adresse_mail_client')?.touched
-          "
-          class="text-danger"
-        >
-          Format d'email invalide.
-        </div>
-        <div
-          *ngIf="errorMessage === 'Email déjà utilisé'"
-          class="text-danger"
-        >
-          Cette adresse email est déjà utilisée.
-        </div>
-
-        <!-- Mot de passe -->
-        <input
-          type="password"
-          class="form-control"
-          placeholder="Mot de passe *"
-          formControlName="mot_de_passe"
-          [ngClass]="{
-            'is-invalid':
-              registerForm.get('mot_de_passe')?.invalid &&
-              registerForm.get('mot_de_passe')?.touched
-          }"
-        />
-        <div
-          *ngIf="
-            registerForm.get('mot_de_passe')?.hasError('minlength') &&
-            registerForm.get('mot_de_passe')?.touched
-          "
-          class="text-danger"
-        >
-          Le mot de passe doit contenir au moins 8 caractères.
-        </div>
-
-        <!-- Confirmation mot de passe -->
-        <input
-          type="password"
-          class="form-control"
-          placeholder="Confirmez le mot de passe *"
-          formControlName="confirmPassword"
-          [ngClass]="{
-            'is-invalid':
-              registerForm.get('confirmPassword')?.invalid &&
-              registerForm.get('confirmPassword')?.touched
-          }"
-        />
-        <div *ngIf="
-              registerForm.hasError('passwordsMismatch') &&
-              registerForm.get('confirmPassword')?.touched"
-            class="text-danger">
-          Les mots de passe ne correspondent pas.
-        </div>
-
-        <button type="submit" class="btn btn-dark mt-3"
-            [disabled]="registerForm.invalid">
-      Créer un compte
-    </button>
-
-        <div *ngIf="successMessage" class="text-success mt-3 text-center">
-          {{ successMessage }}
-        </div>
-        <div
-          *ngIf="errorMessage && errorMessage !== 'Email déjà utilisé'"
-          class="text-danger mt-2 text-center"
-        >
-          {{ errorMessage }}
-        </div>
-
-        <div class="already mt-3">
-          Déjà inscrit ? <a routerLink="/connexion">Connecte-toi</a>
-        </div>
-      </form>
+    <div class="col">
+      <input
+        id="prenom-input"
+        type="text"
+        class="form-control"
+        placeholder="Prénom"
+        formControlName="prenom_client"
+      />
     </div>
   </div>
-</div>
+
+  <select
+    id="civilite-select"
+    class="form-control"
+    formControlName="civilite"
+  >
+    <option *ngFor="let opt of civiliteOptions" [value]="opt">
+      {{ opt }}
+    </option>
+  </select>
+
+  <input
+    id="date-input"
+    type="date"
+    class="form-control"
+    formControlName="date_naissance_client"
+  />
+
+  <input
+    id="adresse-input"
+    type="text"
+    class="form-control"
+    placeholder="Adresse *"
+    formControlName="adresse_client"
+  />
+
+  <div class="row">
+    <div class="col">
+      <input
+        id="cp-input"
+        type="text"
+        class="form-control"
+        placeholder="Code postal *"
+        formControlName="code_postal_client"
+      />
+    </div>
+    <div class="col">
+      <input
+        id="ville-input"
+        type="text"
+        class="form-control"
+        placeholder="Ville *"
+        formControlName="ville_client"
+      />
+    </div>
+    <div class="col">
+      <input
+        id="pays-input"
+        type="text"
+        class="form-control"
+        placeholder="Pays *"
+        formControlName="pays_client"
+      />
+    </div>
+  </div>
+
+  <!-- Email -->
+  <input
+    id="email-input"
+    type="email"
+    class="form-control"
+    placeholder="Email *"
+    formControlName="adresse_mail_client"
+    [ngClass]="{
+      'is-invalid':
+        registerForm.get('adresse_mail_client')?.invalid &&
+        registerForm.get('adresse_mail_client')?.touched
+    }"
+  />
+  <div
+    *ngIf="
+      registerForm.get('adresse_mail_client')?.hasError('email') &&
+      registerForm.get('adresse_mail_client')?.touched
+    "
+    id="email-error"
+    class="text-danger"
+  >
+    Format d'email invalide.
+  </div>
+  <div
+    *ngIf="errorMessage === 'Email déjà utilisé'"
+    id="email-used-error"
+    class="text-danger"
+  >
+    Cette adresse email est déjà utilisée.
+  </div>
+
+  <!-- Mot de passe -->
+  <input
+    id="password-input"
+    type="password"
+    class="form-control"
+    placeholder="Mot de passe *"
+    formControlName="mot_de_passe"
+    [ngClass]="{
+      'is-invalid':
+        registerForm.get('mot_de_passe')?.invalid &&
+        registerForm.get('mot_de_passe')?.touched
+    }"
+  />
+  <div
+    *ngIf="
+      registerForm.get('mot_de_passe')?.hasError('minlength') &&
+      registerForm.get('mot_de_passe')?.touched
+    "
+    id="password-error"
+    class="text-danger"
+  >
+    Le mot de passe doit contenir au moins 8 caractères.
+  </div>
+
+  <!-- Confirmation mot de passe -->
+  <input
+    id="confirm-password-input"
+    type="password"
+    class="form-control"
+    placeholder="Confirmez le mot de passe *"
+    formControlName="confirmPassword"
+    [ngClass]="{
+      'is-invalid':
+        registerForm.get('confirmPassword')?.invalid &&
+        registerForm.get('confirmPassword')?.touched
+    }"
+  />
+  <div
+    *ngIf="
+      registerForm.hasError('passwordsMismatch') &&
+      registerForm.get('confirmPassword')?.touched
+    "
+    id="confirm-error"
+    class="text-danger"
+  >
+    Les mots de passe ne correspondent pas.
+  </div>
+
+  <button
+    id="submit-button"
+    type="submit"
+    class="btn btn-dark mt-3"
+    [disabled]="registerForm.invalid"
+  >
+    Créer un compte
+  </button>
+
+  <div *ngIf="successMessage" id="success-message" class="text-success mt-3 text-center">
+    {{ successMessage }}
+  </div>
+  <div
+    *ngIf="errorMessage && errorMessage !== 'Email déjà utilisé'"
+    id="server-error"
+    class="text-danger mt-2 text-center"
+  >
+    {{ errorMessage }}
+  </div>
+
+  <div class="already mt-3">
+    Déjà inscrit ? 
+    <a id="login-link" routerLink="/connexion">Connecte-toi</a>
+  </div>
+</form>

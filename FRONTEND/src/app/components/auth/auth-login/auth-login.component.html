@@ -7,42 +7,45 @@
       <h2>Connexion</h2>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <input formControlName="email"
-               class="form-control"
-               placeholder="Adresse e-mail *" />
-        <input type="password"
-               formControlName="password"
-               class="form-control"
-               placeholder="Mot de passe *" />
+        <input id="email-input"
+              formControlName="email"
+              class="form-control"
+              placeholder="Adresse e-mail *" />
+        <input id="password-input"
+              type="password"
+              formControlName="password"
+              class="form-control"
+              placeholder="Mot de passe *" />
 
         <div class="text-end mb-3">
-          <a routerLink="/forgot-password" class="forgot-link">Mot de passe oublié ?</a>
+          <a id="forgot-link" routerLink="/forgot-password" class="forgot-link">
+            Mot de passe oublié ?
+          </a>
         </div>
 
-        <button type="submit" class="btn btn-dark w-100">
+        <button id="submit-button"
+                type="submit"
+                class="btn btn-dark w-100"
+                [disabled]="loginForm.invalid">
           Se connecter
         </button>
       </form>
 
-      <div *ngIf="errorMessage" class="text-danger mt-3 text-center">
+      <div *ngIf="errorMessage" id="error-message" class="text-danger mt-3 text-center">
         {{ errorMessage }}
       </div>
 
-      <!-- Bouton pour renvoyer le lien d'activation -->
+      <!-- Renvoyer le lien -->
       <div *ngIf="showResend" class="text-center mt-3">
-        <button class="btn btn-link" (click)="onResend()">
+        <button id="resend-button" class="btn btn-link" (click)="onResend()">
           Renvoyer le lien d’activation
         </button>
       </div>
 
-      <!-- Message de confirmation du renvoi -->
-      <div *ngIf="resendMessage" class="text-success mt-3 text-center">
-        {{ resendMessage }}
+      <div class="already mt-3 text-center">
+        Pas encore de compte ? <a id="signup-link" routerLink="/inscription">Inscris-toi</a>
       </div>
 
-      <div class="already mt-3 text-center">
-        Pas encore de compte ? <a routerLink="/inscription">Inscris-toi</a>
-      </div>
     </div>
   </div>
 </div>
