@@ -45,9 +45,9 @@ export class AuthRegisterComponent {
         adresse_mail_client: ['', [Validators.required, Validators.email]],
 
         mot_de_passe:      ['', [Validators.required, Validators.minLength(8)]],
-        confirmPassword:   ['', Validators.required]          // ← confirmation
+        confirmPassword:   ['', Validators.required]        
       },
-      { validators: this.passwordsMatchValidator }            // ← validateur groupe
+      { validators: this.passwordsMatchValidator }         
     );
 
     this.returnUrl =
@@ -65,7 +65,6 @@ export class AuthRegisterComponent {
   onSubmit(): void {
     if (this.registerForm.invalid) return;
 
-    /* inutile de transmettre confirmPassword au backend */
     const { confirmPassword, ...payload } = this.registerForm.value;
 
     this.errorMessage   = '';

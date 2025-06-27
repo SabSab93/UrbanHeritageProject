@@ -46,7 +46,7 @@ export class MesCommandesComponent implements OnInit {
     });
   }
 
-  /** alias simple pour le bouton Annuler */
+
   private reloadList(): void { this.loadList(); }
 
   showDetails(id: number): void { this.selectedCommandeId = id; }

@@ -6,7 +6,7 @@
   position: relative;
 }
 
-// Titre : fond noir, police impact, au-dessus
+
 .engagements-title {
   font-family: 'Impact', sans-serif;
   font-size: 3rem;
@@ -14,13 +14,13 @@
   color: #FFF;
   display: inline-block;
   padding: 0.5rem 2rem;
-  margin-top: -5rem; // à cheval avec la section précédente
+  margin-top: -5rem; 
   margin-bottom: 4rem;
   z-index: 2;
   position: relative;
 }
 
-// Liste en flex
+
 .engagements-list {
   display: flex;
   flex-wrap: wrap;
@@ -29,7 +29,7 @@
   padding-bottom: 4rem;
 }
 
-// Item : centré, texte poppins semi-bold
+
 .engagement-item {
   width: 220px;
 

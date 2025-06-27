@@ -1,4 +1,3 @@
-// src/app/components/commandes/mes-factures/mes-factures.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule }      from '@angular/common';
 import { FactureService } from '../../../../services/facture.service';

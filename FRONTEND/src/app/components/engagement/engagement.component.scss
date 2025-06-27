@@ -5,38 +5,37 @@
   --grey-medium: #777777;
   --grey-light: #D9D9D9;
 
-  /* Hauteur approximative du header (ajustez si nécessaire) */
-  --header-height: 80px;
+ --header-height: 80px;
 }
 
-/* Reset de base */
+
 html, body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
 }
 
-/* Conteneur global */
+
 .engagement-container {
   font-family: 'Poppins', sans-serif;
   color: var(--anthracite);
 }
 
-/* 1) La row prend toute la hauteur restante sous le header */
+
 .engagement-section {
   display: flex;
   height: calc(100vh - var(--header-height));
   overflow: hidden;
 }
 
-/* 2) Colonne image */
+
 .image-col {
   position: relative;
   padding: 0;
   height: 100%;
 }
 
-/* 3) L’image remplit la colonne sans être découpée */
+
 .image-col img {
   display: block;
   height: 100%;
@@ -45,7 +44,7 @@ html, body {
   object-fit: contain;
 }
 
-/* 4) Titre principal en Impact, overlay */
+
 .association-title {
   font-family: 'Impact', sans-serif;
   font-size: 5rem;
@@ -60,25 +59,23 @@ html, body {
 .overlay-title {
   position: absolute;
   top: 1rem;
-  right: -15rem; /* ajustez pour décaler horizontalement */
+  right: -15rem; 
   left: auto;
   background-color: black;
   color: white;
 }
 
-/* 5) Colonne texte */
 .text-col {
   background-color: white;
 
 }
 
 
-/* Classe utilitaire pour descendre le texte */
 .pt-15 {
   padding-top: 15rem !important;
 }
 
-/* Sous-titres */
+
 .subtitle {
   font-weight: 600;
   text-transform: uppercase;
@@ -87,7 +84,7 @@ html, body {
   color: var(--grey-medium);
 }
 
-/* Texte courant */
+
 .body-text {
   font-weight: 300;
   font-size: 1.125rem;
@@ -95,7 +92,7 @@ html, body {
   line-height: 1.7;
 }
 
-/* Séparateur */
+
 .divider {
   height: 3px;
   background-color: var(--grey-light);
@@ -103,7 +100,7 @@ html, body {
   margin: 3rem 0;
 }
 
-/* Responsive : en mobile on repasse à un comportement normal */
+
 @media (max-width: 767.98px) {
   .engagement-section {
     display: block;

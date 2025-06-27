@@ -49,10 +49,7 @@ $total-offset: $header-height + $banner-height;
   box-sizing: border-box;
 }
 
-/* ===============================
-   TITRE PRINCIPAL <h1>  
-   on le descend sous header+banner et on le décale à gauche 
-   =============================== */
+
 .content-panel h1 {
   font-family: 'Impact', sans-serif;
   font-size: 3rem;
@@ -62,17 +59,15 @@ $total-offset: $header-height + $banner-height;
   padding: 0.5rem 1rem;
   text-transform: uppercase;
 
-  /* on le décale vers la gauche pour chevaucher un peu l’image */
-  margin-left: -3rem;
 
-  /* on s’assure qu’il soit bien en dessous du banner */
-  margin-top: 0; /* on vire tout margin-top existant */
-  /* mais on utilise plutôt le padding-top du content-panel */
+  margin-left: -3rem;
+  margin-top: 0; 
+
   position: relative;
   z-index: 1;
 }
 
-/* Tout le reste du texte en Poppins */
+
 .content-panel,
 .content-panel h2,
 .content-panel h4,
@@ -83,7 +78,7 @@ $total-offset: $header-height + $banner-height;
   font-family: 'Poppins', sans-serif;
 }
 
-/* Bouton “Appliquer” */
+
 .promo-input button {
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
@@ -132,7 +127,7 @@ button[type="submit"]:hover {
   white-space: pre-wrap;
 }
 
-/* --- LE RESTE DU SCSS NE CHANGE PAS --- */
+
 
 .cart-section {
   .cart-items {
@@ -233,7 +228,7 @@ button[type="submit"]:hover {
   .content-panel {
     height: auto;
     min-width: auto;
-    padding-top: 2rem; /* pas de banner sur mobile */
+    padding-top: 2rem; 
   }
   .item-recap {
     flex-direction: column;

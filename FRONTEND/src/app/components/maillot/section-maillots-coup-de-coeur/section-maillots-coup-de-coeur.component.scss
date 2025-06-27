@@ -10,7 +10,7 @@
   padding: 4rem 2rem;
   text-align: left;
 
-  /* BANNIÈRE “MAILLOTS” */
+
   .maillots-title {
     font-family: 'Impact', sans-serif;
     font-size: 3rem;
@@ -22,7 +22,7 @@
     margin: 0 0 3rem;
   }
 
-  /* GRILLE DES MAILLLOTS */
+
   .maillots-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -31,7 +31,7 @@
     margin-bottom: 3rem;
 
     .maillot {
-      position: relative; /* nécessaire pour le positionnement absolu du nom du pays */
+      position: relative; 
       text-align: center;
 
       .maillot-link {

@@ -4,14 +4,14 @@
   </ng-container>
 
   <ng-container *ngIf="status === 'success'">
-    <h3 class="text-success">✅ {{ message }}</h3>
+    <h3 class="text-success">{{ message }}</h3>
     <button class="btn btn-primary mt-3" routerLink="/connexion">
       Se connecter
     </button>
   </ng-container>
 
   <ng-container *ngIf="status === 'error'">
-    <h3 class="text-danger">❌ {{ message }}</h3>
+    <h3 class="text-danger">{{ message }}</h3>
     <button class="btn btn-secondary mt-3" routerLink="/inscription">
       Réessayer l’inscription
     </button>

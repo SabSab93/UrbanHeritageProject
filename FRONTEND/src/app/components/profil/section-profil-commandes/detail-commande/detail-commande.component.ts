@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 import { CommandeService } from '../../../../services/commande.service';
 import { Commande } from '../../../../models/commande.model';
 
-// 1️⃣ Importer la pipe label-statut
+
 import { LabelStatutPipe } from '../../../../pipes/label-statut.pipe';
 
 @Component({
@@ -19,7 +19,7 @@ import { LabelStatutPipe } from '../../../../pipes/label-statut.pipe';
   standalone: true,
   imports: [
     CommonModule,
-    LabelStatutPipe    // ← on l'ajoute ici pour pouvoir l'utiliser dans le template
+    LabelStatutPipe    
   ],
   templateUrl: './detail-commande.component.html',
   styleUrls: ['./detail-commande.component.scss']

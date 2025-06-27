@@ -1,4 +1,3 @@
-// src/app/components/auth/auth-login/auth-login.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {

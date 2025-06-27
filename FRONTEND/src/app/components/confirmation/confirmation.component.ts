@@ -86,13 +86,9 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     });
   }
 
-  /* =======================================================
-     1. Init + destruction
-     ======================================================= */
   ngOnInit(): void {
-    /* ID client depuis le service d’auth */
-    this.idClient = this.auth.currentClientId ?? 0;
 
+    this.idClient = this.auth.currentClientId ?? 0;
     /* panier */
     this.loadCart();
 
@@ -116,9 +112,6 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     this.subs.unsubscribe();
   }
 
-  /* =======================================================
-     2. Panier & totaux
-     ======================================================= */
   private loadCart(): void {
     this.subs.add(
       this.panierSrv.getCartLines(this.idClient).subscribe(lines => {
@@ -150,9 +143,6 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     this.finalTotal         = netProduitsTtc + this.shippingCostTtc;
   }
 
-  /* =======================================================
-     3. Code promo
-     ======================================================= */
   applyPromo(): void {
     const code = (this.confirmForm.value.reduction || '').trim().toUpperCase();
     const now  = new Date();
@@ -179,9 +169,7 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     this.recalculate();
   }
 
-  /* =======================================================
-     4. Validation + paiement Stripe
-     ======================================================= */
+
   onSubmit(): void {
     this.confirmForm.markAllAsTouched();
     if (this.confirmForm.invalid) return;
@@ -208,7 +196,6 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
         }
         this.stockWarning = '';
 
-        /* 2️⃣ Finaliser la commande — un seul appel backend */
         const f = this.confirmForm.value;
         return this.cmdSrv.finaliserCommande({
           useClientAddress: f.useClientAddress,
@@ -221,7 +208,7 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
           id_livreur:              Number(f.id_livreur),
         });
       }),
-      /* 3️⃣ Créer la session Stripe */
+
       switchMap(resp => {
         if (!resp) return of(null);
         const idCommande = resp.commande.id_commande;
@@ -230,7 +217,6 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: stripeRes => {
         if (stripeRes) {
-          /* redirection Stripe */
           window.location.href = stripeRes.url;
         }
       },

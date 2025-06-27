@@ -1,7 +1,6 @@
-/* src/app/components/association/detail-association/detail-association.component.scss */
 @import url('https://fonts.googleapis.com/css2?family=Impact&family=Poppins:wght@300;600&display=swap');
 
-/* Espacement vertical identique à Artiste Detail */
+
 .container {
   .assoc-hero,
   .assoc-section {
@@ -19,9 +18,6 @@
   box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
 }
 
-/* ---------------------------------------------------
-   HERO SECTION
-   --------------------------------------------------- */
 
 /* Titre principal */
 .assoc-hero-title {
@@ -74,9 +70,6 @@
   background-color: #0A0A0A;
 }
 
-/* ---------------------------------------------------
-   SECTIONS “Mission” & “Valeurs”
-   --------------------------------------------------- */
 
 /* Sous-titres de sections */
 .section-title {

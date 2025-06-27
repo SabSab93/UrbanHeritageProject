@@ -1,4 +1,3 @@
-// src/app/components/association/list-association/list-association.component.ts
 import { Component, OnInit }   from '@angular/core';
 import { CommonModule }        from '@angular/common';
 import { AssociationService } from '../association.service';

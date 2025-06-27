@@ -1,21 +1,19 @@
-<!-- Section Association réutilisable -->
 <div class="row association-section align-items-center my-5">
-  <!-- Titre centré -->
+
   <div class="col-12 mb-4 text-center">
     <h2 class="detail-title">Découvrez l'association</h2>
   </div>
 
-  <!-- Texte aligné à droite -->
   <div class="col-12 col-md-8 text-end">
-    <!-- Nom -->
+ 
     <h4 class="association-name mb-3">{{ association.nom_association }}</h4>
 
-    <!-- Description -->
+  
     <p class="association-bio mb-4 text-end">
       {{ association.description_association_1 }}
     </p>
 
-    <!-- Bouton vers le site -->
+  
     <button
       *ngIf="association?.id_association"
       class="association-button mb-4"
@@ -24,7 +22,7 @@
       Voir l'association
     </button>
 
-    <!-- Infos diverses -->
+   
     <ul class="association-stats list-unstyled d-flex flex-wrap gap-3 justify-content-end">
       <li><strong>Pays&nbsp;:</strong> {{ association.pays_association }}</li>
       <li *ngIf="association.numero_identification_association">
@@ -36,7 +34,7 @@
     </ul>
   </div>
 
-  <!-- Image à droite -->
+
   <div class="col-12 col-md-4 text-center">
     <img
       *ngIf="association.url_image_association_1"
@@ -46,4 +44,4 @@
     />
   </div>
 </div>
-<!-- / Section Association -->
+

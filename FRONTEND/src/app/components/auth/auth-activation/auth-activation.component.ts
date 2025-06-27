@@ -1,4 +1,3 @@
-// src/app/components/auth/auth-activation/auth-activation.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -30,7 +29,7 @@ export class AuthActivationComponent implements OnInit {
       return;
     }
 
-    // ⬇️ POST /auth/activate/:token
+  
     this.authSrv.activateAccount(token).subscribe({
       next: res => {
         this.status  = 'success';

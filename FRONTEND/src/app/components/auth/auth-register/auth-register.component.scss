@@ -4,7 +4,7 @@
 .auth-login-page {
   background-color: #f2f2f2;
 
-  // Police par défaut : Poppins
+
   font-family: 'Poppins', sans-serif;
 
   .left-side {
@@ -26,25 +26,25 @@
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
 
     h2 {
-      // Titre en Impact
+    
       font-family: 'Impact', sans-serif;
-      font-size: 2rem;      // ajustez la taille si besoin
+      font-size: 2rem;      
       text-align: center;
       margin-bottom: 1.5rem;
-      background: none;     // on retire tout background
+      background: none;     
       text-transform: uppercase;
     }
 
     .form-control {
       margin-bottom: 1rem;
-      // on reste en Poppins
+
       font-family: 'Poppins', sans-serif;
     }
 
     .btn {
       width: 100%;
       font-weight: 600;
-      // en Poppins
+  
       font-family: 'Poppins', sans-serif;
       text-transform: uppercase;
     }
@@ -52,7 +52,6 @@
     .already {
       text-align: center;
       font-size: 0.9rem;
-      // Poppins
       font-family: 'Poppins', sans-serif;
 
       a {

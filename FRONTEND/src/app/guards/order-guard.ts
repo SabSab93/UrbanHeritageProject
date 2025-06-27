@@ -1,4 +1,4 @@
-// order-guard.ts
+
 import { Injectable }   from '@angular/core';
 import {
   CanActivate,

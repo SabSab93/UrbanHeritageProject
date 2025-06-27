@@ -1,4 +1,4 @@
-/* src/app/artiste/detail/artiste-detail.component.scss */
+
 @import url('https://fonts.googleapis.com/css2?family=Impact&family=Poppins:wght@300;600&display=swap');
 
 /* conteneur général */
@@ -19,9 +19,6 @@
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
 }
 
-/* ---------------------------------------------------
-   HERO SECTION
-   --------------------------------------------------- */
 
 /* Titre principal */
 .artist-hero-title {
@@ -75,9 +72,6 @@
   background-color: #0A0A0A;
 }
 
-/* ---------------------------------------------------
-   SECTIONS PARCOURS & VALEURS
-   --------------------------------------------------- */
 
 .section-title {
   font-family: 'Impact', sans-serif;
@@ -98,9 +92,7 @@
   text-align: justify;
 }
 
-/* ---------------------------------------------------
-   SOCIAL BUTTONS (Instagram / TikTok)
-   --------------------------------------------------- */
+
 
 .artist-socials .btn {
   font-family: 'Poppins', sans-serif;

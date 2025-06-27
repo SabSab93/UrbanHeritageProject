@@ -23,7 +23,6 @@ import { map } from 'rxjs/operators';
   styleUrls: ['./collection.component.scss']
 })
 export class CollectionComponent implements OnInit {
-  /** On enrichit Maillot d'un flag outOfStock et d'une liste availableSizes */
   maillots: (Maillot & { outOfStock: boolean; availableSizes: string[] })[] = [];
   loading = true;
   error = '';

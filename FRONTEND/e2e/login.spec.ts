@@ -6,15 +6,15 @@ test.describe('Page de connexion UrbanHeritage', () => {
   });
 
   test('les champs et le bouton sont présents, bouton désactivé si vide', async ({ page }) => {
-    // On cible par id
+
     const emailInput    = page.locator('#email-input');
     const passwordInput = page.locator('#password-input');
     const submitBtn     = page.locator('#submit-button');
 
-    // Vérifier la présence
+
     await expect(emailInput).toHaveAttribute('placeholder', 'Adresse e-mail *');
     await expect(passwordInput).toHaveAttribute('placeholder', 'Mot de passe *');
-    // Comme le formulaire est vide, le bouton doit être désactivé
+
     await expect(submitBtn).toBeDisabled();
   });
 
@@ -27,7 +27,7 @@ test.describe('Page de connexion UrbanHeritage', () => {
   });
 
   test('affiche message d’erreur si identifiants invalides', async ({ page }) => {
-    // On intercepte l’appel de login pour renvoyer une 401
+    // On simule une réponse 401 du serveur pour les identifiants invalides
     await page.route('**/auth/login', route => {
       route.fulfill({
         status: 401,

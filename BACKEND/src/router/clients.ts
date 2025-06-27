@@ -119,7 +119,6 @@ clientRouter.put("/:id", monMiddlewareBearer, async (req: any, res) => {
         ville_client:          updateData.ville_client           ?? undefined,
         pays_client:           updateData.pays_client            ?? undefined,
         mot_de_passe:          hashedPassword,
-        // on n’envoie plus id_role si non admin
       },
     });
 

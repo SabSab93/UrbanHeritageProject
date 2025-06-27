@@ -1,11 +1,11 @@
-/* src/app/components/banner/banner.component.scss */
+
 .banner {
   position: fixed;
   left: 50%;
   margin-left: -50vw;
   width: 100vw;
 
-  /* on réduit la hauteur par le padding et on décale le contenu */
+
   padding: 2rem 0 0.4rem;
   overflow: hidden;
 
@@ -18,9 +18,9 @@
   z-index: 10;
 }
 
-/* wrapper centré si tu veux aligner à ta grille */
+
 .banner-content {
-  max-width: 1200px;    /* ou ta valeur */
+  max-width: 1200px;  
   margin: 0 auto;
   padding: 0 1.5rem;
 }
@@ -28,11 +28,8 @@
 .marquee {
   display: inline-block;
   white-space: nowrap;
-
-  /* on descend encore un peu */
   margin-top: 0.5rem;
 
-  /* défilement plus rapide, et on démarre déjà à -10s */
   animation: slide 30s linear infinite;
   animation-delay: -s;
 

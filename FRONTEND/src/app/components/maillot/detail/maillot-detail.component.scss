@@ -1,8 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Impact&family=Poppins:wght@300;600&display=swap');
 
-/* --------------------------------------------------
-   1. Conteneur général
--------------------------------------------------- */
+
 .detail-wrapper {
   padding: 5rem 1.5rem;
   min-height: calc(100vh - 80px);
@@ -19,9 +17,7 @@
   }
 }
 
-/* --------------------------------------------------
-   2. Images produit
--------------------------------------------------- */
+
 .detail-img,
 .main-img {
   object-fit: cover;
@@ -33,9 +29,7 @@
   border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-/* --------------------------------------------------
-   3. Titre “Maillot …” (inchangé)
--------------------------------------------------- */
+
 .detail-title {
   font-family: 'Impact', sans-serif;
   font-size: 3rem;
@@ -47,9 +41,7 @@
   margin-bottom: 1.5rem;
 }
 
-/* --------------------------------------------------
-   4. Bouton “Ajouter au panier”
--------------------------------------------------- */
+
 .btn-panier {
   display: inline-block;
   font-family: 'Poppins', sans-serif;
@@ -72,26 +64,20 @@
   }
 }
 
-/* --------------------------------------------------
-   5. Sélecteur de taille
--------------------------------------------------- */
+
 .size-pill.active {
   background-color: #0A0A0A;
   color: #fff;
   border-color: #0A0A0A;
 }
 
-/* --------------------------------------------------
-   6. Bloc livraison
--------------------------------------------------- */
+
 .shipping {
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
 }
 
-/* --------------------------------------------------
-   7. Section “Hero” du détail
--------------------------------------------------- */
+
 .hero-section {
   margin: 4rem 0;
 
@@ -118,9 +104,7 @@
   }
 }
 
-/* --------------------------------------------------
-   8. Section Artiste (pour plus tard)
--------------------------------------------------- */
+
 .artist-section {
   .artist-section-title {
     font-family: 'Impact', sans-serif;

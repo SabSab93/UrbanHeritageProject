@@ -67,7 +67,6 @@ artisteRouter.get("/",paginationMiddleware, async (_req, res) => {
   res.json(artistes);
 });
 
-// src/routes/artiste.router.ts
 
 artisteRouter.get("/:id([0-9]+)", async (req, res) => {
   try {

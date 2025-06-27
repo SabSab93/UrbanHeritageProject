@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Impact&family=Poppins:wght@300;600&display=swap');
 
 .artist-maillots {
-  /* titre “Maillots créés par …” */
+
   .section-title {
     font-family: 'Impact', sans-serif;
     font-size: 3rem;
@@ -9,12 +9,12 @@
     background-color: #0A0A0A;
     color: #FFFFFF;
     display: inline-block;
-    padding: 0.25rem 0.5rem;  /* Moins de padding vertical/horizontal */
+    padding: 0.25rem 0.5rem;  
     margin-bottom: 1rem;
   }
 
   .carousel-img {
-    max-height: 300px;    // (ou ajustez-le si vous voulez changer la taille du carousel)
+    max-height: 300px;   
     width: auto;
     object-fit: cover;
   }

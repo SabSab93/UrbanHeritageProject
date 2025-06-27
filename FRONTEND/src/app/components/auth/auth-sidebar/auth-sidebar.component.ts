@@ -1,4 +1,3 @@
-// src/app/components/auth/auth-sidebar/auth-sidebar.component.ts
 import { Component } from '@angular/core';
 import {
   FormBuilder,

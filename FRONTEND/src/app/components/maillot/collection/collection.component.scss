@@ -126,14 +126,12 @@
 /* -- rupture totale -- */
 .product.out-of-stock {
   .img-wrapper {
-    /* on affiche quand même image2 au hover */
+
     &:hover .primary   { opacity: 0; }
     &:hover .secondary { opacity: 1; }
 
-    /* on masque l’overlay de taille */
     .size-overlay { display: none !important; }
 
-    /* bannière cachée par défaut */
     .sold-out-banner {
       display: none;
       position: absolute;

@@ -1,4 +1,3 @@
-// src/app/components/panier/panier-sidebar.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
