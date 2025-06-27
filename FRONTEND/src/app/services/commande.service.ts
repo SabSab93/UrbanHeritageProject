@@ -7,17 +7,16 @@ import { MethodeLivraison } from '../models/methode-livraison.model';
 import { LieuLivraison }   from '../models/lieu-livraison.model';
 import { Livreur }         from '../models/livreur.model';
 import { Reduction }       from '../models/reduction.model';
-import { Commande }        from '../models/commande.model';   // si vous l'avez
+import { Commande }        from '../models/commande.model';   
 
-/*─────────────────────────────────────────────────────────────*/
-/*  Réponse minimale retournée par la route publique Stripe    */
+
 export interface PublicCheckoutSession {
   id_commande   : string;
   amount_total ?: number;
   currency     ?: string;
   payment_status?: string;
 }
-/*─────────────────────────────────────────────────────────────*/
+
 
 @Injectable({ providedIn: 'root' })
 export class CommandeService {
@@ -26,9 +25,6 @@ export class CommandeService {
 
   constructor(private http: HttpClient) {}
 
-  /*----------------------------------*/
-  /* Utilitaire pour les en-têtes JWT */
-  /*----------------------------------*/
   private authHeaders() {
     const token = localStorage.getItem('authToken');
     return token
@@ -36,9 +32,7 @@ export class CommandeService {
       : {};
   }
 
-  /*----------------------------------*/
-  /*           Commandes              */
-  /*----------------------------------*/
+
   getMesCommandes(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}`, this.authHeaders());
   }
@@ -47,9 +41,7 @@ export class CommandeService {
     return this.http.get<Commande>(`${this.baseUrl}/${id}`, this.authHeaders());
   }
 
-  /*----------------------------------*/
-  /*      Livraisons / Réductions     */
-  /*----------------------------------*/
+
   getMethodesLivraison(): Observable<MethodeLivraison[]> {
     return this.http.get<MethodeLivraison[]>(
       `${environment.apiUrl}/methode-livraison`,
@@ -78,9 +70,7 @@ export class CommandeService {
     );
   }
 
-  /*----------------------------------*/
-  /*   Finalisation de la commande    */
-  /*----------------------------------*/
+
   finaliserCommande(payload: {
     useClientAddress: boolean;
     adresse_livraison?: string;
@@ -102,9 +92,7 @@ export class CommandeService {
     );
   }
 
-  /*----------------------------------*/
-  /*         Stripe – Checkout        */
-  /*----------------------------------*/
+
 
   /** Création classique (panier) : POST /stripe/create-checkout-session */
   createCheckoutSession(payload: {
@@ -133,7 +121,7 @@ export class CommandeService {
     );
   }
 
-  /** (🆕) Récupère la session Stripe SANS authentification */
+  /**  Récupère la session Stripe SANS authentification */
   getCheckoutSessionPublic(sessionId: string): Observable<PublicCheckoutSession> {
     return this.http.get<PublicCheckoutSession>(
       `${environment.apiUrl}/stripe/public/session/${sessionId}`
@@ -149,9 +137,7 @@ export class CommandeService {
     );
   }
 
-  /*----------------------------------*/
-  /*        Réduction commande        */
-  /*----------------------------------*/
+
   applyReduction(
     idCommande: number,
     idReduction: number
@@ -166,8 +152,7 @@ export class CommandeService {
     return this.getMesCommandes().pipe(
       map(commandes => 
         commandes.some(cmd =>
-          // Adapte ici selon la forme de tes commandes 
-          // (par exemple cmd.items ou cmd.maillots)
+
           Array.isArray(cmd.maillots)
             ? cmd.maillots.some((m: any) => m.id === maillotId)
             : false
@@ -191,7 +176,7 @@ annulerCommande(id: number) {
 }
 
 relancerPaiement(id: number) {
-  /* ré-utilise l’endpoint déjà existant */
+
   return this.createCheckoutSessionByOrder(id);
 }
 }
